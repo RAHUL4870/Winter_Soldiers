@@ -24,11 +24,16 @@ frontend/.vite/
 *.db
 *.db-shm
 *.db-wal
-*.duckdb
+# Raw data files (exclude large raw CSVs and generated Parquet, but allow small metadata catalogs)
 data/raw/*
-data/processed/*
 !data/raw/.gitkeep
+!data/raw/vessels/
+!data/raw/vessels/**
+!data/raw/flights/
+!data/raw/flights/**
+data/processed/*
 !data/processed/.gitkeep
 
 .DS_Store
 Thumbs.db
+

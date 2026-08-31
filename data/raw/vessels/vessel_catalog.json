@@ -1,0 +1,27 @@
+{
+  "TRANS_PACIFIC": [
+    {"mmsi": 477016900, "name": "EVER GIVEN", "call_sign": "H3RC", "imo": 9811000, "dwt": 199688, "teu": 20124},
+    {"mmsi": 636014307, "name": "MSC OSCAR", "call_sign": "3EHL2", "imo": 9703291, "dwt": 197362, "teu": 19224},
+    {"mmsi": 211281610, "name": "HAPAG AL ZUBARA", "call_sign": "DBCR", "imo": 9708875, "dwt": 199744, "teu": 19870},
+    {"mmsi": 353136000, "name": "CMA CGM ANTOINE DE SAINT EXUPERY", "call_sign": "FMSE", "imo": 9776418, "dwt": 217672, "teu": 20954}
+  ],
+  "TRANS_ATLANTIC": [
+    {"mmsi": 218774000, "name": "MAERSK MC-KINNEY MOLLER", "call_sign": "OWGR2", "imo": 9619907, "dwt": 194849, "teu": 18270},
+    {"mmsi": 477305900, "name": "OOCL HONG KONG", "call_sign": "VRQO6", "imo": 9776171, "dwt": 197317, "teu": 21413},
+    {"mmsi": 311000632, "name": "ONE TRIUMPH", "call_sign": "C6CT3", "imo": 9769271, "dwt": 210678, "teu": 20170}
+  ],
+  "ASIA_EUROPE": [
+    {"mmsi": 440316000, "name": "HMM ALGECIRAS", "call_sign": "D7AA", "imo": 9863297, "dwt": 228283, "teu": 23964},
+    {"mmsi": 357416000, "name": "COSCO SHIPPING UNIVERSE", "call_sign": "VRSI8", "imo": 9795610, "dwt": 198500, "teu": 21237},
+    {"mmsi": 228386800, "name": "CMA CGM JACQUES SAADE", "call_sign": "FLSU", "imo": 9839179, "dwt": 220000, "teu": 23000}
+  ],
+  "INTRA_AMERICA": [
+    {"mmsi": 367683000, "name": "HORIZON PACIFIC", "call_sign": "WDD4716", "imo": 7826154, "dwt": 30200, "teu": 2500},
+    {"mmsi": 366989000, "name": "SEALAND EAGLE", "call_sign": "WDC6988", "imo": 9198575, "dwt": 35000, "teu": 2800}
+  ],
+  "DEFAULT": [
+    {"mmsi": 563053300, "name": "PACIFIC EXPLORER", "call_sign": "9V6231", "imo": 9445123, "dwt": 50000, "teu": 4200},
+    {"mmsi": 636092789, "name": "ATLANTIC NAVIGATOR", "call_sign": "A8TL9", "imo": 9512345, "dwt": 55000, "teu": 4500},
+    {"mmsi": 212558000, "name": "GLOBAL CARRIER", "call_sign": "5BXZ4", "imo": 9623456, "dwt": 65000, "teu": 5200}
+  ]
+}

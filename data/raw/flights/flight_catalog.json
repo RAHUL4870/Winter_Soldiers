@@ -1,0 +1,26 @@
+{
+  "US_EU": [
+    {"flight_number": "FX0012", "airline": "FedEx Express", "aircraft_type": "B777F", "max_payload_kg": 102000},
+    {"flight_number": "5X0240", "airline": "UPS Airlines", "aircraft_type": "B747-8F", "max_payload_kg": 137700},
+    {"flight_number": "LH8220", "airline": "Lufthansa Cargo", "aircraft_type": "B777F", "max_payload_kg": 103000}
+  ],
+  "EU_ASIA": [
+    {"flight_number": "CV0781", "airline": "Cargolux", "aircraft_type": "B747-400F", "max_payload_kg": 113000},
+    {"flight_number": "EK9921", "airline": "Emirates SkyCargo", "aircraft_type": "B777F", "max_payload_kg": 102000},
+    {"flight_number": "QR8142", "airline": "Qatar Airways Cargo", "aircraft_type": "B777F", "max_payload_kg": 102000}
+  ],
+  "TRANS_PACIFIC": [
+    {"flight_number": "PO0214", "airline": "Polar Air Cargo", "aircraft_type": "B747-8F", "max_payload_kg": 137700},
+    {"flight_number": "CX0086", "airline": "Cathay Cargo", "aircraft_type": "B747-8F", "max_payload_kg": 137700},
+    {"flight_number": "NH8422", "airline": "ANA Cargo", "aircraft_type": "B777F", "max_payload_kg": 102000}
+  ],
+  "INTRA_AMERICA": [
+    {"flight_number": "FX1402", "airline": "FedEx Express", "aircraft_type": "B767-300F", "max_payload_kg": 52700},
+    {"flight_number": "5X1892", "airline": "UPS Airlines", "aircraft_type": "A300-600F", "max_payload_kg": 47000}
+  ],
+  "DEFAULT": [
+    {"flight_number": "GL0101", "airline": "Global Air Freight", "aircraft_type": "B777F", "max_payload_kg": 102000},
+    {"flight_number": "GL0202", "airline": "Global Air Freight", "aircraft_type": "B747-400F", "max_payload_kg": 113000},
+    {"flight_number": "GL0303", "airline": "Atlas Global Express", "aircraft_type": "B767-300F", "max_payload_kg": 52700}
+  ]
+}
