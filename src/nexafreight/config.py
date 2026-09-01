@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -41,15 +41,34 @@ class Settings(BaseSettings):
 
     # --- CORS ---
     allowed_origins: list[str] = Field(
-        default=["http://localhost:5173"],
+        default=["http://localhost:5173", "http://127.0.0.1:5173"],
         description="CORS allowed origins (frontend dev server)",
     )
 
+
     # --- External APIs (all optional/free-tier) ---
-    # AIS Stream WebSocket
+    # AIS Stream WebSocket & Replay
+    enable_ais_listener: bool = Field(
+        default=True,
+        description="Enable/disable the background AIS listener worker",
+    )
+    enable_position_interpolator: bool = Field(
+        default=True,
+        description="Enable/disable the background position interpolator worker",
+    )
+    use_live_ais: bool = Field(
+        default=True,
+        description="Use live AIS (AISStreamAdapter) vs replay (ReplayFeedAdapter)",
+    )
+
+    ais_replay_data_path: str | None = Field(
+        default=None,
+        description="Path to Parquet files for AIS replay (used when use_live_ais=False)",
+    )
     aisstream_api_key: SecretStr | None = Field(default=None)
 
     # Google Gemini (free tier)
+
     gemini_api_key: SecretStr | None = Field(default=None)
     gemini_model: str = Field(default="gemini-pro")
 
@@ -87,6 +106,13 @@ class Settings(BaseSettings):
         return self.environment == "test"
 
     # --- Validators ---
+    @field_validator("aisstream_api_key", "gemini_api_key", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v: Any) -> Any:
+        if v == "" or (isinstance(v, SecretStr) and not v.get_secret_value()):
+            return None
+        return v
+
     @field_validator("database_path", "test_database_path", mode="before")
     @classmethod
     def ensure_path(cls, v: str | Path) -> Path:

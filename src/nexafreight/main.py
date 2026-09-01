@@ -19,6 +19,8 @@ from nexafreight.config import Settings, ensure_directories, get_settings
 from nexafreight.database import create_engine, dispose_engine, get_engine
 from nexafreight.exceptions import NexaFreightException
 from nexafreight.logging import configure_logging
+from nexafreight.workers.ais_listener import get_position_tracker, get_worker
+from nexafreight.workers.position_interpolator import get_interpolator_worker
 
 email_validator.TEST_ENVIRONMENT = True
 email_validator.SPECIAL_USE_DOMAIN_NAMES = []
@@ -34,8 +36,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     - Initialize logging configuration
     - Ensure required directories exist
     - Verify database connectivity
+    - Start AIS listener worker and populate position tracker
+    - Start position interpolator worker
 
     Shutdown:
+    - Stop position interpolator worker
+    - Stop AIS listener worker
     - Dispose database engine cleanly
 
     Args:
@@ -70,6 +76,33 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.error(f"Database connectivity check failed: {e}")
         raise RuntimeError(f"Cannot connect to database: {e}") from e
 
+    # Initialize position tracker singleton and start AIS listener (T-029).
+    try:
+        tracker = get_position_tracker()
+        worker = get_worker()
+        await worker.start(poll_interval_s=5.0)
+        if worker.adapter is not None:
+            tracker.adapter = worker.adapter
+            logger.info("AIS listener worker started; adapter initialized.")
+        else:
+            logger.warning("AIS listener worker started in no-feed mode; no adapter active.")
+    except Exception as exc:
+        logger.error(
+            f"Failed to start AIS listener worker: {exc}",
+            exc_info=True,
+        )
+
+    # Start position interpolator worker (T-030).
+    try:
+        interpolator = get_interpolator_worker()
+        await interpolator.start()
+        logger.info("Position interpolator worker started.")
+    except Exception as exc:
+        logger.error(
+            f"Failed to start position interpolator worker: {exc}",
+            exc_info=True,
+        )
+
     logger.info("Application startup complete")
 
     # Yield control during application runtime
@@ -77,6 +110,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Shutdown
     logger.info("Shutting down NexaFreight Control Tower")
+
+    # Stop position interpolator worker (T-030 cleanup).
+    try:
+        interpolator = get_interpolator_worker()
+        await interpolator.stop()
+        logger.info("Position interpolator worker shut down.")
+    except Exception as exc:
+        logger.warning(f"Error during position interpolator worker shutdown: {exc}")
+
+    # Stop AIS listener worker (T-029 cleanup).
+    try:
+        worker = get_worker()
+        await worker.stop()
+        logger.info("AIS listener worker shut down.")
+    except Exception as exc:
+        logger.warning(f"Error during AIS listener worker shutdown: {exc}")
 
     try:
         if engine is not None:
@@ -119,9 +168,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
         allow_credentials=True,  # Required for JWT in Authorization header
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Accept"],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
+
 
     # Register exception handlers
     @app.exception_handler(NexaFreightException)

@@ -2,8 +2,7 @@
 
 This module defines the structural typing contract (Protocol) that every
 position feed adapter — mock, AIS WebSocket, replay, truck simulator, flight
-replay — must satisfy. No inheritance is required; adapters conform simply
-by implementing matching method signatures.
+replay — must satisfy.
 """
 
 from __future__ import annotations
@@ -14,67 +13,103 @@ from typing import Protocol, runtime_checkable
 
 from nexafreight.enums import Provenance, TransportMode
 
+AssetType = TransportMode
 
-@dataclass(frozen=True, slots=True)
+
+@dataclass(frozen=True, init=False)
 class AssetPosition:
-    """A single point-in-time position report for a tracked asset.
-
-    asset_id is deliberately generic — it carries whatever identifier
-    concept the source adapter uses (MMSI for vessels, VIN/truck_id for
-    trucks, flight_number for flights). No adapter-specific identifier
-    fields exist on this shared structure; each adapter is responsible
-    for mapping its own domain identifier into this single string field.
-    """
+    """Canonical immutable position DTO used across all feed adapters."""
 
     asset_id: str
     asset_type: TransportMode
-    latitude: float
-    longitude: float
-    heading_deg: float | None
+    lat: float
+    lon: float
     speed_knots: float | None
-    recorded_at: datetime
+    heading_deg: float | None
+    reported_at: datetime
     provenance: Provenance
+    source: str
+
+    def __init__(
+        self,
+        asset_id: str,
+        asset_type: TransportMode,
+        lat: float | None = None,
+        lon: float | None = None,
+        speed_knots: float | None = None,
+        heading_deg: float | None = None,
+        reported_at: datetime | None = None,
+        provenance: Provenance = Provenance.REAL,
+        source: str = "",
+        *,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        recorded_at: datetime | None = None,
+    ) -> None:
+        eff_lat = lat if lat is not None else (latitude if latitude is not None else 0.0)
+        eff_lon = lon if lon is not None else (longitude if longitude is not None else 0.0)
+        eff_time = (
+            reported_at
+            if reported_at is not None
+            else (recorded_at if recorded_at is not None else datetime.now())
+        )
+
+        object.__setattr__(self, "asset_id", str(asset_id))
+        object.__setattr__(self, "asset_type", asset_type)
+        object.__setattr__(self, "lat", float(eff_lat))
+        object.__setattr__(self, "lon", float(eff_lon))
+        object.__setattr__(self, "speed_knots", speed_knots)
+        object.__setattr__(self, "heading_deg", heading_deg)
+        object.__setattr__(self, "reported_at", eff_time)
+        object.__setattr__(self, "provenance", provenance)
+        object.__setattr__(self, "source", str(source))
+
+    @property
+    def latitude(self) -> float:
+        return self.lat
+
+    @property
+    def longitude(self) -> float:
+        return self.lon
+
+    @property
+    def recorded_at(self) -> datetime:
+        return self.reported_at
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, init=False)
 class FeedHealth:
-    """Health/liveness snapshot for a position feed adapter."""
+    """Canonical immutable health DTO used across all feed adapters."""
 
     adapter_name: str
     is_healthy: bool
     last_success_at: datetime | None
     messages_received: int
+    provenance: Provenance
+
+    def __init__(
+        self,
+        adapter_name: str,
+        is_healthy: bool,
+        last_success_at: datetime | None = None,
+        messages_received: int = 0,
+        provenance: Provenance = Provenance.REAL,
+    ) -> None:
+        object.__setattr__(self, "adapter_name", str(adapter_name))
+        object.__setattr__(self, "is_healthy", bool(is_healthy))
+        object.__setattr__(self, "last_success_at", last_success_at)
+        object.__setattr__(self, "messages_received", int(messages_received))
+        object.__setattr__(self, "provenance", provenance)
 
 
 @runtime_checkable
 class PositionFeedAdapter(Protocol):
-    """Structural contract every position feed adapter must satisfy.
+    """Structural contract every position feed adapter must satisfy."""
 
-    All methods are async, even for adapters (like MockFeedAdapter) whose
-    internals are trivially synchronous, so that calling code (workers,
-    services in later tasks) can treat every adapter — mock or real,
-    WebSocket-driven or file-replay-driven — uniformly.
-
-    This is intentionally a Protocol, not an abstract base class: adapters
-    conform structurally by implementing these method signatures, with no
-    inheritance relationship required.
-    """
-
-    async def start(self) -> None:
-        """Begin feeding positions (connect, open file, start simulation clock)."""
-        ...
-
-    async def stop(self) -> None:
-        """Stop feeding positions and release any held resources."""
-        ...
-
-    async def get_current_positions(self) -> list[AssetPosition]:
-        """Return the most recent known position for each tracked asset."""
-        ...
-
-    async def get_health(self) -> FeedHealth:
-        """Return the adapter's current health/liveness status."""
-        ...
+    async def start(self) -> None: ...
+    async def stop(self) -> None: ...
+    async def get_current_positions(self) -> list[AssetPosition]: ...
+    async def health(self) -> FeedHealth: ...
 
 
 # Compatibility aliases for previous stubs if needed

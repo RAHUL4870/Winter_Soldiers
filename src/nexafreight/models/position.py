@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.models.base import Base
 from nexafreight.models.mixins import ProvenanceMixin
@@ -41,14 +41,19 @@ class PositionReport(Base, ProvenanceMixin):
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
     heading: Mapped[float | None] = mapped_column(Float, nullable=True, comment="Degrees 0-360")
+    heading_deg = synonym("heading")
     speed_knots: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Timestamp
     reported_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, index=True
     )
+    recorded_at = synonym("reported_at")
 
     # Relationships
     leg: Mapped[Leg] = relationship("Leg", back_populates="position_reports")
 
-    __table_args__ = ({"comment": "High-volume position tracking with mandatory provenance"},)
+    __table_args__ = (
+        UniqueConstraint("leg_id", "reported_at", name="uq_position_reports_leg_reported_at"),
+        {"comment": "High-volume position tracking with mandatory provenance"},
+    )

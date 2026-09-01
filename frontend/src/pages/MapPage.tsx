@@ -1,8 +1,9 @@
+import FreightMap from '../components/map/FreightMap';
+
 export default function MapPage() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900">Map</h1>
-      <p className="mt-4 text-gray-600">Live tracking map will be implemented in T-032.</p>
-    </div>
-  )
+    <main className="h-screen w-full bg-slate-950 overflow-hidden">
+      <FreightMap />
+    </main>
+  );
 }

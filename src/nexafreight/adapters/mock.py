@@ -107,6 +107,10 @@ class MockFeedAdapter:
             messages_received=self._messages_received,
         )
 
+    async def health(self) -> FeedHealth:
+        """Protocol-compliant alias for get_health."""
+        return await self.get_health()
+
     def advance_simulated_time(self, delta: timedelta) -> None:
         """Test-only hook: advance the adapter's internal simulated clock.
 

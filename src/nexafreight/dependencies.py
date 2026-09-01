@@ -6,7 +6,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import Depends, Header
+from fastapi import Depends, Header, Query
 from jose import JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,44 +28,33 @@ logger = logging.getLogger(__name__)
 
 async def get_current_user(
     authorization: Annotated[str | None, Header()] = None,
+    token: Annotated[str | None, Query()] = None,
     db: AsyncSession = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
 ) -> User:
-    """Extract and validate JWT from Authorization header, return authenticated user.
+    """Extract and validate JWT from Authorization header or token query parameter, return authenticated user.
 
     This dependency:
-    1. Extracts Bearer token from Authorization header
+    1. Extracts Bearer token from Authorization header or ?token= query parameter (for SSE)
     2. Decodes and verifies JWT signature and expiration
     3. Loads user from database
     4. Confirms user is active
-
-    Args:
-        authorization: Authorization header value (injected by FastAPI)
-        db: Database session
-        settings: Application settings
-
-    Returns:
-        Authenticated User ORM object
-
-    Raises:
-        AuthenticationError: If token missing, invalid, or user inactive
-        InvalidTokenError: If token malformed or signature invalid
-        TokenExpiredError: If token expired
     """
-    # Check Authorization header present
-    if not authorization:
+    raw_token: str | None = None
+    if authorization:
+        parts = authorization.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise InvalidTokenError()
+        raw_token = parts[1]
+    elif token:
+        raw_token = token
+    else:
         raise AuthenticationError("Missing authentication token")
 
-    # Extract Bearer token
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise InvalidTokenError()
-
-    token = parts[1]
 
     # Decode and verify token
     try:
-        payload = decode_access_token(token, settings)
+        payload = decode_access_token(raw_token, settings)
     except JWTError:
         raise InvalidTokenError() from None
     except ValueError as e:

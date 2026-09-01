@@ -104,9 +104,9 @@ async def test_all_expected_tables_exist_after_upgrade(tmp_path: Path) -> None:
             "audit_logs",
             "alembic_version",  # Alembic's version tracking table
         }
-        assert tables == expected_tables, (
-            f"Missing: {expected_tables - tables}, Extra: {tables - expected_tables}"
-        )
+        assert (
+            tables == expected_tables
+        ), f"Missing: {expected_tables - tables}, Extra: {tables - expected_tables}"
     finally:
         await engine.dispose()
 
@@ -315,9 +315,9 @@ async def test_downgrade_to_base_succeeds(tmp_path: Path) -> None:
             tables = await conn.run_sync(get_table_names)
 
         # Only alembic_version should remain
-        assert tables == {"alembic_version"}, (
-            f"Unexpected tables after downgrade: {tables - {'alembic_version'}}"
-        )
+        assert tables == {
+            "alembic_version"
+        }, f"Unexpected tables after downgrade: {tables - {'alembic_version'}}"
     finally:
         await engine.dispose()
 

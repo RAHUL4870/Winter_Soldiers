@@ -54,7 +54,7 @@ from nexafreight.enums import (
     UserRole,
 )
 from nexafreight.main import create_app
-from nexafreight.models import Location, Order, Shipment, User
+from nexafreight.models import Leg, Location, Order, Shipment, User
 
 # ============================================================================
 # DATABASE FIXTURES
@@ -241,6 +241,15 @@ def auth_headers_factory(test_settings: Settings) -> Callable[[User], dict[str, 
     return _make_headers
 
 
+@pytest_asyncio.fixture
+async def auth_headers(
+    auth_headers_factory: Callable[[User], dict[str, str]],
+    seed_operator_user: User,
+) -> dict[str, str]:
+    """Shortcut fixture returning auth headers for the default operator user."""
+    return auth_headers_factory(seed_operator_user)
+
+
 # ============================================================================
 # DOMAIN FACTORY FIXTURES
 # ============================================================================
@@ -375,5 +384,60 @@ async def make_order(
         await db_session.commit()
         await db_session.refresh(order)
         return order
+
+    return _make
+
+
+@pytest_asyncio.fixture
+async def make_leg(
+    db_session: AsyncSession,
+    make_location: Callable[..., Location],
+) -> Callable[..., Leg]:
+    """Factory for creating test Leg entities."""
+    from nexafreight.enums import LegStatus, Provenance, TransportMode
+    from nexafreight.models import Leg
+
+    async def _make(
+        shipment_id: str,
+        sequence_number: int = 1,
+        route_version: int = 1,
+        mode: str | TransportMode = TransportMode.ROAD,
+        status: str | LegStatus = LegStatus.PLANNED,
+        origin: Location | None = None,
+        destination: Location | None = None,
+        route_geometry: str | None = None,
+        planned_departure: datetime | None = None,
+        planned_arrival: datetime | None = None,
+        actual_departure: datetime | None = None,
+        actual_arrival: datetime | None = None,
+        provenance: Provenance = Provenance.SIMULATED,
+    ) -> Leg:
+        if origin is None:
+            origin = await make_location(locode="USNYC", name="New York")
+        if destination is None:
+            destination = await make_location(locode="USCHI", name="Chicago")
+
+        transport_mode_val = mode if isinstance(mode, TransportMode) else TransportMode(mode)
+        status_val = status if isinstance(status, LegStatus) else LegStatus(status)
+        now = datetime.now(UTC)
+        leg = Leg(
+            shipment_id=shipment_id,
+            sequence_number=sequence_number,
+            route_version=route_version,
+            transport_mode=transport_mode_val,
+            status=status_val,
+            origin_id=origin.id,
+            destination_id=destination.id,
+            route_geometry_json=route_geometry,
+            planned_departure=planned_departure or now,
+            planned_arrival=planned_arrival or (now + timedelta(hours=4)),
+            actual_departure=actual_departure,
+            actual_arrival=actual_arrival,
+            provenance=provenance,
+        )
+        db_session.add(leg)
+        await db_session.commit()
+        await db_session.refresh(leg)
+        return leg
 
     return _make

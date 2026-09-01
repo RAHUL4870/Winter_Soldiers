@@ -18,9 +18,9 @@ async def test_stub_endpoints(client: AsyncClient, test_user, auth_headers_facto
     assert res.json()["id"] == shipment.id
 
     # Map
-    res = await client.get("/api/map/positions/snapshot")
+    res = await client.get("/api/map/positions/snapshot", headers=headers)
     assert res.status_code == 200
-    assert res.json()["status"] == "ok"
+    assert isinstance(res.json(), list)
 
     # Alerts
     res = await client.get("/api/alerts")

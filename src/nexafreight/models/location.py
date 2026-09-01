@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Float, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.enums import LocationType
 from nexafreight.models.base import Base
@@ -30,7 +30,9 @@ class Location(Base, TimestampMixin):
     country_code: Mapped[str] = mapped_column(String(2), nullable=False)
     location_type: Mapped[LocationType] = mapped_column(String(20), nullable=False)
     latitude: Mapped[float] = mapped_column(Float, nullable=False)
+    lat = synonym("latitude")
     longitude: Mapped[float] = mapped_column(Float, nullable=False)
+    lon = synonym("longitude")
 
     # Relationships
     port: Mapped[Port | None] = relationship("Port", back_populates="location", uselist=False)

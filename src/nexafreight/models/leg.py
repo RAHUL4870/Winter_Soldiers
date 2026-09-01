@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.enums import LegStatus, TransportMode
 from nexafreight.models.base import Base
@@ -42,11 +42,15 @@ class Leg(Base, TimestampMixin, ProvenanceMixin):
 
     # Sequence and versioning
     sequence_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    sequence = synonym("sequence_number")
     route_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Transport metadata
     transport_mode: Mapped[TransportMode] = mapped_column(String(20), nullable=False)
     status: Mapped[LegStatus] = mapped_column(String(20), nullable=False, default=LegStatus.PLANNED)
+
+    # Synonyms for field name compatibility
+    mode = synonym("transport_mode")
 
     # Origin and destination
     origin_id: Mapped[int] = mapped_column(
@@ -76,8 +80,13 @@ class Leg(Base, TimestampMixin, ProvenanceMixin):
         nullable=True,
         comment="GeoJSON LineString geometry (serialized as JSON text)",
     )
+    route_geometry = synonym("route_geometry_json")
     distance_km: Mapped[float | None] = mapped_column(Float, nullable=True)
     co2_kg: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    @property
+    def route_quality(self) -> float | None:
+        return 1.0
 
     # Relationships
     shipment: Mapped[Shipment] = relationship("Shipment", back_populates="legs")

@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.enums import CargoClass, ShipmentStatus, TransportMode
 from nexafreight.models.base import Base
@@ -43,6 +43,7 @@ class Shipment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     # Physical characteristics
     primary_transport_mode: Mapped[TransportMode] = mapped_column(String(20), nullable=False)
+    primary_mode = synonym("primary_transport_mode")
     cargo_class: Mapped[CargoClass] = mapped_column(String(20), nullable=False)
     container_count: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 

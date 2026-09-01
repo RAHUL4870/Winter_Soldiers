@@ -1,17 +1,8 @@
-"""Map visualization endpoints (placeholder for T-023+)."""
+"""Map visualization endpoints."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from nexafreight.routers.map import *  # noqa: F403
+from nexafreight.routers.map import router
 
-router = APIRouter()
-
-
-@router.get("/positions/snapshot")
-async def positions_snapshot() -> dict[str, object]:
-    return {"status": "ok", "items": []}
-
-
-@router.get("/corridors")
-async def map_corridors() -> dict[str, object]:
-    return {"status": "ok", "items": []}
+__all__ = ["router"]

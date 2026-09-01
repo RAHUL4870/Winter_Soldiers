@@ -73,9 +73,9 @@ async def test_all_models_registered_in_metadata():
     import nexafreight.models  # noqa: F401
 
     actual_tables = set(Base.metadata.tables.keys()) - {"probe_test_table"}
-    assert expected_tables == actual_tables, (
-        f"Missing or extra tables: {expected_tables ^ actual_tables}"
-    )
+    assert (
+        expected_tables == actual_tables
+    ), f"Missing or extra tables: {expected_tables ^ actual_tables}"
 
 
 @pytest.mark.asyncio

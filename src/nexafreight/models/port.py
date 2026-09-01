@@ -6,7 +6,7 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Date, Float, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.models.base import Base
 from nexafreight.models.mixins import TimestampMixin
@@ -38,6 +38,14 @@ class Port(Base, TimestampMixin):
         cascade="all, delete-orphan",
     )
 
+    @property
+    def name(self) -> str:
+        return self.location.name if self.location else ""
+
+    @property
+    def locode(self) -> str:
+        return self.location.locode if self.location else ""
+
 
 class PortDailyStat(Base):
     """Daily congestion index snapshot for a port.
@@ -54,7 +62,12 @@ class PortDailyStat(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     port_id: Mapped[int] = mapped_column(ForeignKey("ports.id", ondelete="CASCADE"), nullable=False)
     stat_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    date = synonym("stat_date")
     congestion_index: Mapped[float] = mapped_column(Float, nullable=False)
 
     # Relationships
     port: Mapped[Port] = relationship("Port", back_populates="daily_stats")
+
+    @property
+    def provenance(self) -> str:
+        return "DERIVED"
