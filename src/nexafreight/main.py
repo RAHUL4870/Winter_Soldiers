@@ -172,7 +172,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-
     # Register exception handlers
     @app.exception_handler(NexaFreightException)
     async def nexafreight_exception_handler(

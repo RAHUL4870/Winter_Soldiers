@@ -45,7 +45,6 @@ class Settings(BaseSettings):
         description="CORS allowed origins (frontend dev server)",
     )
 
-
     # --- External APIs (all optional/free-tier) ---
     # AIS Stream WebSocket & Replay
     enable_ais_listener: bool = Field(

@@ -49,7 +49,6 @@ class PositionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-
 class GeoJSONFeature(BaseModel):
     """One GeoJSON Feature (geometry + properties)."""
 

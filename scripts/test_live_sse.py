@@ -1,3 +1,7 @@
+"""Test live SSE connection to /api/map/positions/stream."""
+
+from __future__ import annotations
+
 import json
 import urllib.request
 

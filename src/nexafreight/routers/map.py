@@ -186,7 +186,6 @@ def _position_to_out(pos: AssetPosition) -> PositionOut:
     )
 
 
-
 async def _get_all_positions() -> list[PositionOut]:
     """
     Merge positions from T-029 (AIS) and T-030 (interpolated) caches.

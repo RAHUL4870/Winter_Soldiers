@@ -32,7 +32,7 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db_session),
     settings: Settings = Depends(get_settings),
 ) -> User:
-    """Extract and validate JWT from Authorization header or token query parameter, return authenticated user.
+    """Extract and validate JWT from Authorization header or token query parameter.
 
     This dependency:
     1. Extracts Bearer token from Authorization header or ?token= query parameter (for SSE)
@@ -40,6 +40,7 @@ async def get_current_user(
     3. Loads user from database
     4. Confirms user is active
     """
+
     raw_token: str | None = None
     if authorization:
         parts = authorization.split()
@@ -50,7 +51,6 @@ async def get_current_user(
         raw_token = token
     else:
         raise AuthenticationError("Missing authentication token")
-
 
     # Decode and verify token
     try:
