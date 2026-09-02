@@ -1,6 +1,6 @@
 """
-ML constants for the NexaFreight delay classifier (T-035/T-036) and
-quantile ETA regressor (T-037).
+ML constants for the NexaFreight delay classifier (T-035/T-036),
+quantile ETA regressor (T-037), and demand forecast model (T-038).
 
 SPLIT DATE DERIVATION
 ---------------------
@@ -173,8 +173,40 @@ MIN_TRANSIT_DAYS: float = 0.5
 
 
 # ---------------------------------------------------------------------------
-# Demand forecasting (T-038) — placeholder if needed
+# Demand forecasting (T-038)
 # ---------------------------------------------------------------------------
+
+# The weekly count column produced by the aggregation step
 DEMAND_TARGET_COLUMN: str = "order_count"
-DEMAND_FEATURE_COLUMNS: Tuple[str, ...] = ()
-DEMAND_CATEGORICAL_COLUMNS: Tuple[str, ...] = ()
+
+# Grouping dimensions used to define a "lane"
+# (product_category × origin_region)
+# dest_region is folded into origin_region via Order Region in DataCo
+DEMAND_GROUP_COLS: Tuple[str, str] = ("category_name", "order_region")
+
+# StatsForecast unique_id column (lane identifier string)
+DEMAND_UNIQUE_ID_COL: str = "unique_id"
+
+# Forecast horizons in days (30 / 60 / 90)
+DEMAND_FORECAST_HORIZONS: Tuple[int, int, int] = (30, 60, 90)
+
+# Maximum forecast horizon in weeks (must match longest horizon above)
+DEMAND_FORECAST_HORIZON_WEEKS: int = 13   # 90 days ≈ 13 weeks
+
+# Holdout weeks for MAPE evaluation
+DEMAND_HOLDOUT_WEEKS: int = 13
+
+# Minimum number of observations (weeks) required to fit a lane series
+DEMAND_MIN_SERIES_LEN: int = 26
+
+# Confidence level for prediction intervals (used by AutoETS)
+DEMAND_PREDICTION_LEVEL: int = 80  # 80% CI → lower/upper bands
+
+# Frontend chart-ready keys produced by the inference wrapper
+DEMAND_CHART_KEYS: Tuple[str, ...] = (
+    "ds",          # ISO date string (week start)
+    "yhat",        # point forecast
+    "yhat_lower",  # CI lower bound
+    "yhat_upper",  # CI upper bound
+    "is_forecast", # True for horizon rows, False for history
+)

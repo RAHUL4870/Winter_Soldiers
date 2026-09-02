@@ -1,0 +1,50 @@
+{
+  "model_name": "demand_forecast_autoets",
+  "model_version": "1.0.0",
+  "trained_at": "2026-09-02T19:28:04.174330+00:00",
+  "git_sha": "31d4b49",
+  "source_csv_sha256": "fa6d022ed437155e",
+  "model_artifact_sha256": "07c2867082b01d55",
+  "training_runtime_sec": 102.0,
+  "data": {
+    "total_lanes_in_dataset": 675,
+    "qualified_lanes": 79,
+    "date_range": {
+      "start": "2014-12-29",
+      "end": "2018-01-29"
+    },
+    "train_weeks": 29,
+    "holdout_weeks": 13
+  },
+  "training_parameters": {
+    "min_series_len": 26,
+    "forecast_horizon_weeks": 13,
+    "prediction_level": 80,
+    "autoets_season_length": 4,
+    "freq": "W"
+  },
+  "metrics": {
+    "weighted_mape_pct": 32.16,
+    "median_lane_mape_pct": 52.47,
+    "n_lanes_evaluated": 79,
+    "best_5_lanes_mape": {
+      "Indoor/Outdoor Games__Central America": 19.18,
+      "Men's Footwear__South America": 20.1,
+      "Men's Footwear__Southern Europe": 23.09,
+      "Women's Apparel__South America": 26.42,
+      "Shop By Sport__Central America": 26.52
+    },
+    "worst_5_lanes_mape": {
+      "Women's Apparel__Western Europe": 149.29,
+      "Water Sports__Southern Europe": 164.43,
+      "Shop By Sport__South Asia": 164.88,
+      "Men's Footwear__South Asia": 172.09,
+      "Indoor/Outdoor Games__Western Europe": 179.0
+    }
+  },
+  "forecast_horizons_days": [
+    30,
+    60,
+    90
+  ]
+}
