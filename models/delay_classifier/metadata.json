@@ -1,0 +1,160 @@
+{
+  "model_name": "delay_classifier",
+  "model_version": "1.0.0",
+  "trained_at": "2026-09-02T15:44:37.733917+00:00",
+  "git_sha": "4900bc4",
+  "random_seed": 42,
+  "training_runtime_sec": 22.2,
+  "data": {
+    "train_hash": "20c381fbb902b30f",
+    "n_train": 46711,
+    "n_val": 10461,
+    "n_test": 8580,
+    "positive_rate_train": 0.549014150842414,
+    "positive_rate_val": 0.5430647165662938,
+    "positive_rate_test": 0.5503496503496503
+  },
+  "features": {
+    "n_features": 14,
+    "feature_names": [
+      "shipping_mode",
+      "cargo_class",
+      "revenue",
+      "shipping_cost",
+      "scheduled_shipping_days",
+      "order_country",
+      "customer_country",
+      "product_price",
+      "order_profit",
+      "sla_month",
+      "sla_weekday",
+      "sla_quarter",
+      "total_distance_km",
+      "leg_count"
+    ],
+    "categorical": [
+      "shipping_mode",
+      "cargo_class",
+      "order_country",
+      "customer_country"
+    ],
+    "numeric": [
+      "revenue",
+      "shipping_cost",
+      "scheduled_shipping_days",
+      "product_price",
+      "order_profit",
+      "sla_month",
+      "sla_weekday",
+      "sla_quarter",
+      "total_distance_km",
+      "leg_count"
+    ]
+  },
+  "metrics": {
+    "constant_baseline_val": {
+      "roc_auc": 0.5,
+      "pr_auc": 0.5430647165662938,
+      "brier": 0.24818082595527066
+    },
+    "grouped_baseline_val": {
+      "roc_auc": 0.7087171581996511,
+      "pr_auc": 0.7317329953456311,
+      "brier": 0.2080431315082065
+    },
+    "grouped_baseline_test": {
+      "roc_auc": 0.7074697669424678,
+      "pr_auc": 0.7379942959125638,
+      "brier": 0.2070254930207129
+    },
+    "lgbm_default_val": {
+      "roc_auc": 0.7239243304592347,
+      "pr_auc": 0.7577987309946874,
+      "brier": 0.2308751435690844
+    },
+    "lgbm_tuned_val": {
+      "roc_auc": 0.7315497816622831,
+      "pr_auc": 0.7910310181601405,
+      "brier": 0.23334543678117953
+    },
+    "lgbm_tuned_test": {
+      "roc_auc": 0.7313878442875402,
+      "pr_auc": 0.7912134678522939,
+      "brier": 0.23259639621157743
+    }
+  },
+  "optuna": {
+    "n_trials": 50,
+    "best_val_auc": 0.7315497816622831,
+    "best_params": {
+      "learning_rate": 0.059690664684137786,
+      "num_leaves": 39,
+      "max_depth": 7,
+      "min_data_in_leaf": 87,
+      "feature_fraction": 0.5075106058128436,
+      "bagging_fraction": 0.7045005355351619,
+      "bagging_freq": 6,
+      "lambda_l1": 8.687775256476124e-05,
+      "lambda_l2": 0.04334091642122569,
+      "min_gain_to_split": 0.3815341084988877
+    },
+    "best_iteration": 3
+  },
+  "top_features": [
+    {
+      "rank": 1,
+      "feature": "shipping_mode",
+      "mean_abs_shap": 0.1391147021487685
+    },
+    {
+      "rank": 2,
+      "feature": "scheduled_shipping_days",
+      "mean_abs_shap": 0.015715127664705484
+    },
+    {
+      "rank": 3,
+      "feature": "shipping_cost",
+      "mean_abs_shap": 0.0051589205477455356
+    },
+    {
+      "rank": 4,
+      "feature": "order_profit",
+      "mean_abs_shap": 0.003253711436702306
+    },
+    {
+      "rank": 5,
+      "feature": "order_country",
+      "mean_abs_shap": 0.0031789538091474786
+    },
+    {
+      "rank": 6,
+      "feature": "sla_weekday",
+      "mean_abs_shap": 0.0009539737719074714
+    },
+    {
+      "rank": 7,
+      "feature": "customer_country",
+      "mean_abs_shap": 0.0008378269531673948
+    },
+    {
+      "rank": 8,
+      "feature": "cargo_class",
+      "mean_abs_shap": 0.0005419241359282583
+    },
+    {
+      "rank": 9,
+      "feature": "sla_quarter",
+      "mean_abs_shap": 0.00019091724946169666
+    },
+    {
+      "rank": 10,
+      "feature": "leg_count",
+      "mean_abs_shap": 0.0
+    }
+  ],
+  "notes": [
+    "Tuning used validation set only; test evaluated exactly once.",
+    "Port congestion features excluded (constant 1.0 \u2014 no 2015-18/2019-24 overlap).",
+    "Model trained on train split only; refit on train+val is a future option."
+  ]
+}
