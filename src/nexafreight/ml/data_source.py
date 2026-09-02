@@ -16,6 +16,7 @@ downstream feature code is affected.
 
 Column name mapping (CSV -> internal)
 --------------------------------------
+    "Days for shipping (real)"       ->  days_for_shipping_real   [T-037 target]
     "Days for shipment (scheduled)"  ->  scheduled_shipping_days
     "Order Country"                  ->  order_country
     "Customer Country"               ->  customer_country
@@ -39,6 +40,8 @@ logger = logging.getLogger(__name__)
 # what was resolved.
 # ---------------------------------------------------------------------------
 _CSV_COLUMN_MAP: dict[str, str] = {
+    # ETA target column — actual days in transit (needed by T-037 to derive residual)
+    "days_for_shipping_real":  "Days for shipping (real)",
     "scheduled_shipping_days": "Days for shipment (scheduled)",
     "order_country":           "Order Country",
     "customer_country":        "Customer Country",
@@ -47,6 +50,7 @@ _CSV_COLUMN_MAP: dict[str, str] = {
 }
 
 _CSV_DTYPE_MAP: dict[str, type] = {
+    "days_for_shipping_real":  float,
     "scheduled_shipping_days": float,
     "order_country":           str,
     "customer_country":        str,
