@@ -676,6 +676,15 @@ def train(
             "fallback_lanes": pi_fallback_lanes,
         },
         "forecast_horizons_days": list(DEMAND_FORECAST_HORIZONS),
+        "notes": {
+            "metrics_source": "holdout_model",
+            "shipped_model": "refitted_on_full_history",
+            "explanation": (
+                "Metrics above were computed from a model fit on the training"
+                " split only.  The shipped model.joblib was then re-fit on the"
+                " full history (train + holdout) for maximum forecast quality."
+            ),
+        },
     }
     meta_path = model_dir / "metadata.json"
     _atomic_json(meta_path, metadata)
