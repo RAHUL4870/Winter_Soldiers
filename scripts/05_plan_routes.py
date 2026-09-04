@@ -219,6 +219,7 @@ async def load_shipments_to_plan(
         shipments_tbl.c["primary_transport_mode"],
         shipments_tbl.c["cargo_class"],
         shipments_tbl.c["container_count"],
+        shipments_tbl.c["planned_departure"],
         shipments_tbl.c["strictest_sla_deadline"],
         shipments_tbl.c["created_at"],
     )
@@ -228,7 +229,7 @@ async def load_shipments_to_plan(
     res = await conn.execute(stmt)
     rows = res.fetchall()
     shipment_list = []
-    for sid, orig_id, dest_id, mode, cargo, containers, deadline, created in rows:
+    for sid, orig_id, dest_id, mode, cargo, containers, dep, deadline, created in rows:
         shipment_list.append(
             {
                 "id": str(sid),
@@ -237,6 +238,7 @@ async def load_shipments_to_plan(
                 "primary_mode": mode or "SEA",
                 "cargo_class": cargo or "STANDARD",
                 "container_count": containers or 1,
+                "planned_departure": dep or deadline or created or datetime.now(UTC),
                 "strictest_sla_deadline": deadline,
                 "created_at": created or datetime.now(UTC),
             }
@@ -280,8 +282,8 @@ async def persist_plans(
                             "flight_number": None,
                             "planned_departure": leg.planned_departure,
                             "planned_arrival": leg.planned_arrival,
-                            "actual_departure": None,
-                            "actual_arrival": None,
+                            "actual_departure": leg.planned_departure,
+                            "actual_arrival": leg.planned_arrival,
                             "route_geometry_json": leg.route_geometry_json,
                             "distance_km": leg.distance_km,
                             "co2_kg": leg.co2_kg,
@@ -377,7 +379,7 @@ async def amain(args: argparse.Namespace) -> int:
             primary_mode=s["primary_mode"],
             origin=orig,
             dest=dest,
-            planned_departure=s["created_at"],
+            planned_departure=s["planned_departure"],
             cargo_weight_kg=15000.0 * s["container_count"],
             route_version=1,
         )

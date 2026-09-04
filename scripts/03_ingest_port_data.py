@@ -167,6 +167,11 @@ def resolve_file(candidate_paths: list[Path | str], description: str) -> Path:
 def get_activity_file(user_path: str | None) -> Path:
     cands: list[str | Path] = [
         user_path or "",
+        _REPO_ROOT
+        / "data"
+        / "raw"
+        / "port_activity"
+        / "Daily_Port_Activity_Data_and_Trade_Estimates.csv",
         _REPO_ROOT / "data" / "raw" / "port_activity" / "port_activity.csv",
         _REPO_ROOT.parent.parent
         / "Datasets"
@@ -187,6 +192,11 @@ def get_activity_file(user_path: str | None) -> Path:
 def get_performance_file(user_path: str | None) -> Path:
     cands: list[str | Path] = [
         user_path or "",
+        _REPO_ROOT
+        / "data"
+        / "raw"
+        / "port_performance"
+        / "Maritime Port Performance Project Dataset.csv",
         _REPO_ROOT / "data" / "raw" / "port_performance" / "maritime_port_performance.csv",
         _REPO_ROOT.parent.parent
         / "Datasets"

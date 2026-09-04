@@ -53,7 +53,10 @@ class Shipment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
     route_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
-    # SLA tracking (strictest deadline among child orders, updated by service logic)
+    # Timing & SLA tracking (strictest deadline among child orders, updated by service logic)
+    planned_departure: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
     strictest_sla_deadline: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

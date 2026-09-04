@@ -28,9 +28,9 @@ from ..adapters.routing.sea_route import SeaRouteResult, compute_sea_route
 
 log = logging.getLogger("nexafreight.routing.planner")
 
-# Leg sequences by transport mode
+# Leg sequences by transport mode (clean multi-modal transit legs only)
 LEG_SEQUENCES: dict[str, list[str]] = {
-    "SEA": ["FIRST_MILE_ROAD", "ORIGIN_HANDLING", "SEA_MAIN", "DEST_HANDLING", "LAST_MILE_ROAD"],
+    "SEA": ["FIRST_MILE_ROAD", "SEA_MAIN", "LAST_MILE_ROAD"],
     "AIR": ["FIRST_MILE_ROAD", "AIR_MAIN", "LAST_MILE_ROAD"],
     "ROAD": ["ROAD_MAIN"],
     "RAIL": ["FIRST_MILE_ROAD", "RAIL_MAIN", "LAST_MILE_ROAD"],
@@ -40,8 +40,6 @@ MODE_BY_LEG_TYPE: dict[str, str] = {
     "FIRST_MILE_ROAD": "ROAD",
     "LAST_MILE_ROAD": "ROAD",
     "ROAD_MAIN": "ROAD",
-    "ORIGIN_HANDLING": "SEA",
-    "DEST_HANDLING": "SEA",
     "SEA_MAIN": "SEA",
     "AIR_MAIN": "AIR",
     "RAIL_MAIN": "RAIL",
@@ -162,9 +160,22 @@ class RoutePlanner:
         olat, olon = origin.lat, origin.lon
         dlat, dlon = dest.lat, dest.lon
 
-        if leg_type in ("FIRST_MILE_ROAD", "LAST_MILE_ROAD"):
+        if leg_type == "FIRST_MILE_ROAD":
             duration_s = (DRAYAGE_KM / DRAYAGE_SPEED_KMH) * 3600.0
-            geom = json.dumps({"type": "LineString", "coordinates": [[olon, olat], [dlon, dlat]]})
+            # Local overland drayage: 0.3 deg inland to departure terminal/port
+            inland_lon = olon - 0.3 if olon > 0 else olon + 0.3
+            inland_lat = olat - 0.2 if olat > 0 else olat + 0.2
+            coords = [[inland_lon, inland_lat], [olon, olat]]
+            geom = json.dumps({"type": "LineString", "coordinates": coords})
+            return geom, DRAYAGE_KM, duration_s, "COMPUTED"
+
+        if leg_type == "LAST_MILE_ROAD":
+            duration_s = (DRAYAGE_KM / DRAYAGE_SPEED_KMH) * 3600.0
+            # Local overland delivery: arrival terminal/port to 0.3 deg inland
+            inland_lon = dlon + 0.3 if dlon > 0 else dlon - 0.3
+            inland_lat = dlat + 0.2 if dlat > 0 else dlat - 0.2
+            coords = [[dlon, dlat], [inland_lon, inland_lat]]
+            geom = json.dumps({"type": "LineString", "coordinates": coords})
             return geom, DRAYAGE_KM, duration_s, "COMPUTED"
 
         if leg_type == "ROAD_MAIN":

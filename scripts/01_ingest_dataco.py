@@ -185,6 +185,7 @@ def _resolve_tables():
                 nullable=True,
                 index=True,
             ),
+            Column("order_date", DateTime(timezone=True), nullable=False, index=True),
             Column("sla_deadline", DateTime(timezone=True), nullable=False),
             Column("revenue", Float, nullable=False),
             Column("shipping_cost", Float, nullable=False),
@@ -192,6 +193,7 @@ def _resolve_tables():
             Column("shipping_mode", String(20), nullable=False),
             Column("cargo_class", String(20), nullable=False),
             Column("historical_late_delivery", Boolean, nullable=True),
+            Column("real_shipping_days", Float, nullable=True),
             Column("created_at", DateTime(timezone=True), nullable=False),
             Column("updated_at", DateTime(timezone=True), nullable=False),
         )
@@ -249,6 +251,7 @@ async def persist_dataco(
                     {
                         "order_number": o["order_number"],
                         "shipment_id": None,
+                        "order_date": o["order_date"],
                         "sla_deadline": o["sla_deadline"],
                         "revenue": round(o["revenue"], 2),
                         "shipping_cost": round(o["shipping_cost"], 2),
@@ -256,6 +259,7 @@ async def persist_dataco(
                         "shipping_mode": o["shipping_mode"],
                         "cargo_class": o["cargo_class"],
                         "historical_late_delivery": o["historical_late_delivery"],
+                        "real_shipping_days": o.get("real_shipping_days", 0.0),
                         "created_at": now,
                         "updated_at": now,
                     }
@@ -267,12 +271,15 @@ async def persist_dataco(
                     .on_conflict_do_update(
                         index_elements=["order_number"],
                         set_={
+                            "order_date": exc["order_date"],
                             "sla_deadline": exc["sla_deadline"],
                             "revenue": exc["revenue"],
                             "shipping_cost": exc["shipping_cost"],
+                            "sla_status": exc["sla_status"],
                             "shipping_mode": exc["shipping_mode"],
                             "cargo_class": exc["cargo_class"],
                             "historical_late_delivery": exc["historical_late_delivery"],
+                            "real_shipping_days": exc["real_shipping_days"],
                             "updated_at": now,
                         },
                     )
@@ -381,6 +388,7 @@ async def amain(args: argparse.Namespace) -> int:
         "Category Name",
         "Shipping Mode",
         "Days for shipment (scheduled)",
+        "Days for shipping (real)",
         "order date (DateOrders)",
         "Late_delivery_risk",
     ]
@@ -419,6 +427,11 @@ async def amain(args: argparse.Namespace) -> int:
             except (ValueError, TypeError):
                 days_sched = 3
 
+            try:
+                days_real = float(r.get("Days for shipping (real)", 0) or 0)
+            except (ValueError, TypeError):
+                days_real = float(days_sched)
+
             deadline = o_date + timedelta(days=days_sched)
             mode = map_shipping_mode(str(r["Shipping Mode"]))
             try:
@@ -428,13 +441,15 @@ async def amain(args: argparse.Namespace) -> int:
 
             orders_dict[order_num] = {
                 "order_number": order_num,
+                "order_date": o_date,
                 "sla_deadline": deadline,
                 "revenue": total_val,
                 "shipping_cost": round(total_val * 0.12, 2),
-                "sla_status": "ON_TIME",
+                "sla_status": "LATE" if late_risk else "ON_TIME",
                 "shipping_mode": mode,
                 "cargo_class": c_class,
                 "historical_late_delivery": late_risk,
+                "real_shipping_days": days_real,
             }
         else:
             orders_dict[order_num]["revenue"] += total_val

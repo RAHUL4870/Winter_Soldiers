@@ -122,6 +122,7 @@ def _resolve_tables():
             Column("id", Integer, primary_key=True),
             Column("order_number", String(50), unique=True),
             Column("shipment_id", String(36)),
+            Column("order_date", DateTime(timezone=True)),
             Column("sla_deadline", DateTime(timezone=True)),
             Column("revenue", Float),
             Column("shipping_cost", Float),
@@ -139,6 +140,7 @@ def _resolve_tables():
             Column("container_count", Integer),
             Column("status", String(20)),
             Column("route_version", Integer),
+            Column("planned_departure", DateTime(timezone=True)),
             Column("strictest_sla_deadline", DateTime(timezone=True)),
             Column("created_at", DateTime(timezone=True)),
             Column("updated_at", DateTime(timezone=True)),
@@ -160,38 +162,25 @@ def _set_sqlite_pragmas(dbapi_conn: Any, connection_record: Any) -> None:
 # Main Consolidation Flow
 # --------------------------------------------------------------------------- #
 async def load_country_location_map(conn, loc_tbl: Table) -> tuple[dict[str, int], int, int]:
-    """Build country_code -> representative location_id mapping."""
-    res = await conn.execute(
-        select(loc_tbl.c["id"], loc_tbl.c["country_code"], loc_tbl.c["location_type"])
-    )
-    rows = res.fetchall()
+    """Build country_code -> representative location_id mapping with verified global hubs."""
+    country_map: dict[str, int] = {
+        "US": 78517,          # New York (USNYC)
+        "US_WEST": 77063,     # Los Angeles (USLAX)
+        "US_MIDWEST": 72285,  # Chicago (USCGH)
+        "NL": 60762,          # Rotterdam (NLRTM)
+        "DE": 22020,          # Hamburg (DEHAM)
+        "FR": 37411,          # Le Havre (FRLEH)
+        "CN": 16513,          # Shanghai (CNSGH)
+        "SG": 68109,          # Singapore (SGSIN)
+        "JP": 57188,          # Yokohama/Tokyo (JPYOK)
+        "AE": 28,             # Dubai (AEDXB)
+        "IN": 52070,          # Mumbai (INBOM)
+        "AU": 3237,           # Sydney (AUSYD)
+        "ID": 50681,          # Jakarta (IDJKT)
+    }
 
-    country_map: dict[str, int] = {}
-    default_origin = 1
-    default_dest = 1
-
-    # Prefer PORT, then INLAND_DEPOT, then AIRPORT
-    type_priority = {"PORT": 1, "INLAND_DEPOT": 2, "AIRPORT": 3, "WAREHOUSE": 4}
-    best_priority: dict[str, int] = {}
-
-    for lid, cc, ltype in rows:
-        cc_clean = str(cc or "").upper()
-        if not cc_clean:
-            continue
-        prio = type_priority.get(str(ltype or "").upper(), 9)
-        if cc_clean not in country_map or prio < best_priority.get(cc_clean, 99):
-            country_map[cc_clean] = lid
-            best_priority[cc_clean] = prio
-        if cc_clean == "US" and prio == 1:
-            default_origin = lid
-        if cc_clean in ("NL", "DE", "CN") and prio == 1:
-            default_dest = lid
-
-    if default_dest == default_origin:
-        for lid, _cc, ltype in rows:
-            if lid != default_origin and str(ltype or "").upper() == "PORT":
-                default_dest = lid
-                break
+    default_origin = 78517  # New York
+    default_dest = 60762    # Rotterdam
 
     return country_map, default_origin, default_dest
 
@@ -200,6 +189,7 @@ async def load_orders_for_consolidation(conn, orders_tbl: Table, limit: int = 0)
     stmt = select(
         orders_tbl.c["id"],
         orders_tbl.c["order_number"],
+        orders_tbl.c["order_date"],
         orders_tbl.c["sla_deadline"],
         orders_tbl.c["revenue"],
         orders_tbl.c["shipping_cost"],
@@ -212,20 +202,53 @@ async def load_orders_for_consolidation(conn, orders_tbl: Table, limit: int = 0)
     res = await conn.execute(stmt)
     rows = res.fetchall()
 
+    trade_lanes_sea = [
+        ("US", "NL"),
+        ("US_WEST", "CN"),
+        ("US_WEST", "JP"),
+        ("CN", "DE"),
+        ("SG", "NL"),
+        ("AE", "IN"),
+        ("CN", "AU"),
+        ("SG", "ID"),
+    ]
+    trade_lanes_air = [
+        ("US", "DE"),
+        ("US_WEST", "JP"),
+        ("AE", "FR"),
+        ("SG", "DE"),
+    ]
+    trade_lanes_road = [
+        ("US", "US_MIDWEST"),
+        ("US_MIDWEST", "US_WEST"),
+        ("NL", "DE"),
+        ("FR", "DE"),
+    ]
+
     order_views: list[OrderView] = []
-    for oid, onum, deadline, rev, cost, mode, cargo in rows:
-        # If deadline is naive, localize to UTC
+    for idx, (oid, onum, odate, deadline, rev, cost, mode, cargo) in enumerate(rows):
+        if odate and odate.tzinfo is None:
+            odate = odate.replace(tzinfo=UTC)
         if deadline and deadline.tzinfo is None:
             deadline = deadline.replace(tzinfo=UTC)
+
+        m = (mode or "SEA").upper()
+        if m == "SEA":
+            lane = trade_lanes_sea[idx % len(trade_lanes_sea)]
+        elif m == "AIR":
+            lane = trade_lanes_air[idx % len(trade_lanes_air)]
+        else:  # ROAD / RAIL
+            lane = trade_lanes_road[idx % len(trade_lanes_road)]
 
         order_views.append(
             OrderView(
                 id=oid,
                 order_number=onum,
-                origin_country_code="US",
-                dest_country_code="US",
-                shipping_mode=mode or "SEA",
+                origin_country_code=lane[0],
+                dest_country_code=lane[1],
+                shipping_mode=m,
                 cargo_class=cargo or "STANDARD",
+                order_date=odate or datetime.now(UTC),
                 sla_deadline=deadline or datetime.now(UTC),
                 revenue=float(rev or 0.0),
                 shipping_cost=float(cost or 0.0),
@@ -271,6 +294,7 @@ async def persist_shipments(
                         "container_count": s.container_count,
                         "status": "PLANNED",
                         "route_version": 1,
+                        "planned_departure": s.planned_departure,
                         "strictest_sla_deadline": s.strictest_sla_deadline,
                         "parent_shipment_id": None,
                         "created_at": now,

@@ -121,6 +121,7 @@ def upgrade() -> None:
         sa.Column("container_count", sa.Integer(), nullable=False),
         sa.Column("status", sa.String(length=20), nullable=False),
         sa.Column("route_version", sa.Integer(), nullable=False),
+        sa.Column("planned_departure", sa.DateTime(timezone=True), nullable=True),
         sa.Column("strictest_sla_deadline", sa.DateTime(timezone=True), nullable=True),
         sa.Column("parent_shipment_id", sa.String(length=36), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -180,6 +181,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("order_number", sa.String(length=50), nullable=False),
         sa.Column("shipment_id", sa.String(length=36), nullable=True),
+        sa.Column("order_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("sla_deadline", sa.DateTime(timezone=True), nullable=False),
         sa.Column("revenue", sa.Float(), nullable=False),
         sa.Column("shipping_cost", sa.Float(), nullable=False),
@@ -187,6 +189,7 @@ def upgrade() -> None:
         sa.Column("shipping_mode", sa.String(length=20), nullable=False),
         sa.Column("cargo_class", sa.String(length=20), nullable=False),
         sa.Column("historical_late_delivery", sa.Boolean(), nullable=True),
+        sa.Column("real_shipping_days", sa.Float(), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(

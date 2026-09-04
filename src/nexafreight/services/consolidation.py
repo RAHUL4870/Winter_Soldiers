@@ -30,9 +30,12 @@ class OrderView:
     dest_country_code: str
     shipping_mode: str
     cargo_class: str
+    order_date: datetime
     sla_deadline: datetime
     revenue: float
     shipping_cost: float
+    historical_late_delivery: bool = False
+    real_shipping_days: float = 0.0
 
 
 @dataclass
@@ -43,6 +46,7 @@ class ShipmentSpec:
     primary_transport_mode: str
     cargo_class: str
     container_count: int
+    planned_departure: datetime
     strictest_sla_deadline: datetime
     order_ids: list[int] = field(default_factory=list)
     total_revenue: float = 0.0
@@ -63,7 +67,7 @@ def _consolidate_orders_sync(
         mode = order.shipping_mode.upper() if order.shipping_mode else "SEA"
         cargo = order.cargo_class.upper() if order.cargo_class else "STANDARD"
 
-        d = order.sla_deadline
+        d = order.order_date or order.sla_deadline
         year, week, _ = d.isocalendar()
 
         key = (orig_cc, dest_cc, mode, cargo, year, week)
@@ -75,6 +79,7 @@ def _consolidate_orders_sync(
         for i in range(0, len(group_orders), max_orders_per_shipment):
             chunk = group_orders[i : i + max_orders_per_shipment]
             strictest_deadline = min(o.sla_deadline for o in chunk)
+            earliest_departure = min(o.order_date for o in chunk)
             tot_rev = sum(o.revenue for o in chunk)
 
             orig_id = country_to_location.get(orig_cc, default_origin_id)
@@ -91,6 +96,7 @@ def _consolidate_orders_sync(
                     primary_transport_mode=mode,
                     cargo_class=cargo,
                     container_count=max(1, math.ceil(len(chunk) / 20)),
+                    planned_departure=earliest_departure,
                     strictest_sla_deadline=strictest_deadline,
                     order_ids=[o.id for o in chunk],
                     total_revenue=round(tot_rev, 2),

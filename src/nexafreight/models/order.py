@@ -39,6 +39,13 @@ class Order(Base, TimestampMixin):
     )
 
     # Financial and SLA terms
+    order_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+        default=None,
+        comment="Original order placement date",
+    )
     sla_deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revenue: Mapped[float] = mapped_column(
         Float, nullable=False, comment="Total order revenue (USD)"
@@ -54,8 +61,9 @@ class Order(Base, TimestampMixin):
     shipping_mode: Mapped[TransportMode] = mapped_column(String(20), nullable=False)
     cargo_class: Mapped[CargoClass] = mapped_column(String(20), nullable=False)
 
-    # Historical label from source dataset (for ML training)
+    # Historical labels and transit days from source dataset (for ML training)
     historical_late_delivery: Mapped[bool | None] = mapped_column(nullable=True)
+    real_shipping_days: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Optional routing hints for consolidation
     origin_id: int | None = None

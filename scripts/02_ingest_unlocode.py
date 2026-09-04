@@ -229,7 +229,9 @@ def resolve_input_files(input_path_str: str) -> list[Path]:
 
     # Fallback search locations
     candidates = [
+        _REPO_ROOT / "data" / "raw" / "unlocode",
         _REPO_ROOT / "data" / "raw" / "unlocode" / "unlocode.csv",
+        _REPO_ROOT.parent / "data" / "raw" / "unlocode",
         _REPO_ROOT.parent / "data" / "raw" / "unlocode" / "unlocode.csv",
         _REPO_ROOT.parent / "Datasets" / "UNLOCODE — Location Codes for Ports, Airports, and ICDs",
     ]
