@@ -307,37 +307,63 @@ def fit_autoets(
 # ============================================================================
 # Step 4 — Evaluate on holdout
 # ============================================================================
+def _seasonal_naive_forecast(
+    train: pd.DataFrame,
+    holdout: pd.DataFrame,
+    season_length: int = 4,
+) -> dict[str, np.ndarray]:
+    """
+    Seasonal naive baseline: repeat the last `season_length` weeks of training
+    data cyclically into the holdout horizon.  Returns {unique_id: predictions}.
+    """
+    baseline_preds: dict[str, np.ndarray] = {}
+    for uid, h_group in holdout.groupby(DEMAND_UNIQUE_ID_COL):
+        t_group = train[train[DEMAND_UNIQUE_ID_COL] == uid].sort_values("ds")
+        history = t_group[DEMAND_TARGET_COLUMN].to_numpy(dtype=float)
+        n_holdout = len(h_group)
+        if len(history) < season_length:
+            # Fall back to global mean if too little history
+            baseline_preds[str(uid)] = np.full(n_holdout, history.mean() if len(history) > 0 else 0.0)
+        else:
+            cycle = history[-season_length:]
+            # Tile cyclically to fill holdout horizon
+            reps = (n_holdout // season_length) + 1
+            baseline_preds[str(uid)] = np.tile(cycle, reps)[:n_holdout]
+    return baseline_preds
+
+
 def evaluate_holdout(
     sf: Any,
+    train: pd.DataFrame,
     holdout: pd.DataFrame,
     horizon_weeks: int,
     prediction_level: int,
-) -> tuple[dict[str, float], float]:
+) -> tuple[dict[str, float], float, float, float]:
     """
     Generate point forecasts over the holdout horizon and compute MAPE per lane.
-    Prediction intervals are NOT requested here — MAPE only needs the point forecast,
-    and requesting level= triggers a statsforecast bug on class-3 ETS models.
+    Also computes a seasonal naive baseline WAPE for lift comparison.
 
     Returns
     -------
     per_lane_mape : {unique_id: mape_pct}
-    weighted_mape : overall weighted MAPE across all lanes
+    wape          : overall WAPE (sum|a-p| / sum(a) × 100)
+    baseline_wape : seasonal naive baseline WAPE
+    lift_pct      : (1 - wape/baseline_wape) × 100
     """
     # Point-only predict — no level= to avoid statsforecast class-3 ETS bug.
-    # Without level=, StatsForecast returns unique_id as the DataFrame index
-    # rather than a column, so we reset_index() to normalise the shape.
     preds = sf.predict(h=horizon_weeks).reset_index()
-
-    # StatsForecast returns a column named 'AutoETS' for the point forecast
     point_col = "AutoETS"
+
+    # Seasonal naive baseline
+    sn_preds = _seasonal_naive_forecast(train, holdout)
 
     per_lane_mape: dict[str, float] = {}
     weighted_actuals = 0.0
     weighted_errors = 0.0
+    bl_weighted_errors = 0.0
 
     for uid, group in holdout.groupby(DEMAND_UNIQUE_ID_COL):
         pred_group = preds[preds[DEMAND_UNIQUE_ID_COL] == uid].copy()
-        # Align by position (both sorted by ds within lane)
         actual = group.sort_values("ds")[DEMAND_TARGET_COLUMN].to_numpy(dtype=float)
         n = min(len(actual), len(pred_group))
         if n == 0:
@@ -351,17 +377,25 @@ def evaluate_holdout(
             weighted_actuals += actual.sum()
             weighted_errors += float(np.sum(np.abs(actual - predicted)))
 
+            bl = sn_preds.get(str(uid))
+            if bl is not None:
+                bl_weighted_errors += float(np.sum(np.abs(actual - bl[:n])))
+
     wape = (
         (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
     )
+    baseline_wape = (
+        (bl_weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
+    )
+    lift_pct = (
+        (1.0 - wape / baseline_wape) * 100 if baseline_wape > 0 else float("nan")
+    )
 
     log.info(
-        "  Holdout metrics — WAPE: %.1f%%  |  Median lane MAPE: %.1f%%  |  Lanes evaluated: %d",
-        wape,
-        float(np.median(list(per_lane_mape.values()))) if per_lane_mape else float("nan"),
-        len(per_lane_mape),
+        "  Holdout — WAPE: %.1f%%  |  Baseline WAPE: %.1f%%  |  Lift: %+.1f%%  |  Lanes: %d",
+        wape, baseline_wape, lift_pct, len(per_lane_mape),
     )
-    return per_lane_mape, wape
+    return per_lane_mape, wape, baseline_wape, lift_pct
 
 
 # ============================================================================
@@ -553,8 +587,8 @@ def train(
     # Step 4: Evaluate holdout MAPE
     # ------------------------------------------------------------------
     log.info("Step 4/5 — Evaluating holdout MAPE (%d-week holdout) ...", holdout_weeks)
-    per_lane_mape, wape = evaluate_holdout(
-        sf_eval, holdout_df, holdout_weeks, DEMAND_PREDICTION_LEVEL
+    per_lane_mape, wape, baseline_wape, lift_pct = evaluate_holdout(
+        sf_eval, train_df, holdout_df, holdout_weeks, DEMAND_PREDICTION_LEVEL
     )
 
     # ------------------------------------------------------------------
@@ -624,6 +658,9 @@ def train(
         },
         "metrics": {
             "wape_pct": round(wape, 2),
+            "baseline_wape_pct": round(baseline_wape, 2),
+            "lift_over_baseline_pct": round(lift_pct, 2),
+            "baseline_method": "seasonal_naive_4week",
             "median_lane_mape_pct": round(
                 float(np.median(list(per_lane_mape.values()))), 2
             ) if per_lane_mape else None,
