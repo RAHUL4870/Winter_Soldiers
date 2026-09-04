@@ -30,7 +30,7 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy
 
-from nexafreight.ml.constants import DB_PATH, DATACO_CSV_PATH, LABEL_COLUMN
+from nexafreight.ml.constants import DATACO_CSV_PATH, DB_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +200,7 @@ def load_dataco_csv(csv_path: Path | str = DATACO_CSV_PATH) -> pd.DataFrame:
     # Cast dtypes — only coerce numeric cols; leave string cols as-is
     for col, dtype in _CSV_DTYPE_MAP.items():
         if col in dedup.columns:
-            if dtype == float:
+            if dtype is float:
                 dedup[col] = pd.to_numeric(dedup[col], errors="coerce")
             else:
                 # String column: ensure object dtype, no numeric coercion

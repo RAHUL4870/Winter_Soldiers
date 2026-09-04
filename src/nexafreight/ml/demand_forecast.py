@@ -19,20 +19,14 @@ Design rules
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import joblib
-import pandas as pd
 
 from nexafreight.ml.constants import (
-    DEMAND_CHART_KEYS,
-    DEMAND_FORECAST_HORIZONS,
-    DEMAND_FORECAST_HORIZON_WEEKS,
     DEMAND_MODEL_DIR,
-    DEMAND_PREDICTION_LEVEL,
-    DEMAND_UNIQUE_ID_COL,
 )
 
 
@@ -60,11 +54,11 @@ class DemandForecast:
     region: str
     unique_id: str
 
-    series: List[Dict[str, Any]]
+    series: list[dict[str, Any]]
 
-    horizon_30_days: Optional[Dict[str, Any]]
-    horizon_60_days: Optional[Dict[str, Any]]
-    horizon_90_days: Optional[Dict[str, Any]]
+    horizon_30_days: dict[str, Any] | None
+    horizon_60_days: dict[str, Any] | None
+    horizon_90_days: dict[str, Any] | None
 
     provenance: str = "DERIVED"
 
@@ -75,9 +69,9 @@ def _make_lane_id(category: str, region: str) -> str:
 
 
 def _closest_forecast_row(
-    series: List[Dict[str, Any]],
+    series: list[dict[str, Any]],
     target_days: int,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Return the forecast row whose ds is closest to history_end + target_days."""
     forecast_rows = [r for r in series if r.get("is_forecast")]
     if not forecast_rows:
@@ -105,16 +99,16 @@ class DemandForecastModel:
 
     def __init__(self) -> None:
         self._sf: Any = None
-        self._lane_index: Dict[str, Dict[str, str]] = {}
-        self._qualified_ids: List[str] = []
-        self._forecasts_cache: Dict[str, Dict[str, Any]] = {}
-        self._model_version: Optional[str] = None
+        self._lane_index: dict[str, dict[str, str]] = {}
+        self._qualified_ids: list[str] = []
+        self._forecasts_cache: dict[str, dict[str, Any]] = {}
+        self._model_version: str | None = None
         self._is_loaded: bool = False
 
     # ------------------------------------------------------------------
     # Load from disk
     # ------------------------------------------------------------------
-    def load(self, model_dir: Union[str, Path] = DEMAND_MODEL_DIR) -> None:
+    def load(self, model_dir: str | Path = DEMAND_MODEL_DIR) -> None:
         """Load a trained artifact bundle produced by 12_train_demand_forecast.py."""
         model_dir = Path(model_dir)
         model_path = model_dir / "model.joblib"
@@ -140,7 +134,7 @@ class DemandForecastModel:
     # Properties
     # ------------------------------------------------------------------
     @property
-    def available_lanes(self) -> List[Dict[str, str]]:
+    def available_lanes(self) -> list[dict[str, str]]:
         """Return list of {unique_id, category, region} for all trained lanes."""
         return [
             {"unique_id": uid, **meta}
@@ -148,7 +142,7 @@ class DemandForecastModel:
         ]
 
     @property
-    def model_version(self) -> Optional[str]:
+    def model_version(self) -> str | None:
         return self._model_version
 
     # ------------------------------------------------------------------
@@ -158,7 +152,7 @@ class DemandForecastModel:
         self,
         category: str,
         region: str,
-    ) -> Optional[DemandForecast]:
+    ) -> DemandForecast | None:
         """
         Return the forecast for a (category, region) lane.
 
@@ -196,8 +190,8 @@ class DemandForecastModel:
 
     def predict_batch(
         self,
-        lanes: List[Dict[str, str]],
-    ) -> Dict[str, Optional[DemandForecast]]:
+        lanes: list[dict[str, str]],
+    ) -> dict[str, DemandForecast | None]:
         """
         Batch prediction for a list of {category, region} dicts.
 
@@ -210,7 +204,7 @@ class DemandForecastModel:
             for lane in lanes
         }
 
-    def get_all_forecasts(self) -> Dict[str, DemandForecast]:
+    def get_all_forecasts(self) -> dict[str, DemandForecast]:
         """
         Return DemandForecast objects for every trained lane.
         Useful for the Analytics page which renders all lanes at once.
@@ -218,7 +212,7 @@ class DemandForecastModel:
         if not self._is_loaded:
             raise RuntimeError("Model not loaded.")
 
-        results: Dict[str, DemandForecast] = {}
+        results: dict[str, DemandForecast] = {}
         for uid, lane_data in self._forecasts_cache.items():
             series = lane_data.get("series", [])
             results[uid] = DemandForecast(
@@ -237,7 +231,7 @@ class DemandForecastModel:
 # Convenience loader
 # ---------------------------------------------------------------------------
 def get_demand_model(
-    model_dir: Union[str, Path] = DEMAND_MODEL_DIR,
+    model_dir: str | Path = DEMAND_MODEL_DIR,
 ) -> DemandForecastModel:
     """Load and return a ready-to-predict DemandForecastModel."""
     model = DemandForecastModel()

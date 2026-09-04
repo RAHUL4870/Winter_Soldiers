@@ -17,7 +17,6 @@ import pytest
 from nexafreight.ml.constants import (
     BANNED_COLUMNS,
     CATEGORICAL_COLUMNS,
-    ETA_QUANTILES,
     FEATURE_COLUMNS,
     NUMERIC_COLUMNS,
 )

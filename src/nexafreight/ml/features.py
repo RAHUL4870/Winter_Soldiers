@@ -30,10 +30,7 @@ import pandas as pd
 import nexafreight.ml.constants as _constants
 from nexafreight.ml.constants import (
     BANNED_COLUMNS,
-    CATEGORICAL_COLUMNS,
-    FEATURE_COLUMNS,
     LABEL_COLUMN,
-    NUMERIC_COLUMNS,
     TIME_AXIS_COLUMN,
 )
 

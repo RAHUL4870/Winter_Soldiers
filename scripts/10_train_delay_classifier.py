@@ -24,7 +24,7 @@ import logging
 import subprocess
 import time
 import warnings
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import joblib
@@ -170,7 +170,13 @@ def evaluate(y_true, y_score, tag: str) -> dict:
         "pr_auc": float(average_precision_score(y_true, y_score)),
         "brier": float(brier_score_loss(y_true, np.clip(y_score, 0, 1))),
     }
-    log.info("%-28s ROC-AUC=%.4f  PR-AUC=%.4f  Brier=%.4f", tag, m["roc_auc"], m["pr_auc"], m["brier"])
+    log.info(
+        "%-28s ROC-AUC=%.4f  PR-AUC=%.4f  Brier=%.4f",
+        tag,
+        m["roc_auc"],
+        m["pr_auc"],
+        m["brier"],
+    )
     return m
 
 
@@ -188,7 +194,12 @@ def main(n_trials: int) -> None:
 
     cat_cols = [c for c in features if splits["train"][c].dtype == object]
     num_cols = [c for c in features if c not in cat_cols]
-    log.info("Features: %d total (%d categorical, %d numeric)", len(features), len(cat_cols), len(num_cols))
+    log.info(
+        "Features: %d total (%d categorical, %d numeric)",
+        len(features),
+        len(cat_cols),
+        len(num_cols),
+    )
 
     splits, cat_levels = align_categoricals(splits, cat_cols)
 
@@ -205,7 +216,11 @@ def main(n_trials: int) -> None:
     const_val = np.full(len(y["val"]), y["train"].mean())
     m_const = evaluate(y["val"], const_val, "constant rate (val)")
 
-    group_cols = [c for c in ["order_country", "shipping_mode", "customer_country"] if c in splits["train"].columns]
+    group_cols = [
+        c
+        for c in ["order_country", "shipping_mode", "customer_country"]
+        if c in splits["train"].columns
+    ]
     log.info("Grouped baseline keys: %s", group_cols)
     base_val = grouped_baseline(splits["train"], splits["val"], label, group_cols)
     base_test = grouped_baseline(splits["train"], splits["test"], label, group_cols)
@@ -261,11 +276,17 @@ def main(n_trials: int) -> None:
             params, dtrain, num_boost_round=2000, valid_sets=[dval],
             callbacks=[lgb.early_stopping(50, verbose=False)],
         )
-        return roc_auc_score(y["val"], booster.predict(X["val"], num_iteration=booster.best_iteration))
+        pred = booster.predict(X["val"], num_iteration=booster.best_iteration)
+        return roc_auc_score(y["val"], pred)
 
     def progress(study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
         if (trial.number + 1) % 10 == 0 or trial.number == 0:
-            log.info("  trial %3d/%d  best_val_auc=%.4f", trial.number + 1, n_trials, study.best_value)
+            log.info(
+                "  trial %3d/%d  best_val_auc=%.4f",
+                trial.number + 1,
+                n_trials,
+                study.best_value,
+            )
 
     study = optuna.create_study(
         direction="maximize", sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED)
@@ -335,7 +356,7 @@ def main(n_trials: int) -> None:
     metadata = {
         "model_name": "delay_classifier",
         "model_version": "1.0.0",
-        "trained_at": datetime.now(timezone.utc).isoformat(),
+        "trained_at": datetime.now(UTC).isoformat(),
         "git_sha": git_sha(),
         "random_seed": RANDOM_SEED,
         "training_runtime_sec": round(time.time() - t0, 1),
@@ -385,7 +406,9 @@ def main(n_trials: int) -> None:
     print(f"  {'model':<28}{'val AUC':>12}{'test AUC':>12}")
     print(f"  {'-'*52}")
     print(f"  {'constant rate':<28}{m_const['roc_auc']:>12.4f}{'-':>12}")
-    print(f"  {'grouped baseline':<28}{m_base_val['roc_auc']:>12.4f}{m_base_test['roc_auc']:>12.4f}")
+    val_auc_str = f"{m_base_val['roc_auc']:>12.4f}"
+    test_auc_str = f"{m_base_test['roc_auc']:>12.4f}"
+    print(f"  {'grouped baseline':<28}{val_auc_str}{test_auc_str}")
     print(f"  {'lgbm default':<28}{m_lgb_val['roc_auc']:>12.4f}{'-':>12}")
     print(f"  {'lgbm tuned':<28}{m_final_val['roc_auc']:>12.4f}{m_final_test['roc_auc']:>12.4f}")
     print(f"  {'-'*52}")

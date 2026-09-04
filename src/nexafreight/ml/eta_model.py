@@ -19,10 +19,11 @@ Design rules
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any
 
 import joblib
 import numpy as np
@@ -62,11 +63,11 @@ class EtaPrediction:
 
     confidence_interval_width: float
 
-    sla_risk: Optional[str]
+    sla_risk: str | None
 
-    p10_eta_date: Optional[datetime]
-    p50_eta_date: Optional[datetime]
-    p85_eta_date: Optional[datetime]
+    p10_eta_date: datetime | None
+    p50_eta_date: datetime | None
+    p85_eta_date: datetime | None
 
     provenance: str = "DERIVED"
 
@@ -75,8 +76,8 @@ class EtaPrediction:
 # Standalone metrics (used by both training script and tests)
 # ---------------------------------------------------------------------------
 def pinball_loss(
-    y_true: Sequence[float],
-    y_pred: Sequence[float],
+    y_true: Sequence[float] | np.ndarray | pd.Series,
+    y_pred: Sequence[float] | np.ndarray | pd.Series,
     alpha: float,
 ) -> float:
     """
@@ -109,9 +110,9 @@ def pinball_loss(
 
 
 def interval_coverage(
-    y_true: Sequence[float],
-    lower: Sequence[float],
-    upper: Sequence[float],
+    y_true: Sequence[float] | np.ndarray | pd.Series,
+    lower: Sequence[float] | np.ndarray | pd.Series,
+    upper: Sequence[float] | np.ndarray | pd.Series,
 ) -> float:
     """
     Fraction of observations inside [lower, upper] (inclusive both sides).
@@ -138,18 +139,18 @@ class EtaQuantileModel:
     """
 
     def __init__(self) -> None:
-        self.models: Dict[str, Any] = {}
-        self.features: List[str] = []
-        self.cat_cols: List[str] = []
-        self.num_cols: List[str] = []
-        self.cat_levels: Dict[str, List[str]] = {}
+        self.models: dict[str, Any] = {}
+        self.features: list[str] = []
+        self.cat_cols: list[str] = []
+        self.num_cols: list[str] = []
+        self.cat_levels: dict[str, list[str]] = {}
         self._is_loaded: bool = False
-        self._model_version: Optional[str] = None
+        self._model_version: str | None = None
 
     # ------------------------------------------------------------------
     # Load from disk
     # ------------------------------------------------------------------
-    def load(self, model_dir: Union[str, Path]) -> None:
+    def load(self, model_dir: str | Path) -> None:
         """Load a trained artifact bundle produced by 11_train_eta_model.py."""
         model_path = Path(model_dir) / "model.joblib"
         if not model_path.exists():
@@ -200,7 +201,7 @@ class EtaQuantileModel:
     # ------------------------------------------------------------------
     # Internal encoding helpers
     # ------------------------------------------------------------------
-    def _encode_single(self, row: Dict[str, Any]) -> pd.DataFrame:
+    def _encode_single(self, row: dict[str, Any]) -> pd.DataFrame:
         """Encode a single dict row into a 1-row DataFrame."""
         df = pd.DataFrame([row])
 
@@ -252,7 +253,7 @@ class EtaQuantileModel:
     # ------------------------------------------------------------------
     # Raw prediction + monotonic rearrangement
     # ------------------------------------------------------------------
-    def _predict_raw(self, X: pd.DataFrame) -> Dict[str, np.ndarray]:
+    def _predict_raw(self, X: pd.DataFrame) -> dict[str, np.ndarray]:
         """Run each booster and return raw residual arrays."""
         return {
             tag: np.asarray(self.models[tag].predict(X), dtype=float).ravel()
@@ -260,7 +261,7 @@ class EtaQuantileModel:
         }
 
     @staticmethod
-    def _rearrange(raw: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+    def _rearrange(raw: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         """Per-row sort to enforce P10 <= P50 <= P85 on residuals."""
         matrix = np.column_stack([raw[tag] for tag in QUANTILE_KEYS])
         sorted_matrix = np.sort(matrix, axis=1)
@@ -273,12 +274,12 @@ class EtaQuantileModel:
     # ------------------------------------------------------------------
     def predict(
         self,
-        input_data: Union[Dict[str, Any], pd.DataFrame],
-        departure_time: Optional[datetime] = None,
-        sla_deadline: Optional[datetime] = None,
-        scheduled_days: Optional[float] = None,
+        input_data: dict[str, Any] | pd.DataFrame,
+        departure_time: datetime | None = None,
+        sla_deadline: datetime | None = None,
+        scheduled_days: float | None = None,
         days_elapsed: float = 0.0,
-    ) -> Union[EtaPrediction, List[EtaPrediction]]:
+    ) -> EtaPrediction | list[EtaPrediction]:
         """
         Produce quantile ETA predictions.
 
@@ -341,7 +342,7 @@ class EtaQuantileModel:
         corrected = self._rearrange(raw_preds)
 
         # --- Build EtaPrediction per row ---
-        results: List[EtaPrediction] = []
+        results: list[EtaPrediction] = []
 
         for i in range(len(X)):
             p10_res = float(corrected["p10"][i])
@@ -366,10 +367,10 @@ class EtaQuantileModel:
             ci_width = p85_rem - p10_rem
 
             # Calendar dates and SLA risk (only when departure is known)
-            sla_risk: Optional[str] = None
-            p10_date: Optional[datetime] = None
-            p50_date: Optional[datetime] = None
-            p85_date: Optional[datetime] = None
+            sla_risk: str | None = None
+            p10_date: datetime | None = None
+            p50_date: datetime | None = None
+            p85_date: datetime | None = None
 
             if departure_time is not None:
                 p10_date = departure_time + timedelta(days=p10_eta)
@@ -407,7 +408,7 @@ class EtaQuantileModel:
 # Convenience loader
 # ---------------------------------------------------------------------------
 def get_eta_model(
-    model_dir: Union[str, Path] = "models/eta_quantile",
+    model_dir: str | Path = "models/eta_quantile",
 ) -> EtaQuantileModel:
     """Load and return a ready-to-predict EtaQuantileModel."""
     model = EtaQuantileModel()

@@ -27,9 +27,9 @@ import json
 import logging
 import subprocess
 import sys
-import textwrap
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -40,17 +40,16 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _SCRIPT_DIR.parent
 sys.path.insert(0, str(_PROJECT_ROOT / "src"))
 
-from nexafreight.ml.constants import (
+from nexafreight.ml.constants import (  # noqa: E402
     CATEGORICAL_COLUMNS,
-    DB_PATH,
     FEATURE_COLUMNS,
     LABEL_COLUMN,
     NUMERIC_COLUMNS,
     SPLIT_DATES,
     TIME_AXIS_COLUMN,
 )
-from nexafreight.ml.data_source import load_raw
-from nexafreight.ml.features import build_features
+from nexafreight.ml.data_source import load_raw  # noqa: E402
+from nexafreight.ml.features import build_features  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -162,8 +161,8 @@ def _save_parquets(splits: dict) -> None:
 
 def _build_feature_schema(splits: dict) -> dict:
     """Build the feature_schema.json artefact."""
-    schema = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+    schema: dict[str, Any] = {
+        "generated_at": datetime.now(UTC).isoformat(),
         "git_sha": _get_git_sha(),
         "label_column": LABEL_COLUMN,
         "time_axis_column": TIME_AXIS_COLUMN,

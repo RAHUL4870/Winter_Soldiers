@@ -1112,7 +1112,9 @@ class TestBuildRoutesCollection:
         assert result.type == "FeatureCollection"
         assert isinstance(result.features, list)
 
-    async def test_build_routes_skips_malformed_geometry(self, make_leg, make_shipment) -> None:
+    async def test_build_routes_skips_malformed_geometry(
+        self, make_leg, make_shipment, db_session
+    ) -> None:
         shipment = await make_shipment()
         await make_leg(
             shipment_id=shipment.id,
@@ -1121,12 +1123,12 @@ class TestBuildRoutesCollection:
             route_geometry=INVALID_GEOJSON,
             provenance=Provenance.CALIBRATED,
         )
-        result = await _build_routes_collection()
+        result = await _build_routes_collection(session=db_session)
         assert result.features == []
 
 
 class TestBuildPortsCollection:
-    async def test_build_ports_returns_empty_on_no_ports(self) -> None:
-        result = await _build_ports_collection()
+    async def test_build_ports_returns_empty_on_no_ports(self, db_session) -> None:
+        result = await _build_ports_collection(session=db_session)
         assert result.type == "FeatureCollection"
         assert result.features == []

@@ -20,8 +20,6 @@ Important architecture:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Tuple
-
 
 # ---------------------------------------------------------------------------
 # Paths — restored exactly from original working version
@@ -159,11 +157,11 @@ ETA_SCHEDULED_DAYS_COLUMN: str = "scheduled_shipping_days"
 ETA_TARGET_COLUMN: str = "transit_delay_residual"
 
 # Quantile configuration — must match the exported model keys
-ETA_QUANTILES: List[float] = [0.10, 0.50, 0.85]
-QUANTILE_KEYS: Tuple[str, str, str] = ("p10", "p50", "p85")
+ETA_QUANTILES: list[float] = [0.10, 0.50, 0.85]
+QUANTILE_KEYS: tuple[str, str, str] = ("p10", "p50", "p85")
 
 # SLA risk bands (used by test assertions and inference)
-SLA_RISK_BANDS: Tuple[str, str, str, str] = ("ON_TIME", "MEDIUM", "HIGH", "BREACH")
+SLA_RISK_BANDS: tuple[str, str, str, str] = ("ON_TIME", "MEDIUM", "HIGH", "BREACH")
 
 # Sentinel value for unseen categorical levels
 MISSING_SENTINEL: str = "__MISSING__"
@@ -182,13 +180,13 @@ DEMAND_TARGET_COLUMN: str = "order_count"
 # Grouping dimensions used to define a "lane"
 # (product_category × origin_region)
 # dest_region is folded into origin_region via Order Region in DataCo
-DEMAND_GROUP_COLS: Tuple[str, str] = ("category_name", "order_region")
+DEMAND_GROUP_COLS: tuple[str, str] = ("category_name", "order_region")
 
 # StatsForecast unique_id column (lane identifier string)
 DEMAND_UNIQUE_ID_COL: str = "unique_id"
 
 # Forecast horizons in days (30 / 60 / 90)
-DEMAND_FORECAST_HORIZONS: Tuple[int, int, int] = (30, 60, 90)
+DEMAND_FORECAST_HORIZONS: tuple[int, int, int] = (30, 60, 90)
 
 # Maximum forecast horizon in weeks (must match longest horizon above)
 DEMAND_FORECAST_HORIZON_WEEKS: int = 13   # 90 days ≈ 13 weeks
@@ -203,7 +201,7 @@ DEMAND_MIN_SERIES_LEN: int = 26
 DEMAND_PREDICTION_LEVEL: int = 80  # 80% CI → lower/upper bands
 
 # Frontend chart-ready keys produced by the inference wrapper
-DEMAND_CHART_KEYS: Tuple[str, ...] = (
+DEMAND_CHART_KEYS: tuple[str, ...] = (
     "ds",          # ISO date string (week start)
     "yhat",        # point forecast
     "yhat_lower",  # CI lower bound

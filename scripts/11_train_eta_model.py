@@ -42,9 +42,9 @@ import subprocess
 import sys
 import time
 import warnings
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
 
 import joblib
 import lightgbm as lgb
@@ -71,7 +71,6 @@ from nexafreight.ml.constants import (  # noqa: E402
     FEATURE_COLUMNS,
     MISSING_SENTINEL,
     NUMERIC_COLUMNS,
-    QUANTILE_KEYS,
     SPLIT_DATES,
     TIME_AXIS_COLUMN,
 )
@@ -135,7 +134,7 @@ def _date_range(s: pd.Series) -> str:
     return f"[{lo.date()} .. {hi.date()}]"
 
 
-def _lift_pct(model_loss: float, baseline_loss: float) -> Optional[float]:
+def _lift_pct(model_loss: float, baseline_loss: float) -> float | None:
     if not np.isfinite(baseline_loss) or np.isclose(baseline_loss, 0.0):
         return None
     return float((baseline_loss - model_loss) / baseline_loss * 100.0)
@@ -172,7 +171,7 @@ def _atomic_joblib(obj: Any, path: Path) -> None:
 # ============================================================================
 # Validation
 # ============================================================================
-def _validate_config(max_rounds: int, early_stop: int) -> List[float]:
+def _validate_config(max_rounds: int, early_stop: int) -> list[float]:
     """Validate constants and CLI args;  return sorted quantile list."""
     if max_rounds <= 0:
         raise ValueError(f"max_rounds must be > 0, got {max_rounds}")
@@ -196,7 +195,9 @@ def _validate_config(max_rounds: int, early_stop: int) -> List[float]:
     if ETA_TARGET_COLUMN in feats:
         raise RuntimeError(f"ETA_TARGET_COLUMN '{ETA_TARGET_COLUMN}' must not be a feature")
     if ETA_ACTUAL_DAYS_COLUMN in feats:
-        raise RuntimeError(f"ETA_ACTUAL_DAYS_COLUMN '{ETA_ACTUAL_DAYS_COLUMN}' must not be a feature")
+        raise RuntimeError(
+            f"ETA_ACTUAL_DAYS_COLUMN '{ETA_ACTUAL_DAYS_COLUMN}' must not be a feature"
+        )
 
     quantiles = sorted(float(q) for q in ETA_QUANTILES)
     expected = [0.10, 0.50, 0.85]
@@ -231,15 +232,15 @@ def _prepare_features(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def _align_categoricals(
-    splits: Dict[str, pd.DataFrame],
-    cat_cols: List[str],
-) -> Tuple[Dict[str, pd.DataFrame], Dict[str, List[str]]]:
+    splits: dict[str, pd.DataFrame],
+    cat_cols: list[str],
+) -> tuple[dict[str, pd.DataFrame], dict[str, list[str]]]:
     """
     Learn categorical levels from training split ONLY.
     Unseen val/test levels become NaN (matching inference-time behaviour).
     """
     out = {k: df.copy() for k, df in splits.items()}
-    levels: Dict[str, List[str]] = {}
+    levels: dict[str, list[str]] = {}
 
     for col in cat_cols:
         train_vals = out["train"][col].dropna().astype(str).unique()
@@ -259,10 +260,10 @@ def _align_categoricals(
 class GroupedQuantileBaseline:
     """Empirical quantile baseline grouped by shipping_mode."""
 
-    def __init__(self, quantiles: List[float]) -> None:
+    def __init__(self, quantiles: list[float]) -> None:
         self.quantiles = quantiles
-        self.global_q: Dict[float, float] = {}
-        self.group_q: Dict[str, Dict[float, float]] = {}
+        self.global_q: dict[float, float] = {}
+        self.group_q: dict[str, dict[float, float]] = {}
         self._fitted = False
 
     def fit(self, df: pd.DataFrame, target: str, group: str) -> None:
@@ -278,7 +279,7 @@ class GroupedQuantileBaseline:
                 self.group_q[str(name)] = {q: float(np.quantile(gy, q)) for q in self.quantiles}
         self._fitted = True
 
-    def predict(self, X: pd.DataFrame) -> Dict[float, np.ndarray]:
+    def predict(self, X: pd.DataFrame) -> dict[float, np.ndarray]:
         if not self._fitted:
             raise RuntimeError("Baseline not fitted")
         n = len(X)
@@ -298,7 +299,7 @@ class GroupedQuantileBaseline:
 def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     quantiles = _validate_config(max_rounds, early_stop)
     started = time.time()
-    trained_at = datetime.now(timezone.utc).isoformat()
+    trained_at = datetime.now(UTC).isoformat()
     model_dir = Path(ETA_MODEL_DIR)
     model_dir.mkdir(parents=True, exist_ok=True)
 
@@ -378,8 +379,8 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
         "test":  time_s >= val_end,
     }
 
-    X_splits: Dict[str, pd.DataFrame] = {}
-    y_splits: Dict[str, pd.Series] = {}
+    X_splits: dict[str, pd.DataFrame] = {}
+    y_splits: dict[str, pd.Series] = {}
     for name, m in masks.items():
         X_splits[name] = X_all[m].reset_index(drop=True)
         y_splits[name] = y_all[m].reset_index(drop=True)
@@ -409,8 +410,8 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     # Step 6: Train quantile models
     # ------------------------------------------------------------------
     log.info("Step 6/8 — Training LightGBM quantile regressors (P10 / P50 / P85) ...")
-    boosters: Dict[str, lgb.Booster] = {}
-    best_iters: Dict[str, int] = {}
+    boosters: dict[str, lgb.Booster] = {}
+    best_iters: dict[str, int] = {}
 
     for alpha in quantiles:
         tag = _qtag(alpha)
@@ -468,12 +469,12 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     # ------------------------------------------------------------------
     log.info("Step 7/8 — Evaluating pinball loss, coverage, monotonicity ...")
 
-    eval_results: Dict[str, Dict[str, Any]] = {}
-    coverage: Dict[str, float] = {}
-    bl_coverage: Dict[str, float] = {}
-    p50_mae: Dict[str, float] = {}
-    raw_mono: Dict[str, float] = {}
-    cor_mono: Dict[str, float] = {}
+    eval_results: dict[str, dict[str, Any]] = {}
+    coverage: dict[str, float] = {}
+    bl_coverage: dict[str, float] = {}
+    p50_mae: dict[str, float] = {}
+    raw_mono: dict[str, float] = {}
+    cor_mono: dict[str, float] = {}
 
     for split in ("train", "val", "test"):
         Xs = X_splits[split]
@@ -498,7 +499,7 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
         bl_preds = baseline.predict(Xs)
 
         # Per-quantile metrics
-        split_metrics: Dict[str, Any] = {}
+        split_metrics: dict[str, Any] = {}
         for alpha in quantiles:
             tag = _qtag(alpha)
             ml = pinball_loss(yt, corrected[tag], alpha)

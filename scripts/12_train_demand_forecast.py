@@ -33,9 +33,9 @@ import subprocess
 import sys
 import time
 import warnings
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import joblib
 import numpy as np
@@ -55,7 +55,6 @@ from nexafreight.ml.constants import (  # noqa: E402
     DATACO_CSV_PATH,
     DEMAND_FORECAST_HORIZON_WEEKS,
     DEMAND_FORECAST_HORIZONS,
-    DEMAND_GROUP_COLS,
     DEMAND_HOLDOUT_WEEKS,
     DEMAND_MIN_SERIES_LEN,
     DEMAND_MODEL_DIR,
@@ -132,7 +131,7 @@ def _atomic_joblib(obj: Any, path: Path) -> None:
         tmp.unlink(missing_ok=True)
 
 
-def _mape(actual: np.ndarray, predicted: np.ndarray) -> Optional[float]:
+def _mape(actual: np.ndarray, predicted: np.ndarray) -> float | None:
     """Mean Absolute Percentage Error, ignoring zero-actual rows."""
     mask = actual != 0
     if mask.sum() == 0:
@@ -148,7 +147,7 @@ def _make_lane_id(category: str, region: str) -> str:
 # ============================================================================
 # Step 1 — Load & aggregate
 # ============================================================================
-def load_and_aggregate(csv_path: Path) -> Tuple[pd.DataFrame, str]:
+def load_and_aggregate(csv_path: Path) -> tuple[pd.DataFrame, str]:
     """
     Load the DataCo CSV, deduplicate to order-level, aggregate weekly order
     counts per (category_name × order_region) lane.
@@ -203,7 +202,9 @@ def load_and_aggregate(csv_path: Path) -> Tuple[pd.DataFrame, str]:
     # Convert period to timestamp (start of week) for StatsForecast compatibility
     agg["ds"] = agg["_week"].dt.to_timestamp(how="start")
 
-    panel = agg[[DEMAND_UNIQUE_ID_COL, "ds", DEMAND_TARGET_COLUMN, "category_name", "order_region"]].copy()
+    panel = agg[
+        [DEMAND_UNIQUE_ID_COL, "ds", DEMAND_TARGET_COLUMN, "category_name", "order_region"]
+    ].copy()
     panel = panel.sort_values([DEMAND_UNIQUE_ID_COL, "ds"]).reset_index(drop=True)
 
     log.info(
@@ -221,7 +222,7 @@ def filter_and_split(
     panel: pd.DataFrame,
     min_series_len: int,
     holdout_weeks: int,
-) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
     """
     Discard sparse lanes, then time-split into train and holdout.
 
@@ -311,7 +312,7 @@ def evaluate_holdout(
     holdout: pd.DataFrame,
     horizon_weeks: int,
     prediction_level: int,
-) -> Tuple[Dict[str, float], float]:
+) -> tuple[dict[str, float], float]:
     """
     Generate point forecasts over the holdout horizon and compute MAPE per lane.
     Prediction intervals are NOT requested here — MAPE only needs the point forecast,
@@ -330,7 +331,7 @@ def evaluate_holdout(
     # StatsForecast returns a column named 'AutoETS' for the point forecast
     point_col = "AutoETS"
 
-    per_lane_mape: Dict[str, float] = {}
+    per_lane_mape: dict[str, float] = {}
     weighted_actuals = 0.0
     weighted_errors = 0.0
 
@@ -350,7 +351,9 @@ def evaluate_holdout(
             weighted_actuals += actual.sum()
             weighted_errors += float(np.sum(np.abs(actual - predicted)))
 
-    weighted_mape = (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
+    weighted_mape = (
+        (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
+    )
 
     log.info(
         "  Holdout MAPE — Weighted: %.1f%%  |  Median lane: %.1f%%  |  Lanes evaluated: %d",
@@ -367,10 +370,10 @@ def evaluate_holdout(
 def generate_forecasts(
     sf: Any,
     panel: pd.DataFrame,
-    qualified_ids: List[str],
+    qualified_ids: list[str],
     horizon_weeks: int,
     prediction_level: int,
-) -> Tuple[Dict[str, Any], Any]:
+) -> tuple[dict[str, Any], Any]:
     """
     Re-fit on the full series (train + holdout) and produce chart-ready
     30/60/90-day forecasts with 80% prediction intervals.
@@ -428,14 +431,14 @@ def generate_forecasts(
         .set_index(DEMAND_UNIQUE_ID_COL)
     )
 
-    forecasts: Dict[str, Any] = {}
+    forecasts: dict[str, Any] = {}
     pi_fallback_count = 0
 
     for uid in qualified_ids:
         history = panel_q[panel_q[DEMAND_UNIQUE_ID_COL] == uid].sort_values("ds")
         fut = preds[preds[DEMAND_UNIQUE_ID_COL] == uid].sort_values("ds")
 
-        lane_data: List[Dict[str, Any]] = []
+        lane_data: list[dict[str, Any]] = []
 
         # Historical actuals (lower == upper == actual for non-forecast rows)
         for _, row in history.iterrows():
@@ -493,7 +496,7 @@ def train(
     holdout_weeks: int = DEMAND_HOLDOUT_WEEKS,
 ) -> None:
     started = time.time()
-    trained_at = datetime.now(timezone.utc).isoformat()
+    trained_at = datetime.now(UTC).isoformat()
     model_dir = Path(DEMAND_MODEL_DIR)
     model_dir.mkdir(parents=True, exist_ok=True)
 
@@ -531,7 +534,10 @@ def train(
     # ------------------------------------------------------------------
     # Step 3: Fit AutoETS on train split
     # ------------------------------------------------------------------
-    log.info("Step 3/5 — Fitting AutoETS on %d qualified lanes (train split) ...", len(qualified_ids))
+    log.info(
+        "Step 3/5 — Fitting AutoETS on %d qualified lanes (train split) ...",
+        len(qualified_ids),
+    )
     sf_eval = fit_autoets(train_df, DEMAND_FORECAST_HORIZON_WEEKS, DEMAND_PREDICTION_LEVEL)
 
     # ------------------------------------------------------------------

@@ -30,18 +30,9 @@ Tests
         present, numeric, and within valid ranges.
 """
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
-
-# ---------------------------------------------------------------------------
-# Make sure src/ is importable even when run directly
-# ---------------------------------------------------------------------------
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from nexafreight.ml.constants import (
     BANNED_COLUMNS,

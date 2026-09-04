@@ -19,23 +19,20 @@ Runs in < 2 seconds (no real model training).
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import joblib
 import numpy as np
-import pandas as pd
 import pytest
 
 from nexafreight.ml.constants import (
     DEMAND_CHART_KEYS,
-    DEMAND_FORECAST_HORIZONS,
     DEMAND_FORECAST_HORIZON_WEEKS,
+    DEMAND_FORECAST_HORIZONS,
     DEMAND_GROUP_COLS,
     DEMAND_MIN_SERIES_LEN,
     DEMAND_PREDICTION_LEVEL,
-    DEMAND_TARGET_COLUMN,
     DEMAND_UNIQUE_ID_COL,
 )
 from nexafreight.ml.demand_forecast import (
@@ -70,7 +67,7 @@ def _make_series(
     n_history: int = _HISTORY_ROWS,
     n_forecast: int = _FORECAST_ROWS,
     base_count: float = 25.0,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build a synthetic chart-ready series."""
     series = []
     from datetime import date, timedelta
@@ -104,7 +101,7 @@ def _make_forecasts_cache(
     uid: str = _UID,
     category: str = _CATEGORY,
     region: str = _REGION,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         uid: {
             "category": category,
@@ -118,7 +115,7 @@ def _make_model_artifact(
     uid: str = _UID,
     category: str = _CATEGORY,
     region: str = _REGION,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "sf": _StubSF(),  # picklable stub — real training uses StatsForecast
         "lane_index": {uid: {"category": category, "region": region}},
@@ -292,7 +289,7 @@ class TestForecastSeries:
     def test_yhat_is_numeric(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
         for row in result.series:
-            assert isinstance(row["yhat"], (int, float)), f"yhat not numeric: {row['yhat']}"
+            assert isinstance(row["yhat"], int | float), f"yhat not numeric: {row['yhat']}"
 
 
 # ---------------------------------------------------------------------------
@@ -326,12 +323,26 @@ class TestClosestForecastRow:
         assert _closest_forecast_row([], 30) is None
 
     def test_no_forecast_rows_returns_none(self) -> None:
-        series = [{"ds": "2015-01-05", "yhat": 10, "yhat_lower": 10, "yhat_upper": 10, "is_forecast": False}]
+        series = [
+            {
+                "ds": "2015-01-05",
+                "yhat": 10,
+                "yhat_lower": 10,
+                "yhat_upper": 10,
+                "is_forecast": False,
+            }
+        ]
         assert _closest_forecast_row(series, 30) is None
 
     def test_returns_first_row_for_30_days(self) -> None:
         rows = [
-            {"ds": f"2018-02-{i:02d}", "yhat": float(i), "yhat_lower": 0.0, "yhat_upper": float(i), "is_forecast": True}
+            {
+                "ds": f"2018-02-{i:02d}",
+                "yhat": float(i),
+                "yhat_lower": 0.0,
+                "yhat_upper": float(i),
+                "is_forecast": True,
+            }
             for i in range(1, 14)
         ]
         result = _closest_forecast_row(rows, 30)
