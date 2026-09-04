@@ -351,17 +351,17 @@ def evaluate_holdout(
             weighted_actuals += actual.sum()
             weighted_errors += float(np.sum(np.abs(actual - predicted)))
 
-    weighted_mape = (
+    wape = (
         (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
     )
 
     log.info(
-        "  Holdout MAPE — Weighted: %.1f%%  |  Median lane: %.1f%%  |  Lanes evaluated: %d",
-        weighted_mape,
+        "  Holdout metrics — WAPE: %.1f%%  |  Median lane MAPE: %.1f%%  |  Lanes evaluated: %d",
+        wape,
         float(np.median(list(per_lane_mape.values()))) if per_lane_mape else float("nan"),
         len(per_lane_mape),
     )
-    return per_lane_mape, weighted_mape
+    return per_lane_mape, wape
 
 
 # ============================================================================
@@ -553,7 +553,7 @@ def train(
     # Step 4: Evaluate holdout MAPE
     # ------------------------------------------------------------------
     log.info("Step 4/5 — Evaluating holdout MAPE (%d-week holdout) ...", holdout_weeks)
-    per_lane_mape, weighted_mape = evaluate_holdout(
+    per_lane_mape, wape = evaluate_holdout(
         sf_eval, holdout_df, holdout_weeks, DEMAND_PREDICTION_LEVEL
     )
 
@@ -623,11 +623,12 @@ def train(
             "freq": "W",
         },
         "metrics": {
-            "weighted_mape_pct": round(weighted_mape, 2),
+            "wape_pct": round(wape, 2),
             "median_lane_mape_pct": round(
                 float(np.median(list(per_lane_mape.values()))), 2
             ) if per_lane_mape else None,
             "n_lanes_evaluated": len(per_lane_mape),
+            "per_lane_mape_zero_actual_policy": "dropped",
             "best_5_lanes_mape": best5,
             "worst_5_lanes_mape": worst5,
         },
@@ -652,7 +653,7 @@ def train(
     print("  NexaFreight — Demand Forecast (T-038) Training Summary")
     print(sep)
     print(f"  Qualified lanes: {len(qualified_ids)} / {total_lanes}")
-    print(f"  Weighted MAPE:   {weighted_mape:.1f}%")
+    print(f"  WAPE:            {wape:.1f}%")
     print(f"  Median MAPE:     {float(np.median(list(per_lane_mape.values()))):.1f}%"
           if per_lane_mape else "  Median MAPE:     N/A")
     print(f"  Runtime:         {runtime}s")
