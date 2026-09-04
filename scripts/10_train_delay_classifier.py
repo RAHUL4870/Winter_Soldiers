@@ -356,6 +356,24 @@ def main(n_trials: int) -> None:
     metadata = {
         "model_name": "delay_classifier",
         "model_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "extensibility": {
+            "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+            "reserved_v2_features": [
+                {
+                    "name": "active_disruption_near_dest",
+                    "dtype": "float",
+                    "required": False,
+                    "min_version": "2.0.0"
+                },
+                {
+                    "name": "news_risk_score",
+                    "dtype": "float",
+                    "required": False,
+                    "min_version": "2.0.0"
+                }
+            ]
+        },
         "trained_at": datetime.now(UTC).isoformat(),
         "git_sha": git_sha(),
         "random_seed": RANDOM_SEED,

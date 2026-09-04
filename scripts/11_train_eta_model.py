@@ -542,6 +542,24 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     # --- feature_schema.json ---
     schema = {
         "model_version": MODEL_VERSION,
+        "schema_version": "1.0.0",
+        "extensibility": {
+            "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+            "reserved_v2_features": [
+                {
+                    "name": "active_disruption_near_dest",
+                    "dtype": "float",
+                    "required": False,
+                    "min_version": "2.0.0"
+                },
+                {
+                    "name": "news_risk_score",
+                    "dtype": "float",
+                    "required": False,
+                    "min_version": "2.0.0"
+                }
+            ]
+        },
         "trained_at": trained_at,
         "git_sha": _git_sha(),
         "target_column": ETA_TARGET_COLUMN,

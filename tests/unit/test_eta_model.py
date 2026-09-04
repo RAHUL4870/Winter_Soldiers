@@ -305,3 +305,12 @@ class TestFeatureIntegrityAndLeakage:
         for key in QUANTILE_KEYS:
             assert key in mock_eta_model.models
         assert list(mock_eta_model.models.keys()) == list(QUANTILE_KEYS)
+
+    def test_script_11_has_extensibility_schema(self) -> None:
+        from pathlib import Path
+        script_path = Path(__file__).parent.parent.parent / "scripts" / "11_train_eta_model.py"
+        content = script_path.read_text(encoding="utf-8")
+        assert '"schema_version": "1.0.0"' in content
+        assert '"active_disruption_near_dest"' in content
+        assert '"news_risk_score"' in content
+        assert '"extensibility"' in content

@@ -369,3 +369,22 @@ class TestSplitSafety:
         assert X["sla_quarter"].between(1, 4).all(), (
             "sla_quarter values outside 1-4"
         )
+
+
+# ---------------------------------------------------------------------------
+# TestExtensibility
+# ---------------------------------------------------------------------------
+class TestExtensibility:
+    def test_v2_features_not_in_v1(self):
+        from nexafreight.ml.constants import FEATURE_COLUMNS
+        assert "active_disruption_near_dest" not in FEATURE_COLUMNS
+        assert "news_risk_score" not in FEATURE_COLUMNS
+
+    def test_script_10_has_extensibility_schema(self):
+        from pathlib import Path
+        script_path = Path(__file__).parent.parent.parent / "scripts" / "10_train_delay_classifier.py"
+        content = script_path.read_text(encoding="utf-8")
+        assert '"schema_version": "1.0.0"' in content
+        assert '"active_disruption_near_dest"' in content
+        assert '"news_risk_score"' in content
+        assert '"extensibility"' in content
