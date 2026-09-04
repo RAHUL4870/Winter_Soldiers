@@ -294,7 +294,7 @@ def fit_autoets(
     )
 
     sf = StatsForecast(
-        models=[AutoETS(season_length=4)],  # quarterly seasonality on weekly data
+        models=[AutoETS(season_length=4)],  # ~monthly seasonality on weekly data (4 weeks)
         freq="W",
         n_jobs=1,  # single-threaded: multiprocessing hides per-lane errors
     )
@@ -433,7 +433,7 @@ def generate_forecasts(
     sf_full_train["y"] = sf_full_train["y"].astype(float)
 
     sf_final = StatsForecast(
-        models=[AutoETS(season_length=4)],
+        models=[AutoETS(season_length=4)],  # ~monthly seasonality (4 weeks)
         freq="W",
         n_jobs=1,  # single-threaded: multiprocessing hides per-lane errors
     )
