@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexaFreight — Scheduled Flow v2 (Reworked Plan · OSINT + UI Adoption)</title>
+
+</head>
+<body>
+
+<h1>NEXAFREIGHT — SCHEDULED FLOW v2</h1>
+<div class="sub">Reworked plan · OSIRIS UI adoption + OSINT intelligence feeds · Team resumes at <b style="color:var(--accent)">T-035</b> · Generated Sep 2026</div>
+
+<div class="legend">
+  <b>LEGEND</b><br><br>
+  <span class="f-done">✅ DONE</span>
+  <span class="f-same">• UNCHANGED</span>
+  <span class="f-mod">△ MODIFIED (same task, spec extended)</span>
+  <span class="f-rework">↻ REWORK (touches already-done output)</span>
+  <span class="f-new">➕ NEW (did not exist in v1)</span>
+  <br><br>
+  <b>OWNERS</b> &nbsp;
+  <span class="o-be">BE = Backend Engineer</span>
+  <span class="o-de">DE = Data Engineer</span>
+  <span class="o-ml">ML = ML/OR Engineer (you)</span>
+  <span class="o-fe">FE = Frontend Owner</span>
+</div>
+
+<div class="note"><b>Ground rules baked into this schedule:</b> (1) OSINT is implemented as new <b>disruption sources</b> feeding the existing disruptions table — it never jumps the queue ahead of the manual alert loop (Phase 4 core first, feeds second). (2) The UI reskin is done ONCE as a design-token extraction sprint (Phase 2R), so nothing gets styled twice. (3) ML Phase 3 proceeds immediately and is unaffected except one schema-extensibility note on T-035. (4) OSIRIS is MIT — attribution task included (T-034C). Code license ≠ data license: OpenSky non-commercial and Telegram feeds are excluded.</div>
+
+<div class="youare">▶ YOU ARE HERE: T-001 … T-034 complete. Next up: T-034A/B/C (FE, parallel) + T-035 (ML, starts now).</div>
+
+<!-- ══════════════════ PHASE 0 ══════════════════ -->
+<h2>PHASE 0 <span class="ph">· Foundation · Week 1</span></h2>
+<div class="goal">Skeleton, auth, CI, zero data — <b>completed, no changes</b></div>
+<div class="done-banner">✅ T-001 → T-013 ALL DONE · UNCHANGED · No rework required by OSINT/UI additions</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Status</th></tr>
+  <tr><td class="id">T-001…T-013</td><td>pyproject, package structure, config, database, ORM models, Alembic 001, main.py, stub routers, adapter protocols + mock, auth/JWT, conftest + unit tests, Makefile, pre-commit + CI, Vite/React init, login page</td><td class="owner o-be">BE / FE</td><td class="flag f-done">✅ DONE •</td></tr>
+</table>
+
+<!-- ══════════════════ PHASE 1 ══════════════════ -->
+<h2>PHASE 1 <span class="ph">· Data Foundation · Weeks 2–3</span></h2>
+<div class="goal">Scripts 01–07, all routes pre-computed — <b>completed, no changes</b></div>
+<div class="done-banner">✅ T-014 → T-024 ALL DONE · UNCHANGED</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Status</th></tr>
+  <tr><td class="id">T-014…T-024</td><td>Ingest DataCo / UN-LOCODE / port data, consolidate shipments, plan routes (searoute + ORS + geodesic), assign vessels (MMSI) + flights, shipment API endpoints, consolidation + route-planner tests</td><td class="owner o-de">DE / BE</td><td class="flag f-done">✅ DONE •</td></tr>
+</table>
+
+<!-- ══════════════════ PHASE 2 ══════════════════ -->
+<h2>PHASE 2 <span class="ph">· Live Map · Weeks 4–5</span></h2>
+<div class="goal">Assets move on a real map — <b>completed; visual output will be reskinned in Phase 2R</b></div>
+<div class="done-banner">✅ T-025 → T-034 ALL DONE · Logic unchanged · Styling superseded by Phase 2R</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Status</th></tr>
+  <tr><td class="id">T-025…T-030</td><td>AIS history download, 4 feed adapters (AISStream / ReplayAIS / TruckSim / ReplayFlight), ais_listener + position_interpolator workers, SSE stream, map snapshot/routes/ports/feed-health endpoints</td><td class="owner o-be">BE / DE</td><td class="flag f-done">✅ DONE •</td></tr>
+  <tr><td class="id">T-031…T-034</td><td>FreightMap.tsx + layer components, mode-colored route lines, asset markers + heading, provenance badges, click → side panel</td><td class="owner o-fe">FE</td><td class="flag f-done">✅ DONE <span class="f-rework">↻ visuals reskinned in T-034B</span></td></tr>
+</table>
+
+<!-- ══════════════════ PHASE 2R — NEW ══════════════════ -->
+<h2>PHASE 2R <span class="ph">· UI Design System Adoption (OSIRIS aesthetic) · ~1 week, runs PARALLEL to Phase 3</span></h2>
+<div class="goal">One-time extraction of the OSIRIS look (fonts, colors, HUD styling) into our own Tailwind theme. Done once, early, so no component is ever styled twice.</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-034A</td><td>Extract OSIRIS design tokens: font stack (mono for data + grotesque for UI), color palette (bg/surface/accent/severity), border &amp; glow treatments, panel layout patterns → <span style="font-family:var(--mono)">tailwind.config.js</span> theme + <span style="font-family:var(--mono)">docs/design-tokens.md</span>. Reference OSIRIS repo code only — do NOT port Next.js components.</td><td class="owner o-fe">FE</td><td class="flag f-new">➕ NEW</td><td>1–2 days. Blocks T-034B.</td></tr>
+  <tr><td class="id">T-034B</td><td>Reskin existing Phase 0–2 frontend with the new tokens: login, Dashboard, FreightMap + layers, side panel, shipment list. Map basemap stays MapTiler dark-dataviz (already matches aesthetic). Severity colors + provenance badges restyled in the new language.</td><td class="owner o-fe">FE</td><td class="flag f-rework">↻ REWORK</td><td>Retroactive pass over T-031…T-034 output. 2–4 days.</td></tr>
+  <tr><td class="id">T-034C</td><td>License hygiene: add MIT attribution for OSIRIS in <span style="font-family:var(--mono)">LICENSE / NOTICE</span> for any copied CSS/config fragments; document excluded feeds (OpenSky = non-commercial, Telegram = ToS-grey) in <span style="font-family:var(--mono)">docs/data-licensing.md</span>.</td><td class="owner o-fe">FE + <span class="o-de">DE</span></td><td class="flag f-new">➕ NEW</td><td>Half day.</td></tr>
+</table>
+<div class="gate">✅ Gate: existing app fully wears the new theme · no component styled in old + new · attribution committed</div>
+
+<!-- ══════════════════ PHASE 3 ══════════════════ -->
+<h2>PHASE 3 <span class="ph">· ML Models · Weeks 6–8 · STARTS NOW</span></h2>
+<div class="goal">Delay classifier, ETA quantiles, demand forecast — <b>essentially unchanged by the rework</b>. Your critical path.</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-035</td><td>Feature engineering + training dataset (time-based split, leakage-safe, baseline). <b>Spec extension:</b> design <span style="font-family:var(--mono)">feature_schema.json</span> to be versioned/extensible so OSINT-derived features (e.g. <span style="font-family:var(--mono)">active_disruption_near_dest</span>, <span style="font-family:var(--mono)">news_risk_score</span>) can be added in a v2 model later WITHOUT pipeline rework. Do not build those features now.</td><td class="owner o-ml">ML</td><td class="flag f-mod">△ MODIFIED</td><td>Only the extensibility note is new. Everything else identical to v1.</td></tr>
+  <tr><td class="id">T-036</td><td>Train LightGBM delay classifier · Optuna 50 trials · must beat naive lane baseline · SHAP top-5 factors · artifacts (model.joblib, feature_schema.json, metadata.json)</td><td class="owner o-ml">ML</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-037</td><td>Train ETA quantile models P10/P50/P85 · residual target · pinball loss · ~75% interval coverage</td><td class="owner o-ml">ML</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-038</td><td>Train StatsForecast AutoETS demand model · weekly volume per (category × origin × dest) · 30/60/90d horizons</td><td class="owner o-ml">ML</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-039</td><td>ml/registry.py + inference wrappers (delay_classifier.py, eta_model.py, demand_forecast.py) · load at startup · 503 if artifacts missing</td><td class="owner o-ml">ML</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-040</td><td>GET /api/shipments/{id}/predict endpoint wiring (model_version + provenance=DERIVED enforced)</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-041</td><td>Frontend risk badges (LOW/MED/HIGH), ETA ranges, top SHAP factor on cards + demand chart on Analytics page</td><td class="owner o-fe">FE</td><td class="flag f-mod">△ MODIFIED</td><td>Built directly in the NEW design tokens (depends on T-034A).</td></tr>
+  <tr><td class="id">T-042</td><td>ML unit tests: feature order, missing values, output schema, quantile ordering, model-missing behavior</td><td class="owner o-ml">ML</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+</table>
+<div class="gate">✅ Gate: all 3 models beat baseline · predictions carry model_version + provenance · risk badges live</div>
+
+<!-- ══════════════════ PHASE 4 ══════════════════ -->
+<h2>PHASE 4 <span class="ph">· Alert + Financial Engine · Weeks 9–10</span></h2>
+<div class="goal">Manual + automatic disruption loop, per-order financial impact — <b>core unchanged; ONE migration extended for OSINT-readiness</b></div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-043</td><td>Alembic migration 002: <b>extended spec</b> — disruptions.source enum gains <span style="font-family:var(--mono)">GDELT_EVENT | WEATHER_FEED | SEISMIC_FEED | SANCTIONS</span>; add <span style="font-family:var(--mono)">match_confidence FLOAT</span>, <span style="font-family:var(--mono)">match_method ENUM</span>, <span style="font-family:var(--mono)">raw_event_ref TEXT</span>; NEW staging table <span style="font-family:var(--mono)">intelligence_events</span>. Confidence is a field ALONGSIDE provenance — the 5-label provenance rule is untouched.</td><td class="owner o-be">BE</td><td class="flag f-mod">△ MODIFIED</td><td>Do schema now (cheap during rebuild) even though feeds come in 4.5.</td></tr>
+  <tr><td class="id">T-044</td><td>workers/port_monitor.py (daily 6am congestion index) + workers/sla_monitor.py (15 min)</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-045</td><td>services/disruption_detector.py (AIS deviation + port congestion + manual)</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-046</td><td>services/alert_engine.py + sla_checker.py (revised ETA → per-order SLA breach → severity)</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-047</td><td>services/financial_engine.py (SLA penalties, demurrage, exposure) + unit tests</td><td class="owner o-be">BE + <span class="o-ml">ML</span></td><td class="flag f-same">• UNCHANGED</td><td>ML reviews penalty math (OR hat).</td></tr>
+  <tr><td class="id">T-048</td><td>POST /api/disruptions (manual) + GET/PATCH alert endpoints</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-049</td><td>Frontend AlertPanel + AlertCard + per-order SLA breakdown table</td><td class="owner o-fe">FE</td><td class="flag f-mod">△ MODIFIED</td><td>Built in new design tokens; reserve slot for confidence badge (used in 4.5).</td></tr>
+</table>
+<div class="gate">✅ Gate: manual disruption → alert &lt; 30s · correct exposure · per-order breach table · <b>THIS LOOP MUST WORK BEFORE PHASE 4.5 STARTS</b></div>
+
+<!-- ══════════════════ PHASE 4.5 — NEW ══════════════════ -->
+<h2>PHASE 4.5 <span class="ph">· OSINT Intelligence Feeds · +1–2 weeks · NEW PHASE</span></h2>
+<div class="goal">OSIRIS-inspired free feeds become additional automatic disruption sources. Pure extension of the Phase 4 loop — no new architecture.</div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-049A</td><td>Source vetting + licensing doc: GDELT (attribution), Open-Meteo (free, no key), USGS earthquakes, NASA FIRMS, GDACS, OFAC SDN. Explicitly exclude OpenSky (non-commercial) + Telegram (ToS). Output: <span style="font-family:var(--mono)">docs/osint-sources.md</span></td><td class="owner o-de">DE</td><td class="flag f-new">➕ NEW</td><td>Can start earlier as research, parallel to Phase 3/4.</td></tr>
+  <tr><td class="id">T-049B</td><td>Feed adapters implementing existing FeedAdapter-style protocol: <span style="font-family:var(--mono)">adapters/feed/gdelt.py · weather.py · seismic.py</span> (+ optional <span style="font-family:var(--mono)">sanctions.py</span> for OFAC vessel screen at assignment time)</td><td class="owner o-be">BE</td><td class="flag f-new">➕ NEW</td><td>~0.5 day per adapter; reuse Phase 2 adapter patterns.</td></tr>
+  <tr><td class="id">T-049C</td><td>GDELT relevance filter + parser: keyword/theme filtering to strikes, port closures, conflicts near logistics nodes. Noise control is the make-or-break of this phase.</td><td class="owner o-de">DE</td><td class="flag f-new">➕ NEW</td><td>Hardest task in 4.5. Timebox it.</td></tr>
+  <tr><td class="id">T-049D</td><td>services/intel_matcher.py — geofence match (event lat/lon vs port coords via Shapely, you already have UN/LOCODE coords) + MMSI exact match + lane/time-window match → writes intelligence_events, promotes to disruption candidate</td><td class="owner o-be">BE + <span class="o-ml">ML</span></td><td class="flag f-new">➕ NEW</td><td>ML owns the match_confidence scoring formula (weighted distance + keyword strength + corroboration). Keep it simple — not a research project.</td></tr>
+  <tr><td class="id">T-049E</td><td>workers/intel_monitor.py — APScheduler job every 30–60 min polling the feed adapters; feed-health entries added to /api/map/feed-health</td><td class="owner o-be">BE</td><td class="flag f-new">➕ NEW</td><td>Extends existing scheduler block.</td></tr>
+  <tr><td class="id">T-049F</td><td>routers/intel.py — GET /api/intel/events + GET /api/map/intel (GeoJSON for map layer). Low-confidence events surface as CANDIDATES requiring operator confirmation; high-confidence auto-create disruptions (same as AIS/port paths).</td><td class="owner o-be">BE</td><td class="flag f-new">➕ NEW</td><td>Human-in-the-loop rule: candidates never auto-fire reroutes.</td></tr>
+  <tr><td class="id">T-049G</td><td>Frontend IntelLayer.tsx — OSIRIS-style event layer (quakes/fires/news markers, clustering via MapLibre techniques from OSIRIS as reference) + confidence badge next to provenance badge + intel feed toggle in layer control</td><td class="owner o-fe">FE</td><td class="flag f-new">➕ NEW</td><td>Port the WebGL/clustering IDEAS, not the Next.js components.</td></tr>
+  <tr><td class="id">T-049H</td><td>Tests: matcher geofence math, confidence scoring, candidate-vs-auto promotion thresholds, adapter failure → feed-health degradation (no crash)</td><td class="owner o-be">BE + <span class="o-ml">ML</span></td><td class="flag f-new">➕ NEW</td><td></td></tr>
+</table>
+<div class="gate">✅ Gate: real GDELT strike near NLRTM → candidate appears on map + panel · operator confirms → normal Phase 4 alert flow fires · feed outage degrades gracefully</div>
+
+<!-- ══════════════════ PHASE 5 ══════════════════ -->
+<h2>PHASE 5 <span class="ph">· Rerouting Engine · Weeks 11–12 (+4.5 offset)</span></h2>
+<div class="goal">3 options, approve, execute, immutable audit — <b>engine unchanged; triggers enriched by OSINT</b></div>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-053</td><td>Seed corridor_alternatives table for major DataCo lanes. <b>Spec extension:</b> when_to_use triggers may now be satisfied by OSINT-sourced disruptions (e.g. GDELT PORT_STRIKE) — data format unchanged, just documented.</td><td class="owner o-ml">ML + <span class="o-de">DE</span></td><td class="flag f-mod">△ MODIFIED</td><td>OR hat: you own alternatives + scoring rationale.</td></tr>
+  <tr><td class="id">T-054</td><td>services/reroute_engine.py — score alternatives, generate 3 options (Accept / Divert / Modal-shift-or-Split), SPLIT logic (penalties vs air premium)</td><td class="owner o-be">BE + <span class="o-ml">ML</span></td><td class="flag f-same">• UNCHANGED</td><td>ML owns objective function + SPLIT math; BE implements service.</td></tr>
+  <tr><td class="id">T-055</td><td>services/decision_executor.py — apply approved option, REPLACED legs, route_version++, audit log</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-056</td><td>GET /options + POST /approve + GET /decisions endpoints</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-057</td><td>Frontend RerouteOptions.tsx (3 cards, ⭐ AI recommendation, approve confirm) + AuditLog page</td><td class="owner o-fe">FE</td><td class="flag f-mod">△ MODIFIED</td><td>New design tokens only — logic identical.</td></tr>
+  <tr><td class="id">T-058</td><td>Reroute + decision workflow tests (incl. SPLIT trigger cases)</td><td class="owner o-ml">ML + <span class="o-be">BE</span></td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+</table>
+<div class="gate">✅ Gate: inject disruption (manual OR OSINT-confirmed) → 3 correctly-priced options → approve → map redraws → immutable audit entry</div>
+
+<!-- ══════════════════ PHASE 6 ══════════════════ -->
+<h2>PHASE 6 <span class="ph">· LLM Copilot · Week 13 · BUILD LAST</span></h2>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-059</td><td>Gemini + Ollama adapters, services/copilot.py context builder, POST /api/copilot/ask</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-060</td><td>Copilot context injection. <b>Optional extension:</b> include active intelligence_events for the shipment's route in the context block, so the copilot can explain OSINT-driven alerts (and help triage noisy candidates).</td><td class="owner o-be">BE</td><td class="flag f-mod">△ MODIFIED</td><td>Optional — cut first if time-boxed.</td></tr>
+  <tr><td class="id">T-061</td><td>Frontend collapsible copilot panel in ShipmentDetail</td><td class="owner o-fe">FE</td><td class="flag f-same">• UNCHANGED</td><td>New tokens by default (theme already applied).</td></tr>
+</table>
+
+<!-- ══════════════════ PHASE 7 ══════════════════ -->
+<h2>PHASE 7 <span class="ph">· Analytics + Polish · Weeks 14–15</span></h2>
+<table>
+  <tr><th>ID</th><th>Task</th><th>Owner</th><th>Flag</th><th>Notes</th></tr>
+  <tr><td class="id">T-062</td><td>DuckDB analytics: scorecard, demand, ESG, SLA, financial endpoints</td><td class="owner o-be">BE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-063</td><td>Frontend dashboards: FinancialScorecard, DemandForecast, ESGReport</td><td class="owner o-fe">FE</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-064</td><td>Feed health dashboard. <b>Extension:</b> now also shows OSINT adapters (GDELT/weather/seismic) staleness + message counts.</td><td class="owner o-fe">FE + <span class="o-be">BE</span></td><td class="flag f-mod">△ MODIFIED</td><td></td></tr>
+  <tr><td class="id">T-065</td><td>DB indexes, README + architecture diagram, rotate dev secrets</td><td class="owner o-all">ALL</td><td class="flag f-same">• UNCHANGED</td><td></td></tr>
+  <tr><td class="id">T-066</td><td>10-minute demo script. <b>Extension:</b> demo beat added at ~minute 4 — a real OSINT event (quake/news) appears on the intel layer, operator confirms → alert → reroute. Strongest new demo moment.</td><td class="owner o-all">ALL</td><td class="flag f-mod">△ MODIFIED</td><td></td></tr>
+</table>
+
+<!-- ══════════════════ SUMMARY ══════════════════ -->
+<h2>CHANGE SUMMARY</h2>
+<table>
+  <tr><th>Category</th><th>Count</th><th>Tasks</th></tr>
+  <tr><td>✅ Done (untouched)</td><td>34</td><td class="id">T-001 … T-034</td></tr>
+  <tr><td><span class="f-new">➕ New tasks</span></td><td>11</td><td class="id">T-034A, T-034C, T-049A … T-049H</td></tr>
+  <tr><td><span class="f-rework">↻ Rework of done output</span></td><td>1</td><td class="id">T-034B (reskin of T-031…T-034 visuals)</td></tr>
+  <tr><td><span class="f-mod">△ Modified specs</span></td><td>8</td><td class="id">T-035, T-041, T-043, T-049, T-053, T-057, T-060, T-064, T-066</td></tr>
+  <tr><td>• Unchanged upcoming</td><td>rest</td><td class="id">T-036…T-040, T-042, T-044…T-048, T-054…T-056, T-058, T-059, T-061, T-062, T-063, T-065</td></tr>
+</table>
+
+<div class="note"><b>Added time budget:</b> Phase 2R ≈ 3–6 days (parallel to Phase 3, zero impact on ML) · Phase 4.5 ≈ 1–2 weeks (after Phase 4 gate) · everything else absorbs as spec notes. <b>Critical path is unchanged:</b> ML (T-035…T-042) starts immediately and is not blocked by any new task.</div>
+
+<footer>NexaFreight Scheduled Flow v2 · assumes v1 task IDs T-001–T-034 done as reported; inserted tasks use letter suffixes (T-034A, T-049B…) to avoid renumbering the original plan · OSIRIS referenced under MIT with attribution (T-034C)</footer>
+
+</body>
+</html>

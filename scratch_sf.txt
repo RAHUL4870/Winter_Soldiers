@@ -1,0 +1,1518 @@
+Copy everything below and save it as `nexafreight_tasks.html`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NexaFreight — Chronological Task Plan</title>
+
+</head>
+<body>
+
+<header>
+  <h1>NexaFreight Control Tower</h1>
+  <p>Chronological Task Plan &nbsp;·&nbsp; Role Assignments &nbsp;·&nbsp; 15 Weeks &nbsp;·&nbsp; August 2026</p>
+</header>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="pill"><div class="dot" style="background:var(--de)"></div>Data Engineer</div>
+  <div class="pill"><div class="dot" style="background:var(--be)"></div>Backend Engineer</div>
+  <div class="pill"><div class="dot" style="background:var(--ml)"></div>ML Engineer</div>
+  <div class="pill"><div class="dot" style="background:var(--fe)"></div>Frontend Engineer</div>
+  <div class="pill"><div class="dot" style="background:var(--fs)"></div>Full Stack</div>
+  <div class="pill"><div class="dot" style="background:var(--dv)"></div>DevOps / Infra</div>
+</div>
+
+<!-- Progress overview -->
+<div class="progress-header">
+  <h2>Phase Overview — 15 Weeks</h2>
+  <div class="phases-row">
+    <div class="ph-seg ph0" title="Phase 0"></div>
+    <div class="ph-seg ph1" style="flex:2" title="Phase 1"></div>
+    <div class="ph-seg ph2" style="flex:2" title="Phase 2"></div>
+    <div class="ph-seg ph3" style="flex:3" title="Phase 3"></div>
+    <div class="ph-seg ph4" style="flex:2" title="Phase 4"></div>
+    <div class="ph-seg ph5" style="flex:2" title="Phase 5"></div>
+    <div class="ph-seg ph6" title="Phase 6"></div>
+    <div class="ph-seg ph7" style="flex:2" title="Phase 7"></div>
+  </div>
+  <div class="phase-labels">
+    <div class="ph-label">Ph0<br/>W1</div>
+    <div class="ph-label" style="flex:2">Ph1<br/>W2–3</div>
+    <div class="ph-label" style="flex:2">Ph2<br/>W4–5</div>
+    <div class="ph-label" style="flex:3">Ph3<br/>W6–8</div>
+    <div class="ph-label" style="flex:2">Ph4<br/>W9–10</div>
+    <div class="ph-label" style="flex:2">Ph5<br/>W11–12</div>
+    <div class="ph-label">Ph6<br/>W13</div>
+    <div class="ph-label" style="flex:2">Ph7<br/>W14–15</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 0
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#4f8ef7">PHASE 0</div>
+    <div class="phase-title">Foundation — Skeleton, Auth, CI</div>
+    <div class="phase-meta">Week 1 &nbsp;·&nbsp; 13 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 1</span></div>
+    <div class="stat">Goal <span>Working skeleton. Zero data, zero features. Everything wires together.</span></div>
+    <div class="stat">Blocker for <span>All subsequent phases</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Day 1–2 &nbsp; Project Scaffolding</div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-001</div>
+        <div class="task-title">Create repository + branch strategy</div>
+        <div class="task-desc">Init GitHub repo. Set default branch to <code>main</code>. Branch naming convention: <code>feat/</code>, <code>fix/</code>, <code>chore/</code>. Add <code>.gitignore</code> (Python + Node + secrets). Add <code>README.md</code> stub.</div>
+        <div class="task-files">
+          <span class="file-tag">.gitignore</span>
+          <span class="file-tag">README.md</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-002</div>
+        <div class="task-title">pyproject.toml — all pinned dependencies</div>
+        <div class="task-desc">Define all backend dependencies with pinned versions. Configure Ruff (linter), mypy (type checker), pytest settings. Add <code>[project.optional-dependencies] dev = [...]</code> group.</div>
+        <div class="task-files">
+          <span class="file-tag">pyproject.toml</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-001</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-003</div>
+        <div class="task-title">Pre-commit hooks + GitHub Actions CI</div>
+        <div class="task-desc">Configure <code>.pre-commit-config.yaml</code> with: ruff (lint + format), mypy (type check), gitleaks (secret detection). Create <code>.github/workflows/ci.yml</code>: on push → install → lint → test. Free for public repos.</div>
+        <div class="task-files">
+          <span class="file-tag">.pre-commit-config.yaml</span>
+          <span class="file-tag">.github/workflows/ci.yml</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-002</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-004</div>
+        <div class="task-title">Full package structure — all folders + __init__.py</div>
+        <div class="task-desc">Create the complete folder tree: <code>src/nexafreight/</code> with models/, schemas/, adapters/, services/, ml/, routers/, workers/. Every folder gets an <code>__init__.py</code>. Create <code>tests/unit/</code> and <code>tests/integration/</code>.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/__init__.py</span>
+          <span class="file-tag">tests/conftest.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-002</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-005</div>
+        <div class="task-title">config.py — pydantic-settings, all env vars typed</div>
+        <div class="task-desc">Implement <code>Settings</code> class using <code>pydantic-settings BaseSettings</code>. Every env var typed and documented. <code>@lru_cache</code> singleton. Create <code>.env.example</code> with instructions for every variable. No hardcoded values anywhere.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/config.py</span>
+          <span class="file-tag">.env.example</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-004</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-006</div>
+        <div class="task-title">database.py — async SQLAlchemy 2.0 + aiosqlite</div>
+        <div class="task-desc">Async engine with WAL mode enabled via <code>connect_args</code>. <code>AsyncSessionFactory</code> with <code>async_sessionmaker</code>. <code>Base = DeclarativeBase()</code>. FastAPI <code>get_db()</code> dependency with commit/rollback logic. SQLite path from config.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/database.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-005</span>
+      </div>
+    </div>
+
+    <div class="week-label">Day 3–4 &nbsp; ORM Models + Migrations</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-007</div>
+        <div class="task-title">All SQLAlchemy ORM models — complete schema</div>
+        <div class="task-desc">Write all 14 model files: base.py (TimestampMixin, ProvenanceMixin), user.py, location.py, order.py, order_item.py, shipment.py, leg.py, vessel.py, position_report.py, event.py, disruption.py, alert.py, reroute_option.py, decision.py, port_daily_stat.py, audit_log.py. Every column, every index, every relationship defined once here.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/models/*.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-006</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-008</div>
+        <div class="task-title">Alembic init + migration 001_initial_schema</div>
+        <div class="task-desc">Init Alembic for async SQLite. Configure <code>alembic/env.py</code> to use async engine and import all models. Run <code>alembic revision --autogenerate</code> to produce <code>001_initial_schema.py</code>. Verify <code>alembic upgrade head</code> creates all tables. Add <code>make migrate</code> to Makefile.</div>
+        <div class="task-files">
+          <span class="file-tag">alembic/env.py</span>
+          <span class="file-tag">alembic/versions/001_initial_schema.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-007</span>
+      </div>
+    </div>
+
+    <div class="week-label">Day 4–5 &nbsp; API Skeleton + Auth</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-009</div>
+        <div class="task-title">main.py — FastAPI app factory, lifespan, CORS, router wiring</div>
+        <div class="task-desc">App factory pattern with <code>@asynccontextmanager lifespan</code>. On startup: run alembic upgrade, create tables, start APScheduler. CORS middleware configured for <code>localhost:5173</code>. Include all routers as stubs (return 200 {"status":"ok"}). Uvicorn config in Makefile.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/main.py</span>
+          <span class="file-tag">src/nexafreight/routers/__init__.py</span>
+          <span class="file-tag">Makefile</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-008</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-010</div>
+        <div class="task-title">JWT auth — login, refresh, me endpoints</div>
+        <div class="task-desc">POST /api/auth/login (form data → JWT). POST /api/auth/refresh. GET /api/auth/me. Password hashing with passlib/bcrypt. Token signing with python-jose HS256. <code>get_current_user</code> dependency. Role enum: OPERATOR, MANAGER, DIRECTOR. Seed one test user in migration.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/auth.py</span>
+          <span class="file-tag">src/nexafreight/schemas/auth.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-009</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-011</div>
+        <div class="task-title">Adapter protocols + MockFeedAdapter</div>
+        <div class="task-desc">Write <code>adapters/protocols.py</code>: FeedAdapter Protocol, PositionReport dataclass, FeedHealth dataclass, AssetType enum, Provenance enum. Write <code>adapters/feed/mock.py</code>: returns deterministic positions for 3 asset types. Used by ALL tests — never touches a real API.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/adapters/protocols.py</span>
+          <span class="file-tag">src/nexafreight/adapters/feed/mock.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-004</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-012</div>
+        <div class="task-title">tests/conftest.py + 5 financial engine unit tests</div>
+        <div class="task-desc">conftest.py: in-memory SQLite test DB, MockFeedAdapter injection, test user fixture. Write <code>tests/unit/test_financial_engine.py</code> with 5 tests covering: on-time order (no penalty), 1-day late penalty calculation, demurrage calculation, split-decision trigger, carbon cost. All must PASS before any other code ships.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/conftest.py</span>
+          <span class="file-tag">tests/unit/test_financial_engine.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-011</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-013</div>
+        <div class="task-title">Frontend scaffold — Vite + React + TypeScript + Tailwind + Login page</div>
+        <div class="task-desc">Init Vite project with react-ts template. Install all frontend packages (maplibre-gl, @vis.gl/react-maplibre, @tanstack/react-query, zustand, recharts, tailwindcss, date-fns). Build Login page: email + password form → POST /api/auth/login → store JWT in Zustand (memory only, not localStorage). Protected route wrapper. Basic shell layout (sidebar nav + main).</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/App.tsx</span>
+          <span class="file-tag">frontend/src/pages/Login.tsx</span>
+          <span class="file-tag">frontend/src/store/useAppStore.ts</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-010</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 0 — Definition of Done</strong>
+      <code>make dev</code> starts on :8000 &nbsp;·&nbsp;
+      <code>npm run dev</code> starts on :5173 &nbsp;·&nbsp;
+      Login works end-to-end (POST → JWT → protected endpoint) &nbsp;·&nbsp;
+      <code>make test</code> passes, zero failures &nbsp;·&nbsp;
+      <code>alembic upgrade head</code> runs clean &nbsp;·&nbsp;
+      gitleaks finds zero secrets in repo
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 1
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#3ecf8e">PHASE 1</div>
+    <div class="phase-title">Data Foundation — Ingest, Consolidate, Pre-compute Routes</div>
+    <div class="phase-meta">Week 2–3 &nbsp;·&nbsp; 11 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 2–3</span></div>
+    <div class="stat">Goal <span>All data ingested. Every shipment has legs. Every leg has a cached GeoJSON route.</span></div>
+    <div class="stat">Blocker for <span>Phase 2 (map needs routes), Phase 3 (ML needs features)</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 2, Day 1–2 &nbsp; Reference Data</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-014</div>
+        <div class="task-title">scripts/02 — Ingest UN/LOCODE into locations table</div>
+        <div class="task-desc">Download UNECE UN/LOCODE CSV. Parse 5-char location codes. Convert lat/lon from DDMM[NS]DDDMM[EW] format to decimal degrees. Filter for port, airport, ICD, fixed transport functions. Bulk insert ~100k rows. provenance=CALIBRATED, source=UNECE_UNLOCODE. This runs FIRST — every other script depends on it.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/02_ingest_unlocode.py</span>
+          <span class="file-tag">data/raw/unlocode/unlocode.csv</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-008</span>
+      </div>
+    </div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-015</div>
+        <div class="task-title">scripts/03 — Ingest port activity + performance data</div>
+        <div class="task-desc">Parse port_activity.csv (daily vessel counts per port) and maritime_port_performance.csv (dwell times, turnaround). Fuzzy-match port names to UN/LOCODE codes. Compute 90-day rolling baseline for each port. Compute daily congestion_index = today_count / rolling_avg. Populate ports table + port_daily_stats table.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/03_ingest_port_data.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-014</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 2, Day 2–4 &nbsp; Order Ingestion</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-016</div>
+        <div class="task-title">scripts/01 — Ingest DataCo CSV into orders + order_items</div>
+        <div class="task-desc">Read DataCoSupplyChainDataset.csv with pandas. Snake-case all columns. Map shipping_mode: Standard Class→SEA, Second Class→RAIL, First Class→AIR, Same Day→AIR (express). Compute sla_deadline = order_date + days_for_shipment_scheduled. Map product_category → cargo_class. Derive sla_penalty_pct by customer_segment (Corporate=8%, Consumer=3%, Home Office=5%). Bulk insert orders + order_items. provenance=DERIVED.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/01_ingest_dataco.py</span>
+          <span class="file-tag">data/raw/dataco/DataCoSupplyChainDataset.csv</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-014</span>
+      </div>
+    </div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-017</div>
+        <div class="task-title">scripts/04 — Consolidate orders into shipments</div>
+        <div class="task-desc">Group orders by (origin_country, dest_country, mode, cargo_class, week). Fill containers: max 20 orders per shipment or weight limit. For each group: create Shipment record with strictest_sla_deadline = min(order.sla_deadline), total_value_usd, total_weight_kg, reference_number = "NF-{year}-{seq:06d}". Update orders.shipment_id FK. Expected output: 5,000–10,000 shipments from 180k orders.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/04_consolidate_shipments.py</span>
+          <span class="file-tag">src/nexafreight/services/consolidation.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-016</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 2 Day 5 — Week 3 Day 2 &nbsp; Route Pre-computation</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-018</div>
+        <div class="task-title">scripts/05 — Plan routes: build all legs with cached GeoJSON geometry</div>
+        <div class="task-desc">For each shipment, build leg sequence by mode. SEA: [FIRST_MILE_ROAD, ORIGIN_HANDLING, SEA_MAIN, DEST_HANDLING, LAST_MILE_ROAD]. AIR: [FIRST_MILE_ROAD, AIR_MAIN, LAST_MILE_ROAD]. ROAD: [ROAD_MAIN]. RAIL: [FIRST_MILE_ROAD, RAIL_MAIN, LAST_MILE_ROAD]. For SEA legs: call searoute-py (pinned 1.4.3), store GeoJSON + distance_nm. Failure → great-circle fallback, route_quality=APPROXIMATE. For ROAD legs: call OpenRouteService (driving-hgv), batch 40/min, cache GeoJSON + distance_km + duration_s. For AIR legs: compute geodesic arc with geopy, lookup duration from OpenFlights. Chain planned_departure/arrival. Compute planned_co2_kg per GLEC factors. This is the most time-consuming script — expect 3-4 hours to run for all lanes.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/05_plan_routes.py</span>
+          <span class="file-tag">src/nexafreight/adapters/routing/sea_route.py</span>
+          <span class="file-tag">src/nexafreight/adapters/routing/road_route.py</span>
+          <span class="file-tag">src/nexafreight/adapters/routing/air_route.py</span>
+          <span class="file-tag">src/nexafreight/services/route_planner.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-017</span>
+      </div>
+    </div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-019</div>
+        <div class="task-title">scripts/06 — Assign real vessel MMSIs to sea legs</div>
+        <div class="task-desc">For each unique (origin_port, dest_port) sea lane: manually research 2-3 real vessels on that trade route (Maersk/COSCO/Evergreen/Hapag-Lloyd). Look up MMSI on MarineTraffic free vessel search. Insert into vessels table. Assign MMSIs round-robin to sea legs on the same lane. These exact MMSIs = the AISStream subscription list. Goal: 20-50 MMSIs total covering all active sea lanes.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/06_assign_vessels.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-018</span>
+      </div>
+    </div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-020</div>
+        <div class="task-title">scripts/07 — Assign flight numbers + durations to air legs</div>
+        <div class="task-desc">For each unique (origin_airport, dest_airport) air lane: pick a real cargo carrier (Cathay Cargo, FedEx, DHL, Korean Air Cargo). Get typical flight duration from OpenFlights database (free CSV). Update legs.flight_number and legs.planned_duration_hours. ReplayFlightAdapter will use planned_duration_hours for geodesic interpolation at runtime.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/07_assign_flights.py</span>
+          <span class="file-tag">data/raw/openflights/routes.dat</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-018</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 3, Day 3–5 &nbsp; Shipment API Endpoints</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-021</div>
+        <div class="task-title">GET /api/shipments — paginated list with filters</div>
+        <div class="task-desc">Implement shipments list endpoint. Filters: status, mode, alert=true. Pagination: page + size. Response: ShipmentListItem (id, reference, origin, dest, mode, status, strictest_sla_deadline, revised_eta, provenance). Write ShipmentListItem Pydantic schema. Add DB indexes on (status, mode).</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/shipments.py</span>
+          <span class="file-tag">src/nexafreight/schemas/shipment.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-017</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-022</div>
+        <div class="task-title">GET /api/shipments/{id} + /route + /events endpoints</div>
+        <div class="task-desc">ShipmentDetail: full shipment + all legs (ordered by sequence) + all orders (summary) + recent events. GET /route: returns all leg geometries as GeoJSON FeatureCollection, tagged by mode + route_quality. GET /events: shipment event log, descending. All responses include provenance on every sub-object.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/shipments.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-021</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-023</div>
+        <div class="task-title">Unit tests — consolidation + route planner</div>
+        <div class="task-desc">test_consolidation.py: verify correct grouping by mode/cargo_class/week, strictest_sla computed correctly, weight limit enforced. test_route_planner.py: verify leg sequence for each mode, correct leg_type assignment, planned_departure chain, route_quality flag on fallback. All tests use in-memory SQLite + fixtures — no external APIs called.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/unit/test_consolidation.py</span>
+          <span class="file-tag">tests/unit/test_route_planner.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-022</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-024</div>
+        <div class="task-title">Frontend — ShipmentList page (API-connected, no map yet)</div>
+        <div class="task-desc">Build ShipmentList.tsx: table of active shipments, fetched via TanStack Query (auto-refetch every 30s). Columns: reference, origin→dest, mode icon, status badge, SLA deadline, ETA. Filter controls (mode, status). Pagination. Click row → navigate to ShipmentDetail (stub for now). Verify API data renders correctly.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/pages/Dashboard.tsx</span>
+          <span class="file-tag">frontend/src/components/shipments/ShipmentList.tsx</span>
+          <span class="file-tag">frontend/src/api/shipments.ts</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-022</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 1 — Definition of Done</strong>
+      GET /api/shipments/42/route returns valid GeoJSON FeatureCollection &nbsp;·&nbsp;
+      Sea routes visually pass through correct straits and canals (not through land) &nbsp;·&nbsp;
+      Road routes follow actual roads &nbsp;·&nbsp;
+      Every leg has provenance label &nbsp;·&nbsp;
+      5,000+ shipments in DB derived from DataCo orders
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 2
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#fb923c">PHASE 2</div>
+    <div class="phase-title">Live Map — The WOW Moment</div>
+    <div class="phase-meta">Week 4–5 &nbsp;·&nbsp; 10 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 4–5</span></div>
+    <div class="stat">Goal <span>Real ships move on a real map. Trucks inch along roads. Flights arc across continents.</span></div>
+    <div class="stat">Blocker for <span>Phase 4 (alerts need live positions)</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 4, Day 1–2 &nbsp; Feed Adapters</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-025</div>
+        <div class="task-title">scripts/08 — Download historical AIS data to Parquet</div>
+        <div class="task-desc">Download historical AIS from NOAA Marine Cadastre (US waters, free) OR Danish Maritime Authority (global, free research license). Filter to only your vessel MMSIs (from vessels table). Convert CSV → Parquet using pyarrow (10x smaller). Store in data/raw/ais_historical/. This dataset powers ReplayFeedAdapter when USE_LIVE_AIS=false.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/08_download_ais_history.py</span>
+          <span class="file-tag">data/raw/ais_historical/*.parquet</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-019</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-026</div>
+        <div class="task-title">adapters/feed/aisstream.py — AISStream WebSocket adapter</div>
+        <div class="task-desc">Implement AISStreamAdapter: async WebSocket connection to wss://stream.aisstream.io/v0/stream. Subscribe with API key + FiltersShipMMSI (your MMSI list) + FilterMessageTypes=["PositionReport"]. On each message: parse JSON, extract lat/lon/speed/heading, upsert in-memory cache dict[MMSI → PositionReport]. On disconnect: exponential backoff (1s→2s→4s→…max 60s), resubscribe within 3s. Track FeedHealth. Enable permessage-deflate compression to avoid Sept 2026 bandwidth limit.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/adapters/feed/aisstream.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-025</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-027</div>
+        <div class="task-title">adapters/feed/replay_ais.py — Parquet replay adapter</div>
+        <div class="task-desc">ReplayFeedAdapter reads historical AIS Parquet files. Advances a virtual clock at configurable speed (e.g. 60x real time for demos). Serves position as if live for each MMSI. Provenance=REPLAYED. Used when USE_LIVE_AIS=false in .env. Identical interface to AISStreamAdapter — no business logic changes needed to switch between them.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/adapters/feed/replay_ais.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-026</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-028</div>
+        <div class="task-title">adapters/feed/truck_sim.py + replay_flight.py — simulation adapters</div>
+        <div class="task-desc">TruckSimAdapter: given a road leg (cached ORS GeoJSON polyline + departure time + planned duration), compute interpolated position using Shapely LineString.interpolate(progress, normalized=True). Compute heading from current→next point. Provenance=SIMULATED. ReplayFlightAdapter: given air leg (geodesic arc GeoJSON + departure time + planned duration), interpolate position along arc using geopy. Both write to position_reports every 30s via position_interpolator worker.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/adapters/feed/truck_sim.py</span>
+          <span class="file-tag">src/nexafreight/adapters/feed/replay_flight.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-027</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 4, Day 3–5 &nbsp; Background Workers + SSE</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-029</div>
+        <div class="task-title">workers/ais_listener.py — persistent asyncio background task</div>
+        <div class="task-desc">Persistent asyncio Task started in lifespan. Runs AISStreamAdapter._run_with_backoff(). On each position update: write to position_reports table (upsert by MMSI + timestamp). Update in-memory position cache. Update feed health. Expose get_position_tracker() singleton for other workers and routers to query the cache.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/workers/ais_listener.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-026</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-030</div>
+        <div class="task-title">workers/position_interpolator.py — 30s interval truck + flight</div>
+        <div class="task-desc">APScheduler job: runs every 30 seconds. Queries all IN_PROGRESS ROAD and AIR legs. For each: call TruckSimAdapter or ReplayFlightAdapter. Write PositionReport (provenance=SIMULATED) to position_reports table. Update shipment.current_position cache. Cleans up STALE entries older than 24h from position_reports.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/workers/position_interpolator.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-028, T-029</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-031</div>
+        <div class="task-title">GET /api/map/positions/stream — SSE endpoint</div>
+        <div class="task-desc">Server-Sent Events endpoint. Frontend connects once via EventSource('/api/map/positions/stream'). Every 5 seconds: gather all current positions from in-memory cache → serialize → yield as "data: {json}\n\n". Each position includes: asset_type, asset_id, lat, lon, speed_knots, heading_deg, provenance, source. Also implement GET /api/map/positions/snapshot (one-time load), GET /api/map/routes (all active route GeoJSONs), GET /api/map/ports, GET /api/map/feed-health.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/map.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-029, T-030</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 5 &nbsp; Map Frontend</div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-032</div>
+        <div class="task-title">FreightMap.tsx — MapLibre GL JS v6 with MapTiler tiles</div>
+        <div class="task-desc">Implement the map component using @vis.gl/react-maplibre v8.1.1. MapTiler dark dataviz tile style (free tier, 100k loads/month). Initial view: lon=0, lat=20, zoom=2. Add route Source + Layer for each mode: sea=blue dashed, air=orange solid, road=green solid. Fetch routes from GET /api/map/routes on load. Draw all active leg geometries. Route data from cached GeoJSON in DB — instant load, no computation.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/map/FreightMap.tsx</span>
+          <span class="file-tag">frontend/src/components/map/RouteLayer.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-031</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-033</div>
+        <div class="task-title">Live asset markers — SSE hook + animated icons with heading + provenance badge</div>
+        <div class="task-desc">Implement useSSEPositions() hook: creates EventSource, parses POSITION_UPDATE messages, sets state. Each position renders as a Marker with: SVG icon by asset_type (ship/plane/truck), CSS rotation = heading_deg, click → show shipment side panel. Provenance badge: REAL=no badge, SIMULATED=yellow "S" pill, REPLAYED=grey "R" pill. Markers update every 5s as SSE pushes new data. Smooth position transition via CSS transition.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/api/sse.ts</span>
+          <span class="file-tag">frontend/src/components/map/ShipLayer.tsx</span>
+          <span class="file-tag">frontend/src/components/map/FlightLayer.tsx</span>
+          <span class="file-tag">frontend/src/components/map/TruckLayer.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-032</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-034</div>
+        <div class="task-title">Integration test — SSE delivers positions on schedule</div>
+        <div class="task-desc">Integration test: start test server, connect SSE client, verify POSITION_UPDATE received within 6 seconds. Verify ship positions match AIS cache. Verify truck positions change on consecutive messages. Verify provenance field present on every position object. Verify feed-health endpoint returns GREEN for all adapters. Run with MockFeedAdapter so no live API needed in CI.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/integration/test_shipment_api.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-033</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 2 — Definition of Done</strong>
+      Open dashboard — ships move in real-time (REAL or REPLAYED) &nbsp;·&nbsp;
+      Trucks inch along road polylines every 30 seconds &nbsp;·&nbsp;
+      Flights move along curved geodesic arcs &nbsp;·&nbsp;
+      No asset marker ever crosses land on a sea route &nbsp;·&nbsp;
+      Feed health panel shows per-adapter status &nbsp;·&nbsp;
+      Click any asset → side panel shows shipment summary
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 3
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#c084fc">PHASE 3</div>
+    <div class="phase-title">ML Models — Delay, ETA, Demand</div>
+    <div class="phase-meta">Week 6–8 &nbsp;·&nbsp; 9 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 6–8</span></div>
+    <div class="stat">Goal <span>Three trained models. SHAP explanations. All predictions served via API. All beat baseline.</span></div>
+    <div class="stat">Blocker for <span>Phase 4 (alerts use ML predictions)</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 6 &nbsp; Feature Engineering + Delay Classifier</div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-035</div>
+        <div class="task-title">Feature engineering — build training dataset from DB</div>
+        <div class="task-desc">Query SQLite to join: orders + legs + port_daily_stats. Build feature matrix: shipping_mode_encoded, origin/dest country codes, planned_transit_days, cargo_value_usd binned, cargo_class_encoded, origin/dest port congestion_index (on order_date), departure_month, departure_weekday, distance_km, sla_buffer_days. Time-based split: train before 2017-06-01, val 2017-06-01 to 2017-12-31, test 2018-01+. Save feature_schema.json. Compute baseline AUC (historical late rate per lane).</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/09_train_delay_classifier.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-015, T-017</span>
+      </div>
+    </div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-036</div>
+        <div class="task-title">Train LightGBM delay classifier + Optuna tuning + SHAP</div>
+        <div class="task-desc">Train LightGBM classifier on time-split training set. Optuna: 50 trials maximizing val ROC-AUC. Fit SHAP TreeExplainer on best model. Evaluate on holdout test set: must beat baseline_roc_auc. Save model.joblib, feature_schema.json, metadata.json (git_sha, data_hash, val_roc_auc, test_roc_auc, baseline_roc_auc, trained_at, n_train_samples). Fail loudly if test_roc_auc ≤ baseline_roc_auc.</div>
+        <div class="task-files">
+          <span class="file-tag">models/delay_classifier/model.joblib</span>
+          <span class="file-tag">models/delay_classifier/metadata.json</span>
+          <span class="file-tag">models/delay_classifier/feature_schema.json</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-035</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 7 &nbsp; ETA Quantile Model</div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-037</div>
+        <div class="task-title">Train LightGBM quantile ETA model (P10 / P50 / P85)</div>
+        <div class="task-desc">Target = actual_transit_days - planned_transit_days (the residual). Three separate LightGBM models: alpha=0.10, 0.50, 0.85. Same features as classifier PLUS: current_leg_progress, days_elapsed_so_far, current_dest_congestion_index. Evaluate on pinball loss per quantile. Coverage check: P10-P85 interval must contain actual ~75% of the time on test set. Save three model files + shared metadata. P85 is the conservative estimate used for SLA risk checks.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/10_train_eta_model.py</span>
+          <span class="file-tag">models/eta_quantile/model.joblib</span>
+          <span class="file-tag">models/eta_quantile/metadata.json</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-036</span>
+      </div>
+    </div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-038</div>
+        <div class="task-title">Train StatsForecast AutoETS demand model</div>
+        <div class="task-desc">Aggregate weekly order volume per (product_category × origin_region × dest_region). Fit StatsForecast AutoETS (automatic exponential smoothing with trend + seasonality). Generate 30/60/90-day forecasts with confidence intervals. Evaluate: holdout MAPE per category × lane. Save model and metadata. No PyStan, no cmdstan — pure Python, ~30 seconds to fit all series.</div>
+        <div class="task-files">
+          <span class="file-tag">scripts/11_train_demand_forecast.py</span>
+          <span class="file-tag">models/demand_forecast/model.joblib</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-035</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 7–8 &nbsp; ML Inference Layer + API</div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-039</div>
+        <div class="task-title">ml/registry.py + inference wrappers for all 3 models</div>
+        <div class="task-desc">registry.py: loads all models from /models/ dir at app startup. Validates metadata.json (git_sha, data_hash, metrics). Exposes get_delay_classifier(), get_eta_model(), get_demand_forecast(). ml/delay_classifier.py: _extract_features(shipment) → feature vector → predict_proba → SHAP values → top 5 factors. ml/eta_model.py: three model calls → P10/P50/P85 ETAs → sla_risk label. ml/demand_forecast.py: forecast per category × lane → chart-ready JSON. Raw feature vectors NEVER appear in API responses.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/ml/registry.py</span>
+          <span class="file-tag">src/nexafreight/ml/delay_classifier.py</span>
+          <span class="file-tag">src/nexafreight/ml/eta_model.py</span>
+          <span class="file-tag">src/nexafreight/ml/demand_forecast.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-036, T-037, T-038</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-040</div>
+        <div class="task-title">GET /api/shipments/{id}/predict endpoint</div>
+        <div class="task-desc">Call delay_classifier.predict(shipment) + eta_model.predict(shipment). Return: delay_probability, is_high_risk, top_factors (SHAP with direction + plain-English label), p10_eta, p50_eta, p85_eta, sla_risk (ON_TIME/LOW/MEDIUM/HIGH/BREACH), model_version, provenance=DERIVED. Add DB index on (shipment_id) for fast feature extraction. Serve 503 with clear message if models not loaded.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/shipments.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-039</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-041</div>
+        <div class="task-title">Frontend — Risk badges + ETA ranges + SHAP factors on shipment cards</div>
+        <div class="task-desc">Update ShipmentList cards: add risk badge (LOW=green, MEDIUM=yellow, HIGH=red) from delay_probability. Add ETA range: "Dec 15–21" (P10→P85 dates). ShipmentDetail page: SHAP factors panel — horizontal bar chart showing top 5 feature contributions with direction labels. Analytics page: DemandForecast.tsx shows 30/60/90-day forecast lines per category via Recharts LineChart.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/shipments/ShipmentDetail.tsx</span>
+          <span class="file-tag">frontend/src/components/analytics/DemandForecast.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-040</span>
+      </div>
+    </div>
+
+    <div class="task ml">
+      <div class="task-left">
+        <div class="task-num">T-042</div>
+        <div class="task-title">Unit tests — delay classifier + ETA model</div>
+        <div class="task-desc">test_delay_classifier.py: test feature extraction with known shipment fixture, test prediction output schema, test SHAP factors present + sum to ~1, test provenance=DERIVED on output. test_eta_model.py: test P10 ≤ P50 ≤ P85 always, test sla_risk label logic. All tests use saved model artifacts (not retrained during test). Run in CI in &lt;10 seconds.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/unit/test_delay_classifier.py</span>
+          <span class="file-tag">tests/unit/test_eta_model.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-ml">ML Engineer</span>
+        <span class="dep-tag">after T-039</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-043</div>
+        <div class="task-title">GET /api/analytics/demand endpoint + DuckDB integration</div>
+        <div class="task-desc">First DuckDB query: connect DuckDB to the SQLite file directly (duckdb.connect reads SQLite natively). Query aggregated weekly order volumes. Join with demand_forecast model output. Return chart-ready JSON: [{category, lane, week, actual_volume, forecast_p50, forecast_lower, forecast_upper}]. Verify DuckDB columnar query is faster than SQLAlchemy ORM for aggregations.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/analytics.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-038, T-039</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 3 — Definition of Done</strong>
+      All 3 models beat their naive baselines on holdout test set &nbsp;·&nbsp;
+      SHAP explanations make intuitive sense (congested port → increased risk) &nbsp;·&nbsp;
+      Every prediction includes model_version + provenance=DERIVED &nbsp;·&nbsp;
+      Risk badges visible on all active shipment cards &nbsp;·&nbsp;
+      ETA range displayed as date span (not a single date) &nbsp;·&nbsp;
+      Demand forecast chart renders correct category data
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 4
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#f87171">PHASE 4</div>
+    <div class="phase-title">Alert + Financial Engine — Disruption → Alert → Impact</div>
+    <div class="phase-meta">Week 9–10 &nbsp;·&nbsp; 9 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 9–10</span></div>
+    <div class="stat">Goal <span>Disruptions auto-detected. Alerts fired. Per-order financial impact computed. Operator sees $ exposure.</span></div>
+    <div class="stat">Blocker for <span>Phase 5 (rerouting needs alerts as input)</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 9, Day 1–3 &nbsp; Detection Services</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-044</div>
+        <div class="task-title">services/disruption_detector.py — AIS deviation detection</div>
+        <div class="task-desc">Called on every AIS position update. Computes planned_progress (elapsed_time / planned_duration) and actual_progress (distance_sailed_along_route / total_route_distance). If planned_progress - actual_progress > VESSEL_DELAY_THRESHOLD_PCT (default 0.10): create DISRUPTION record with type=VESSEL_DELAY, estimated_delay_hours, confidence=0.75, source=AIS_DEVIATION. Idempotent: do not duplicate disruptions for the same vessel + same leg.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/disruption_detector.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-029</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-045</div>
+        <div class="task-title">workers/port_monitor.py — daily congestion check → disruptions</div>
+        <div class="task-desc">APScheduler cron: daily at 6am. For each port in ports table: fetch today's port_daily_stats.vessel_count. Compute congestion_index = today_count / rolling_90_day_avg. If > PORT_CONGESTION_THRESHOLD (1.4): find all PLANNED or IN_TRANSIT shipments with dest_port = this port. For each: create DISRUPTION(type=PORT_CONGESTION, source=PORT_DATA). Log count of disruptions created.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/workers/port_monitor.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-015</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-046</div>
+        <div class="task-title">services/financial_engine.py — per-order impact calculation</div>
+        <div class="task-desc">calculate_option_financials(shipment, revised_eta, freight_delta, port_delta, demurrage_extra_days, reroute_cost, co2_delta_kg) → OptionFinancials. For each order in shipment: is_breached = revised_eta > order.sla_deadline. days_late = max(0, delta.days). sla_penalty = revenue × penalty_pct × days_late. Total = freight_delta + port_delta + demurrage + reroute_cost + sum(sla_penalties) + co2_cost. Demurrage = max(0, extra_days - free_days) × daily_rate from port leg.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/financial_engine.py</span>
+          <span class="file-tag">src/nexafreight/services/sla_checker.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-017</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-047</div>
+        <div class="task-title">services/alert_engine.py — disruption → alert with financials</div>
+        <div class="task-desc">On new DISRUPTION: compute revised_eta for affected shipment. Call financial_engine.calculate_option_financials(accept_delay_scenario). Determine severity: CRITICAL if exposure > $20k or any order > 5 days late, HIGH if > $5k or any breach, MEDIUM if > $1k or ETA within 2 days of SLA. Create ALERT record with sla_breaches_json (per-order detail) and financial_exposure_usd. Idempotent: one alert per (shipment, disruption) pair.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/alert_engine.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-044, T-046</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-048</div>
+        <div class="task-title">workers/sla_monitor.py — 15-min SLA breach scan</div>
+        <div class="task-desc">APScheduler interval: every 15 minutes. For every IN_TRANSIT shipment: get latest revised_eta (from AIS cache or interpolation). Call sla_checker.check_all_orders(shipment, revised_eta). If any new breach detected (not already alerted): create ALERT(type=SLA_RISK). If existing alert's disruption is now resolved (eta improved): update alert.status=RESOLVED. Log summary counts.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/workers/sla_monitor.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-047</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 9 Day 4 — Week 10 Day 2 &nbsp; Alert API + Manual Disruptions</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-049</div>
+        <div class="task-title">Alert + Disruption API endpoints</div>
+        <div class="task-desc">POST /api/disruptions: manual disruption entry (OPERATOR role). Validates locode exists, creates DISRUPTION, immediately triggers alert_engine. GET /api/disruptions: list with filters. GET /api/alerts: sorted by severity DESC, created_at DESC. Filters: status, severity (comma-separated). GET /api/alerts/{id}: full detail including per-order SLA breakdown from sla_breaches_json. PATCH /api/alerts/{id}/acknowledge: updates status, logs acknowledger + timestamp.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/alerts.py</span>
+          <span class="file-tag">src/nexafreight/routers/disruptions.py</span>
+          <span class="file-tag">src/nexafreight/schemas/alert.py</span>
+          <span class="file-tag">src/nexafreight/schemas/disruption.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-047, T-048</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-050</div>
+        <div class="task-title">Frontend — AlertPanel.tsx with per-order SLA breakdown</div>
+        <div class="task-desc">AlertPanel.tsx: right-side drawer on dashboard. Alert cards sorted by severity (CRITICAL=red, HIGH=orange, MEDIUM=yellow). Each card: disruption type icon, shipment reference, ETA impact (+N days), financial exposure ($), severity badge, time since triggered. Click card → expand to full detail: per-order table (order ID, SLA deadline, revised ETA, days late, penalty $, breach/safe icon). Acknowledge button. Manual disruption form button.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/alerts/AlertPanel.tsx</span>
+          <span class="file-tag">frontend/src/components/alerts/AlertCard.tsx</span>
+          <span class="file-tag">frontend/src/pages/AlertCenter.tsx</span>
+          <span class="file-tag">frontend/src/api/alerts.ts</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-049</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-051</div>
+        <div class="task-title">Unit tests — financial engine + SLA checker</div>
+        <div class="task-desc">test_financial_engine.py (expand from T-012): test demurrage free-day logic, test SLA penalty at 1/2/5 days late, test carbon cost calculation, test multi-order shipment total, test split-decision net savings. test_sla_checker.py: test breach detection with exact deadline equality, test all-safe scenario, test all-breach scenario. All with known numeric values — no approximations.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/unit/test_financial_engine.py</span>
+          <span class="file-tag">tests/unit/test_sla_checker.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-046</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-052</div>
+        <div class="task-title">Integration test — full disruption → alert lifecycle</div>
+        <div class="task-desc">test_alert_lifecycle.py: POST manual PORT_STRIKE disruption → verify DISRUPTION created → verify ALERT created within 1s → verify alert.financial_exposure_usd > 0 → verify sla_breaches_json has correct per-order detail → PATCH acknowledge → verify status=ACKNOWLEDGED → verify audit_log entry created. Run in CI with MockFeedAdapter and test DB.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/integration/test_alert_lifecycle.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-049, T-051</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 4 — Definition of Done</strong>
+      POST manual disruption → ALERT appears within 30 seconds &nbsp;·&nbsp;
+      Alert shows correct financial exposure (demurrage + SLA penalties) &nbsp;·&nbsp;
+      Per-order table correctly identifies which orders breach and which are safe &nbsp;·&nbsp;
+      Financial engine unit tests pass with known numeric values &nbsp;·&nbsp;
+      Integration test passes in CI
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 5
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#facc15;color:#000">PHASE 5</div>
+    <div class="phase-title">Rerouting Engine — 3 Options, Approve, Execute, Audit</div>
+    <div class="phase-meta">Week 11–12 &nbsp;·&nbsp; 8 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 11–12</span></div>
+    <div class="stat">Goal <span>Operator sees 3 options with full financials. Approves one. Legs update. Audit log written. Map shows new route.</span></div>
+    <div class="stat">Blocker for <span>Phase 7 (analytics need decision data)</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 11, Day 1–2 &nbsp; Corridor Data + Reroute Engine</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-053</div>
+        <div class="task-title">Seed corridor_alternatives table — pre-built rerouting data</div>
+        <div class="task-desc">For each major DataCo sea/air lane: define 2-3 pre-built alternatives as DB rows. Each alternative has: option_key, name, when_to_use (JSON list of disruption types), new_legs_template (JSON), cost_delta_factor, time_delta_hours, co2_delta_factor. Examples: Shanghai→Long Beach via Oakland, via Seattle+Rail, via Air. This is DATA not code — non-engineers can update it without deployment. Seed via Alembic data migration.</div>
+        <div class="task-files">
+          <span class="file-tag">alembic/versions/002_seed_corridors.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-018, T-019</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-054</div>
+        <div class="task-title">services/reroute_engine.py — generate 3 scored options</div>
+        <div class="task-desc">generate_options(alert) → list[RerouteOption]. Always include ACCEPT_DELAY as Option A (baseline). Query corridor_alternatives filtered by disruption.type in alt.when_to_use. For each qualifying alternative: compute revised_eta, call financial_engine for cost/SLA/CO2. Evaluate SPLIT if some orders breach and others don't (net_savings = penalties - air_cost). Rank by total_financial_impact. Mark is_ai_recommended=True on best option that satisfies SLA. Return top 3. Save all options to reroute_options table.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/reroute_engine.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-053, T-046</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-055</div>
+        <div class="task-title">services/decision_executor.py — apply approved decision</div>
+        <div class="task-desc">execute_decision(alert_id, option_id, user): fetch reroute_option. If DIVERT/MODAL_SHIFT: cancel remaining PLANNED legs (status=REPLACED, not deleted). Create new legs from option.new_legs_json. Increment shipment.route_version. If SPLIT: create new child shipment for priority orders with air legs. Update parent shipment to standard_orders only. If ACCEPT_DELAY: update revised_eta only. Write IMMUTABLE audit_log entry. Recalculate shipment P&L. Outbox pattern: external notifications queued, not synchronous.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/decision_executor.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-054</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 11 Day 3 — Week 12 Day 2 &nbsp; Decision API + Frontend</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-056</div>
+        <div class="task-title">Decision API endpoints — options + approve + audit history</div>
+        <div class="task-desc">GET /api/alerts/{id}/options: trigger reroute_engine.generate_options() if not already generated, return 3 RerouteOption objects with full financials. POST /api/alerts/{id}/approve: body={option_id, notes}. Requires OPERATOR role. Calls decision_executor.execute_decision(). Updates alert.status=APPROVED. Returns {status, new_eta, shipment_route_version}. GET /api/decisions: paginated audit history with filters. GET /api/decisions/{id}: full decision detail including all 3 options that were presented.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/decisions.py</span>
+          <span class="file-tag">src/nexafreight/schemas/reroute.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-054, T-055</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-057</div>
+        <div class="task-title">Frontend — RerouteOptions.tsx — 3 option cards with Approve</div>
+        <div class="task-desc">Full-screen modal opened from high-severity alert card. Top section: disruption details + affected shipment. Middle: per-order SLA breach table. Bottom: 3 option cards side by side. Each card: name, revised ETA, cost delta (green if savings, red if additional), SLA breaches count, CO2 delta, financial impact total. AI recommended option: ⭐ badge + subtle highlight. [Approve] button on each card → confirmation dialog: "Approve [Option Name]? This cannot be undone." → POST /api/alerts/{id}/approve → success toast → modal closes → map re-fetches routes (shows new path). Disable all approve buttons until a choice is confirmed.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/alerts/RerouteOptions.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-056</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-058</div>
+        <div class="task-title">Frontend — AuditLog.tsx page</div>
+        <div class="task-desc">AuditLog page at /audit. Table: timestamp, action_type, entity, performed_by, details. Filterable by date range, action_type, user. Decision rows are expandable: show all 3 options that were presented, which was chosen, financial impact of chosen option vs rejected options. Export to CSV button. This is the compliance/review screen for managers. Read-only — no actions available.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/pages/AuditLog.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-056</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-059</div>
+        <div class="task-title">Unit tests — reroute engine + decision executor</div>
+        <div class="task-desc">test_reroute_engine.py: test ACCEPT_DELAY always present as option, test corridor filtering by disruption type, test SPLIT recommended when penalties > air_cost, test AI recommendation = lowest financial impact option satisfying SLA. test_decision_executor.py: test legs updated on DIVERT (old legs REPLACED not deleted), test route_version incremented, test audit_log entry created, test idempotency (second call to execute raises error).</div>
+        <div class="task-files">
+          <span class="file-tag">tests/unit/test_reroute_engine.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-054, T-055</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-060</div>
+        <div class="task-title">Integration test — full lifecycle: disruption → alert → approve → map updates</div>
+        <div class="task-desc">test_decision_workflow.py: POST disruption → GET alert → GET options (verify 3 returned with financials) → POST approve Option B → GET shipment/route (verify new GeoJSON includes new legs) → GET decisions (verify immutable entry exists) → attempt POST approve again (verify 400 error — already decided) → verify audit_log has entry with all 3 options recorded. The definitive end-to-end test. Must pass before Phase 5 is marked complete.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/integration/test_decision_workflow.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-056, T-059</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 5 — Definition of Done</strong>
+      Inject disruption → 3 options appear with correct financials &nbsp;·&nbsp;
+      Approve Option B → legs updated → map shows new route → audit log entry created &nbsp;·&nbsp;
+      SPLIT option appears when some orders breach and others do not &nbsp;·&nbsp;
+      Approved decision cannot be re-approved (idempotency) &nbsp;·&nbsp;
+      Full lifecycle integration test passes in CI
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 6
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#38bdf8">PHASE 6</div>
+    <div class="phase-title">LLM Copilot — Explains, Never Decides</div>
+    <div class="phase-meta">Week 13 &nbsp;·&nbsp; 4 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 13</span></div>
+    <div class="stat">Goal <span>Operator can ask questions about any shipment. LLM answers from structured context only.</span></div>
+    <div class="stat">Note <span>Lowest priority. Do not let this consume time from Phases 1–5.</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 13, Day 1–2 &nbsp; LLM Adapters</div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-061</div>
+        <div class="task-title">adapters/llm/gemini.py + adapters/llm/ollama.py</div>
+        <div class="task-desc">GeminiAdapter: calls google-generativeai Gemini Flash (1M tokens/day free). OllamaAdapter: calls local Ollama HTTP API (llama3.1:8b). Both implement LLMAdapter protocol: generate(system_prompt, user_message) → str. Selected by USE_GEMINI env flag. GeminiAdapter falls back to OllamaAdapter on HTTP 429 rate limit. Both log input_hash + output_hash to audit_log for every call. Neither adapter has any DB write access.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/adapters/llm/gemini.py</span>
+          <span class="file-tag">src/nexafreight/adapters/llm/ollama.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-039</span>
+      </div>
+    </div>
+
+    <div class="task be">
+      <div class="task-left">
+        <div class="task-num">T-062</div>
+        <div class="task-title">services/copilot.py — context builder + POST /api/copilot/ask</div>
+        <div class="task-desc">build_copilot_context(shipment_id): queries shipment state, active alerts, ML prediction, financial snapshot, applicable SOP rules. Serializes to structured JSON string. System prompt: analyst persona + strict rules (answer only from context, never invent figures, cannot approve actions). POST /api/copilot/ask: validates shipment_id belongs to requesting user's accessible data. Calls LLM adapter. Returns {answer, model_used, context_fields_used}. Serve 503 if both Gemini and Ollama unavailable.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/services/copilot.py</span>
+          <span class="file-tag">src/nexafreight/routers/copilot.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-be">Backend Engineer</span>
+        <span class="dep-tag">after T-061</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-063</div>
+        <div class="task-title">Frontend — CopilotPanel in ShipmentDetail</div>
+        <div class="task-desc">Collapsible panel at bottom of ShipmentDetail page. Text input: "Ask about this shipment…". Submit → POST /api/copilot/ask → show answer with model_used badge (Gemini Flash / Ollama llama3.1:8b). Show loading spinner during response. Expandable "Data used" section: lists which context fields were included in the prompt. Error state: if 503 show "AI copilot currently unavailable." Never show a loading state for more than 15 seconds — timeout with friendly message.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/shipments/ShipmentDetail.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-062</span>
+      </div>
+    </div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-064</div>
+        <div class="task-title">Copilot smoke tests — 3 canned questions with MockLLM</div>
+        <div class="task-desc">Use a MockLLMAdapter that echoes the context as its response. Test 1: "Why is this shipment at risk?" → verify ML prediction data appears in context. Test 2: "What does Option B cost?" → verify financials appear in context. Test 3: question about data not in context → verify copilot gracefully acknowledges it cannot answer. All tests: verify audit_log entry created for each call. Verify copilot endpoint returns 403 if user requests another user's shipment.</div>
+        <div class="task-files">
+          <span class="file-tag">tests/unit/test_copilot.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-062</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 6 — Definition of Done</strong>
+      "Why is this shipment at risk?" → correct answer citing ML prediction + port congestion data &nbsp;·&nbsp;
+      "What does Option B cost?" → correct dollar figure from financials &nbsp;·&nbsp;
+      "What is the weather in Rotterdam?" → "I don't have weather data" &nbsp;·&nbsp;
+      Works fully offline with Ollama (USE_GEMINI=false, ollama pull llama3.1:8b)
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 7
+═══════════════════════════════════════════════ -->
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#a78bfa">PHASE 7</div>
+    <div class="phase-title">Analytics + Polish + Demo Script</div>
+    <div class="phase-meta">Week 14–15 &nbsp;·&nbsp; 8 tasks</div>
+  </div>
+  <div class="phase-stats">
+    <div class="stat">Duration <span>Week 14–15</span></div>
+    <div class="stat">Goal <span>Financial scorecard, ESG report, SLA heatmap, demand charts. 10-minute demo script ready. README complete.</span></div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="week-label">Week 14, Day 1–3 &nbsp; Analytics API (DuckDB)</div>
+
+    <div class="task de">
+      <div class="task-left">
+        <div class="task-num">T-065</div>
+        <div class="task-title">DuckDB analytics queries — scorecard, ESG, SLA, P&L</div>
+        <div class="task-desc">Connect DuckDB to the SQLite file directly (zero ETL — DuckDB reads SQLite natively). Write four analytical queries: (1) Financial Scorecard: total_shipments, on_time_pct, total_revenue, total_margin, total_demurrage, total_sla_penalties by date range. (2) ESG Report: total_co2_kg by mode, trend by week, comparison vs air-only baseline. (3) SLA Performance: on_time_pct heatmap by mode × dest_region. (4) P&L Breakdown: revenue vs all cost categories stacked. All queries < 1s on DuckDB columnar engine.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/analytics.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-de">Data Engineer</span>
+        <span class="dep-tag">after T-055</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-066</div>
+        <div class="task-title">Frontend — FinancialScorecard.tsx + ESGReport.tsx + SLA heatmap</div>
+        <div class="task-desc">Analytics page: three main panels. FinancialScorecard: KPI cards (total shipments, on-time %, total margin $, demurrage total $, SLA penalties $). Date range filter. ESGReport: stacked bar chart (CO2 by mode per week), total vs air-only baseline comparison metric, CO2 saved vs worst-case. SLA Performance: grid heatmap (mode × dest region, colour intensity = on-time%). All charts via Recharts. All data from GET /api/analytics/* endpoints. Auto-refresh every 5 minutes.</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/analytics/FinancialScorecard.tsx</span>
+          <span class="file-tag">frontend/src/components/analytics/ESGReport.tsx</span>
+          <span class="file-tag">frontend/src/pages/Analytics.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-065</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-067</div>
+        <div class="task-title">DB indexes — hot query path tuning</div>
+        <div class="task-desc">Profile API response times after all features built. Add missing SQLite indexes on hot paths: (shipments.status, shipments.primary_mode), (legs.shipment_id, legs.route_version, legs.sequence), (position_reports.asset_type, position_reports.asset_id, position_reports.reported_at DESC), (orders.shipment_id), (alerts.status, alerts.severity). Create Alembic migration 003_add_indexes.py. Target: all list endpoints < 200ms on 10k shipments.</div>
+        <div class="task-files">
+          <span class="file-tag">alembic/versions/003_add_indexes.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-065</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 14 Day 4 — Week 15 Day 2 &nbsp; Feed Health + Polish</div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-068</div>
+        <div class="task-title">Feed health dashboard + GET /api/shipments/{id}/financials endpoint</div>
+        <div class="task-desc">Frontend: Feed Health widget on dashboard (small bottom bar). Shows per-adapter: name, provenance badge, last_success (relative time), messages_received, is_healthy (green/red dot). Turns yellow if last_success > 5 min ago. Backend: GET /api/shipments/{id}/financials returns current P&L snapshot: revenue, freight_cost, port_handling, demurrage_accrued, sla_penalties_accrued, carbon_cost, gross_margin, margin_pct. Displayed in ShipmentDetail sidebar.</div>
+        <div class="task-files">
+          <span class="file-tag">src/nexafreight/routers/shipments.py</span>
+          <span class="file-tag">frontend/src/components/shipments/ShipmentDetail.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-066</span>
+      </div>
+    </div>
+
+    <div class="task fe">
+      <div class="task-left">
+        <div class="task-num">T-069</div>
+        <div class="task-title">ShipmentDetail page — complete implementation</div>
+        <div class="task-desc">Full ShipmentDetail.tsx: left column: leg timeline (each leg with mode icon, status, planned vs actual times, carrier, vessel/flight/truck info). Right column: ML prediction panel (risk badge + ETA range + SHAP chart) + Financial snapshot + active alerts. Bottom: Order table (all orders in shipment with SLA status per order). CopilotPanel (collapsible). Event log (timeline of all events). Route version history (if rerouted, show "Route v2 applied on [date] — Approved by [user]").</div>
+        <div class="task-files">
+          <span class="file-tag">frontend/src/components/shipments/ShipmentDetail.tsx</span>
+          <span class="file-tag">frontend/src/components/shipments/OrderTable.tsx</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fe">Frontend Engineer</span>
+        <span class="dep-tag">after T-068</span>
+      </div>
+    </div>
+
+    <div class="week-label">Week 15, Day 3–5 &nbsp; Demo + Documentation</div>
+
+    <div class="task fs">
+      <div class="task-left">
+        <div class="task-num">T-070</div>
+        <div class="task-title">Demo script — scripted 10-minute walkthrough</div>
+        <div class="task-desc">Write a demo_script.md. Pre-stage: create 3 specific shipments with known MMSIs, assign to DataCo orders. Minute 0-2: show live map, call out real ship moving. Minute 2-3: open ShipmentDetail, show ML prediction (HIGH risk, SHAP shows Rotterdam congestion). Minute 3: fire pre-staged PORT_CONGESTION disruption via manual POST. Minute 3-4: alert appears, show financial exposure ($18,400). Minute 4-6: open rerouting options, walk through each card, note AI recommendation. Minute 6-7: approve Option B. Minute 7-8: map refreshes showing new route polyline. Minute 8-10: show Analytics page (ESG, scorecard, SLA heatmap). Copilot: "Why was this shipment rerouted?" → clear answer.</div>
+        <div class="task-files">
+          <span class="file-tag">demo_script.md</span>
+          <span class="file-tag">scripts/seed_demo_data.py</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-fs">Full Stack</span>
+        <span class="dep-tag">after T-069</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-071</div>
+        <div class="task-title">README.md — architecture diagram, setup instructions, data sources</div>
+        <div class="task-desc">Complete README: what NexaFreight is (1 paragraph, no jargon). Architecture diagram (ASCII or Mermaid). Prerequisites: Python 3.11, Node 20, API keys (with links to free registration). Step-by-step setup: git clone → pip install -e ".[dev]" → npm install → copy .env.example → get API keys → make migrate → make seed → make train → make dev. Data sources section: DataCo (Kaggle link), UN/LOCODE (UNECE link), NOAA AIS (link), AISStream.io, OpenRouteService, MapTiler. Screenshots of dashboard, alert workflow, analytics.</div>
+        <div class="task-files">
+          <span class="file-tag">README.md</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-070</span>
+      </div>
+    </div>
+
+    <div class="task dv">
+      <div class="task-left">
+        <div class="task-num">T-072</div>
+        <div class="task-title">Secret rotation + final security audit</div>
+        <div class="task-desc">Rotate all API keys that were used during development (AISStream, ORS, MapTiler, Gemini). Generate new SECRET_KEY with openssl rand -hex 32. Run gitleaks on entire git history — must return zero findings. Verify .env is in .gitignore and has never been committed. Verify .env.example has no real values. Run bandit security linter: bandit -r src/. Check all CORS origins are explicit (no wildcard *). Final: run make check → lint + test → must be green.</div>
+        <div class="task-files">
+          <span class="file-tag">.env.example</span>
+          <span class="file-tag">.gitignore</span>
+        </div>
+      </div>
+      <div class="task-right">
+        <span class="role-badge role-dv">DevOps / Infra</span>
+        <span class="dep-tag">after T-071</span>
+      </div>
+    </div>
+
+    <div class="done-box">
+      <strong>✅ Phase 7 — Definition of Done</strong>
+      Analytics page: Financial Scorecard + ESG + SLA heatmap + Demand Forecast all render correct data &nbsp;·&nbsp;
+      Demo script runs cleanly in 10 minutes without rehearsal surprises &nbsp;·&nbsp;
+      README: a new developer can set up from scratch following only the README &nbsp;·&nbsp;
+      gitleaks: zero secrets found in git history &nbsp;·&nbsp;
+      make check: lint + test all green &nbsp;·&nbsp;
+      All API keys rotated
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SUMMARY TABLE
+═══════════════════════════════════════════════ -->
+<div style="max-width:1200px;margin:0 auto 60px;">
+  <h2 style="font-size:1.2rem;font-weight:700;color:#4f8ef7;margin-bottom:20px;padding-top:16px;border-top:1px solid #2a3140;">Complete Task Summary</h2>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Tasks</th>
+        <th style="color:var(--de)">Data Eng</th>
+        <th style="color:var(--be)">Backend</th>
+        <th style="color:var(--ml)">ML Eng</th>
+        <th style="color:var(--fe)">Frontend</th>
+        <th style="color:var(--fs)">Full Stack</th>
+        <th style="color:var(--dv)">DevOps</th>
+        <th>Weeks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Phase 0 — Foundation</td><td>13</td><td>0</td><td>5</td><td>0</td><td>1</td><td>0</td><td>4</td><td>1</td></tr>
+      <tr><td>Phase 1 — Data</td><td>11</td><td>6</td><td>3</td><td>0</td><td>0</td><td>1</td><td>0</td><td>2</td></tr>
+      <tr><td>Phase 2 — Live Map</td><td>10</td><td>1</td><td>5</td><td>0</td><td>2</td><td>1</td><td>0</td><td>2</td></tr>
+      <tr><td>Phase 3 — ML Models</td><td>9</td><td>0</td><td>1</td><td>5</td><td>1</td><td>1</td><td>0</td><td>3</td></tr>
+      <tr><td>Phase 4 — Alerts</td><td>9</td><td>0</td><td>6</td><td>0</td><td>1</td><td>1</td><td>0</td><td>2</td></tr>
+      <tr><td>Phase 5 — Rerouting</td><td>8</td><td>1</td><td>3</td><td>0</td><td>2</td><td>1</td><td>0</td><td>2</td></tr>
+      <tr><td>Phase 6 — Copilot</td><td>4</td><td>0</td><td>2</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td>Phase 7 — Analytics</td><td>8</td><td>1</td><td>0</td><td>0</td><td>3</td><td>2</td><td>3</td><td>2</td></tr>
+      <tr style="font-weight:700;background:rgba(79,142,247,.06);">
+        <td>TOTAL</td><td>72</td>
+        <td style="color:var(--de)">9</td>
+        <td style="color:var(--be)">25</td>
+        <td style="color:var(--ml)">5</td>
+        <td style="color:var(--fe)">11</td>
+        <td style="color:var(--fs)">8</td>
+        <td style="color:var(--dv)">7</td>
+        <td>15</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Minimum Demo-able Build (6 weeks)</p>
+    <p style="font-size:13px;color:var(--text);">Phase 0 (T-001→T-013) + Phase 1 (T-014→T-024) + Phase 2 (T-025→T-034) + Phase 4 partial (T-044→T-050) = <strong>~47 tasks</strong> delivering a live map with real ships, DataCo shipments, manual disruption trigger, and financial alert. Already portfolio-worthy and demo-ready at week 6.</p>
+  </div>
+</div>
+
+</body>
+</html>
+```

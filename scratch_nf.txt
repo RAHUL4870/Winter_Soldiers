@@ -1,0 +1,1799 @@
+Copy everything below, paste it into a new file, save it as `nexafreight_plan.html`, then open it in any browser. It is fully self-contained — no internet connection needed to view it.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NexaFreight Control Tower — Complete Plan</title>
+
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ════════════════ SIDEBAR NAV ════════════════ -->
+<nav>
+  <div class="logo">
+    <h2>NexaFreight</h2>
+    <p>Control Tower — Complete Plan</p>
+  </div>
+  <ul>
+    <li><a href="#what" class="section">1. What This Product Is</a></li>
+    <li><a href="#stack" class="section">2. Technology Stack</a></li>
+    <li><a href="#folder" class="section">3. Folder Structure</a></li>
+    <li><a href="#schema" class="section">4. Database Schema</a></li>
+    <li><a href="#data" class="section">5. Data Sources</a></li>
+    <li><a href="#concepts" class="section">6. Core Concepts</a></li>
+    <li><a href="#adapter" class="section">7. Adapter Pattern</a></li>
+    <li><a href="#ais" class="section">8. Ship Tracking</a></li>
+    <li><a href="#flights" class="section">9. Flight Tracking</a></li>
+    <li><a href="#trucks" class="section">10. Truck Tracking</a></li>
+    <li><a href="#searoute" class="section">11. Sea Routes</a></li>
+    <li><a href="#consolidation" class="section">12. Consolidation</a></li>
+    <li><a href="#disruption" class="section">13. Disruption Detection</a></li>
+    <li><a href="#alert" class="section">14. Alert Engine</a></li>
+    <li><a href="#reroute" class="section">15. Rerouting Engine</a></li>
+    <li><a href="#finance" class="section">16. Financial Engine</a></li>
+    <li><a href="#ml" class="section">17. ML Models</a></li>
+    <li><a href="#llm" class="section">18. LLM Copilot</a></li>
+    <li><a href="#workers" class="section">19. Background Workers</a></li>
+    <li><a href="#api" class="section">20. API Contract</a></li>
+    <li><a href="#frontend" class="section">21. Frontend</a></li>
+    <li><a href="#pipeline" class="section">22. Data Pipeline</a></li>
+    <li><a href="#phases" class="section">23. Build Phases</a></li>
+    <li><a href="#env" class="section">24. Env Variables</a></li>
+    <li><a href="#makefile" class="section">25. Makefile</a></li>
+    <li><a href="#failures" class="section">26. Failure Handling</a></li>
+    <li><a href="#provenance" class="section">27. Provenance Rule</a></li>
+    <li><a href="#changes" class="section">28. Changes Made</a></li>
+    <li><a href="#summary" class="section">29. One-Page Summary</a></li>
+  </ul>
+</nav>
+
+<!-- ════════════════ MAIN CONTENT ════════════════ -->
+<main>
+
+<h1>NexaFreight Control Tower</h1>
+<p class="subtitle">Complete Final Plan &nbsp;·&nbsp; Architecture, Stack, Data, ML, Build Phases &nbsp;·&nbsp; Budget: $0 &nbsp;·&nbsp; Solo Developer &nbsp;·&nbsp; August 2026</p>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#what">What This Product Is</a></li>
+    <li><a href="#stack">Technology Stack</a></li>
+    <li><a href="#folder">Folder Structure</a></li>
+    <li><a href="#schema">Database Schema</a></li>
+    <li><a href="#data">Data Sources</a></li>
+    <li><a href="#concepts">Core Concepts</a></li>
+    <li><a href="#adapter">Adapter Pattern</a></li>
+    <li><a href="#ais">Ship Tracking — AISStream.io</a></li>
+    <li><a href="#flights">Flight Tracking — Simulated</a></li>
+    <li><a href="#trucks">Truck Tracking — Road Interpolation</a></li>
+    <li><a href="#searoute">Sea Routes — searoute-py</a></li>
+    <li><a href="#consolidation">Shipment Consolidation</a></li>
+    <li><a href="#disruption">Disruption Detection</a></li>
+    <li><a href="#alert">Alert Engine</a></li>
+    <li><a href="#reroute">Rerouting Engine</a></li>
+    <li><a href="#finance">Financial Engine</a></li>
+    <li><a href="#ml">ML Models</a></li>
+    <li><a href="#llm">LLM Copilot</a></li>
+    <li><a href="#workers">Background Workers</a></li>
+    <li><a href="#api">API Contract</a></li>
+    <li><a href="#frontend">Frontend Architecture</a></li>
+    <li><a href="#pipeline">Data Pipeline Scripts</a></li>
+    <li><a href="#phases">Phase-by-Phase Build Plan</a></li>
+    <li><a href="#env">Environment Variables</a></li>
+    <li><a href="#makefile">Makefile</a></li>
+    <li><a href="#failures">Failure Handling</a></li>
+    <li><a href="#provenance">Provenance Rule</a></li>
+    <li><a href="#changes">Changes From Original Plan</a></li>
+    <li><a href="#summary">One-Page Summary</a></li>
+  </ol>
+</div>
+
+<!-- ═══ SECTION 1 ═══ -->
+<h2 id="what">1. What This Product Is</h2>
+
+<p>NexaFreight Control Tower ingests 180,000 DataCo orders, consolidates them into realistic multi-modal shipments, assigns real vessels tracked via AISStream WebSocket, simulated flights on real geodesic arcs, and interpolated trucks on real road geometries. It monitors every shipment in real-time, detects disruptions automatically from port congestion data, AIS deviation, or manual entry, evaluates the financial impact across every order inside the affected shipment, generates 3 rerouting options with full cost/SLA/CO2 analysis, presents them to an operator for approval, logs every decision immutably, and feeds those decisions back as training data.</p>
+
+<div class="callout info">
+  <strong>Industry Category</strong>
+  This is a <strong>Logistics Control Tower (LCT)</strong>. Companies like Flexport, project44, FourKites, SAP TM, and Kinaxis sell enterprise versions for millions of dollars. NexaFreight is a portfolio-grade open-source implementation of the same category.
+</div>
+
+<h3>The Core Workflow</h3>
+<pre>
+ORDER placed by customer
+  ↓
+Multiple ORDERS consolidated into one SHIPMENT (physical container)
+  ↓
+SHIPMENT assigned a multi-leg ROUTE (first mile → sea/air → last mile)
+  ↓
+Real ASSETS assigned (vessel MMSI, flight arc, truck road polyline)
+  ↓
+Live EVENTS update shipment progress (AIS, simulation, manual)
+  ↓
+DISRUPTION detected (port congestion, vessel delay, strike)
+  ↓
+ALERT fired: ETA impact + per-order SLA check + financial exposure
+  ↓
+REROUTING ENGINE generates 3 options (accept / divert / modal shift)
+  ↓
+FINANCIAL ENGINE scores each option (cost + SLA penalties + CO2)
+  ↓
+OPERATOR approves one option
+  ↓
+SYSTEM executes: updates legs, increments route_version, writes audit log
+  ↓
+Decision becomes training data for next ML cycle
+</pre>
+
+<h3>The Key Rule</h3>
+<div class="callout warn">
+  <strong>Always Remember</strong>
+  Physical movement = per <strong>SHIPMENT</strong> (one container).<br/>
+  Financial impact = per <strong>ORDER</strong> (each has its own SLA and penalty).<br/>
+  Rerouting decision = weighs <strong>ALL orders</strong> inside the shipment together.
+</div>
+
+<!-- ═══ SECTION 2 ═══ -->
+<h2 id="stack">2. Technology Stack</h2>
+
+<h3>Backend (Python 3.11)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Package</th><th>Version</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>fastapi</code></td><td>0.115.0</td><td>Web framework</td></tr>
+    <tr><td><code>uvicorn[standard]</code></td><td>0.30.6</td><td>ASGI server</td></tr>
+    <tr><td><code>sqlalchemy</code></td><td>2.0.36</td><td>Async ORM</td></tr>
+    <tr><td><code>aiosqlite</code></td><td>0.20.0</td><td>Async SQLite driver</td></tr>
+    <tr><td><code>alembic</code></td><td>1.13.3</td><td>Database migrations</td></tr>
+    <tr><td><code>duckdb</code></td><td>1.1.2</td><td>OLAP analytics queries</td></tr>
+    <tr><td><code>pydantic</code></td><td>2.9.2</td><td>Data validation</td></tr>
+    <tr><td><code>pydantic-settings</code></td><td>2.5.2</td><td>Typed env var loading</td></tr>
+    <tr><td><code>python-jose[cryptography]</code></td><td>3.3.0</td><td>JWT auth</td></tr>
+    <tr><td><code>passlib[bcrypt]</code></td><td>1.7.4</td><td>Password hashing</td></tr>
+    <tr><td><code>websockets</code></td><td>13.1</td><td>AISStream WebSocket</td></tr>
+    <tr><td><code>apscheduler</code></td><td>3.10.4</td><td>Background cron jobs</td></tr>
+    <tr><td><code>lightgbm</code></td><td>4.5.0</td><td>ML delay + ETA models</td></tr>
+    <tr><td><code>shap</code></td><td>0.46.0</td><td>ML explainability</td></tr>
+    <tr><td><code>statsforecast</code></td><td>1.7.5</td><td>Demand forecasting</td></tr>
+    <tr><td><code>searoute</code></td><td>1.4.3</td><td>Maritime routing (PINNED)</td></tr>
+    <tr><td><code>geopy</code></td><td>2.4.1</td><td>Geodesic calculations</td></tr>
+    <tr><td><code>shapely</code></td><td>2.0.6</td><td>Geometry interpolation</td></tr>
+    <tr><td><code>openrouteservice</code></td><td>2.3.3</td><td>Road routing API client</td></tr>
+    <tr><td><code>google-generativeai</code></td><td>0.8.3</td><td>Gemini Flash free LLM</td></tr>
+    <tr><td><code>ollama</code></td><td>0.3.3</td><td>Local LLM fallback</td></tr>
+    <tr><td><code>structlog</code></td><td>24.4.0</td><td>Structured JSON logging</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Frontend (TypeScript)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Package</th><th>Version</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>react</code></td><td>18.3.1</td><td>UI framework</td></tr>
+    <tr><td><code>vite</code></td><td>5.4.8</td><td>Build tool</td></tr>
+    <tr><td><code>@vis.gl/react-maplibre</code></td><td>8.1.1</td><td>React wrapper for MapLibre GL JS</td></tr>
+    <tr><td><code>maplibre-gl</code></td><td>6.x</td><td>Map rendering (WebGL)</td></tr>
+    <tr><td><code>@tanstack/react-query</code></td><td>5.59.0</td><td>Server state management</td></tr>
+    <tr><td><code>zustand</code></td><td>5.0.0</td><td>UI state management</td></tr>
+    <tr><td><code>recharts</code></td><td>2.13.0</td><td>Charts for analytics</td></tr>
+    <tr><td><code>tailwindcss</code></td><td>3.4.13</td><td>Styling</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Why These Choices</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Choice</th><th>Rejected Alternative</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>SQLite + aiosqlite</td><td>PostgreSQL</td><td>Zero server ops. Same Alembic migrations. One line to upgrade later</td></tr>
+    <tr><td>DuckDB</td><td>Pandas aggregations</td><td>Columnar OLAP, reads SQLite + Parquet directly, zero ops</td></tr>
+    <tr><td>APScheduler</td><td>Celery + Redis</td><td>No broker needed. Handles cron + interval. Zero ops</td></tr>
+    <tr><td>StatsForecast</td><td>Prophet</td><td>100x faster, no PyStan/cmdstan dependency</td></tr>
+    <tr><td>SSE (Server-Sent Events)</td><td>WebSocket for frontend</td><td>Simpler, auto-reconnects natively, HTTP/2 compatible</td></tr>
+    <tr><td>Corridor alternatives</td><td>OR-Tools global graph</td><td>Realistic, shippable in 1 week, how real 3PLs work</td></tr>
+    <tr><td>AISStream.io WebSocket</td><td>VesselAPI REST</td><td>VesselAPI free = 150 calls/month. AISStream = unlimited push</td></tr>
+    <tr><td>Gemini Flash + Ollama</td><td>GPT-4o / Groq</td><td>Gemini Flash = 1M tokens/day free. Ollama = fully offline</td></tr>
+    <tr><td>MapTiler free tier</td><td>Self-hosted tiles</td><td>100k loads/month free. Self-hosting needs 100GB + tile server</td></tr>
+    <tr><td>OpenRouteService cached</td><td>OSRM self-hosted</td><td>OSRM needs 64GB RAM for global graph. ORS free = 2000 req/day</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 3 ═══ -->
+<h2 id="folder">3. Folder Structure</h2>
+<pre>
+nexafreight/
+│
+├── pyproject.toml
+├── .env.example
+├── .gitignore
+├── .pre-commit-config.yaml        ← ruff, mypy, gitleaks
+├── README.md
+├── Makefile
+│
+├── alembic/
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/
+│       └── 001_initial_schema.py
+│
+├── data/
+│   ├── raw/
+│   │   ├── dataco/DataCoSupplyChainDataset.csv
+│   │   ├── port_activity/port_activity.csv
+│   │   ├── port_performance/maritime_port_performance.csv
+│   │   ├── unlocode/unlocode.csv
+│   │   └── ais_historical/ais_2024_pacific.parquet
+│   └── processed/
+│       ├── shipments.parquet
+│       ├── legs.parquet
+│       ├── sea_routes.parquet
+│       └── road_routes.parquet
+│
+├── models/
+│   ├── delay_classifier/
+│   │   ├── model.joblib
+│   │   ├── feature_schema.json
+│   │   └── metadata.json
+│   ├── eta_quantile/
+│   │   ├── model.joblib
+│   │   ├── feature_schema.json
+│   │   └── metadata.json
+│   └── demand_forecast/
+│       ├── model.joblib
+│       └── metadata.json
+│
+├── scripts/
+│   ├── 01_ingest_dataco.py
+│   ├── 02_ingest_unlocode.py
+│   ├── 03_ingest_port_data.py
+│   ├── 04_consolidate_shipments.py
+│   ├── 05_plan_routes.py
+│   ├── 06_assign_vessels.py
+│   ├── 07_assign_flights.py
+│   ├── 08_download_ais_history.py
+│   ├── 09_train_delay_classifier.py
+│   ├── 10_train_eta_model.py
+│   └── 11_train_demand_forecast.py
+│
+├── src/
+│   └── nexafreight/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── database.py
+│       ├── main.py
+│       │
+│       ├── models/
+│       │   ├── base.py
+│       │   ├── user.py
+│       │   ├── location.py
+│       │   ├── order.py
+│       │   ├── order_item.py
+│       │   ├── shipment.py
+│       │   ├── leg.py
+│       │   ├── vessel.py
+│       │   ├── position_report.py
+│       │   ├── event.py
+│       │   ├── disruption.py
+│       │   ├── alert.py
+│       │   ├── reroute_option.py
+│       │   ├── decision.py
+│       │   ├── port_daily_stat.py
+│       │   └── audit_log.py
+│       │
+│       ├── schemas/
+│       │   ├── auth.py
+│       │   ├── shipment.py
+│       │   ├── alert.py
+│       │   ├── disruption.py
+│       │   ├── reroute.py
+│       │   ├── position.py
+│       │   └── analytics.py
+│       │
+│       ├── adapters/
+│       │   ├── protocols.py
+│       │   ├── feed/
+│       │   │   ├── aisstream.py       ← REAL: AISStream WebSocket
+│       │   │   ├── replay_ais.py      ← REPLAYED: Historical AIS Parquet
+│       │   │   ├── replay_flight.py   ← SIMULATED: Geodesic arc
+│       │   │   ├── truck_sim.py       ← SIMULATED: Road polyline
+│       │   │   └── mock.py            ← MOCK: Tests only
+│       │   ├── routing/
+│       │   │   ├── sea_route.py
+│       │   │   ├── road_route.py
+│       │   │   └── air_route.py
+│       │   └── llm/
+│       │       ├── gemini.py
+│       │       └── ollama.py
+│       │
+│       ├── services/
+│       │   ├── consolidation.py
+│       │   ├── route_planner.py
+│       │   ├── position_tracker.py
+│       │   ├── disruption_detector.py
+│       │   ├── alert_engine.py
+│       │   ├── reroute_engine.py
+│       │   ├── financial_engine.py
+│       │   ├── sla_checker.py
+│       │   ├── decision_executor.py
+│       │   └── copilot.py
+│       │
+│       ├── ml/
+│       │   ├── registry.py
+│       │   ├── delay_classifier.py
+│       │   ├── eta_model.py
+│       │   └── demand_forecast.py
+│       │
+│       ├── routers/
+│       │   ├── auth.py
+│       │   ├── shipments.py
+│       │   ├── map.py
+│       │   ├── alerts.py
+│       │   ├── disruptions.py
+│       │   ├── decisions.py
+│       │   ├── analytics.py
+│       │   └── copilot.py
+│       │
+│       └── workers/
+│           ├── ais_listener.py
+│           ├── port_monitor.py
+│           ├── sla_monitor.py
+│           └── position_interpolator.py
+│
+├── frontend/
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tsconfig.json
+│   └── src/
+│       ├── main.tsx
+│       ├── App.tsx
+│       ├── api/
+│       │   ├── shipments.ts
+│       │   ├── alerts.ts
+│       │   ├── analytics.ts
+│       │   └── sse.ts
+│       ├── components/
+│       │   ├── map/
+│       │   │   ├── FreightMap.tsx
+│       │   │   ├── ShipLayer.tsx
+│       │   │   ├── FlightLayer.tsx
+│       │   │   ├── TruckLayer.tsx
+│       │   │   └── RouteLayer.tsx
+│       │   ├── alerts/
+│       │   │   ├── AlertPanel.tsx
+│       │   │   ├── AlertCard.tsx
+│       │   │   └── RerouteOptions.tsx
+│       │   ├── shipments/
+│       │   │   ├── ShipmentList.tsx
+│       │   │   ├── ShipmentDetail.tsx
+│       │   │   └── OrderTable.tsx
+│       │   └── analytics/
+│       │       ├── FinancialScorecard.tsx
+│       │       ├── DemandForecast.tsx
+│       │       └── ESGReport.tsx
+│       ├── pages/
+│       │   ├── Dashboard.tsx
+│       │   ├── ShipmentDetail.tsx
+│       │   ├── AlertCenter.tsx
+│       │   ├── Analytics.tsx
+│       │   └── AuditLog.tsx
+│       └── store/
+│           └── useAppStore.ts
+│
+└── tests/
+    ├── conftest.py
+    ├── unit/
+    │   ├── test_consolidation.py
+    │   ├── test_route_planner.py
+    │   ├── test_financial_engine.py
+    │   ├── test_reroute_engine.py
+    │   └── test_sla_checker.py
+    └── integration/
+        ├── test_shipment_api.py
+        ├── test_alert_lifecycle.py
+        └── test_decision_workflow.py
+</pre>
+
+<!-- ═══ SECTION 4 ═══ -->
+<h2 id="schema">4. Database Schema</h2>
+
+<h3>Reference Tables</h3>
+<pre>
+locations              ports                  vessels
+─────────              ──────                 ───────
+id (PK)                id (PK)                id (PK)
+locode (UNIQUE)        locode (FK→locations)  mmsi (UNIQUE)
+name                   name                   imo
+country_code           lat / lon              name
+lat / lon              port_type              call_sign
+location_type          max_draft_m            vessel_type
+  PORT|AIRPORT         facilities_json        gross_tonnage
+  WAREHOUSE|ICD        avg_dwell_hours        operator
+provenance=CALIBRATED  demurrage_free_days    flag_country
+source=UNECE_UNLOCODE  demurrage_rate_usd     typical_lanes_json
+                       congestion_threshold
+</pre>
+
+<h3>Order Domain</h3>
+<pre>
+orders                              order_items
+──────                              ───────────
+id (PK)                             id (PK)
+dataco_order_id (UNIQUE)            order_id (FK→orders)
+customer_id                         product_name
+customer_segment                    product_category
+origin_locode (FK→locations)        quantity
+dest_locode (FK→locations)          unit_price
+shipping_mode                       total_value
+order_date                          weight_kg
+sla_days                            cargo_class (GENERAL|PERISHABLE|HAZMAT)
+sla_deadline (computed)             discount_pct
+contracted_revenue                  profit_per_item
+sla_penalty_pct                     provenance = DERIVED
+shipment_id (FK→shipments)
+provenance = DERIVED
+source = DATACO_CSV
+</pre>
+
+<h3>Shipment Domain</h3>
+<pre>
+shipments
+─────────
+id (PK)
+reference_number (UNIQUE)           e.g. "NF-2024-004023"
+origin_locode / dest_locode (FK→locations)
+primary_mode                        SEA | AIR | ROAD | RAIL
+cargo_class                         GENERAL | PERISHABLE | HAZMAT
+total_value_usd / total_weight_kg / total_volume_cbm
+strictest_sla_deadline              tightest deadline of all orders
+planned_departure / planned_arrival
+revised_eta                         updated when disruptions hit
+actual_arrival
+status                              PLANNED|IN_TRANSIT|AT_PORT|DELIVERED|CANCELLED
+current_leg_id (FK→legs)
+planned_freight_cost_usd / planned_co2_kg
+route_version (INT)                 increments on every reroute
+provenance = DERIVED
+
+legs
+────
+id (PK)
+shipment_id (FK→shipments)
+sequence (INT)                      1, 2, 3, 4, 5 in order
+route_version (INT)                 matches shipment.route_version
+mode                                SEA|AIR|ROAD|RAIL|PORT
+leg_type                            FIRST_MILE|MAIN_HAUL|ORIGIN_HANDLING|DEST_HANDLING|LAST_MILE
+origin_locode / dest_locode (FK→locations)
+vessel_id (FK→vessels, nullable)
+carrier_name / flight_number
+route_geometry (TEXT)               GeoJSON LineString — cached at build time
+route_distance_km / route_distance_nm
+route_quality                       COMPUTED | APPROXIMATE
+planned_departure / planned_arrival
+actual_departure / actual_arrival / revised_arrival
+planned_cost_usd / planned_co2_kg
+demurrage_free_days / demurrage_daily_rate_usd
+status                              PLANNED|IN_PROGRESS|COMPLETED|CANCELLED|REPLACED
+provenance                          REAL|DERIVED|SIMULATED
+
+INDEX: (shipment_id, route_version, sequence)
+INDEX: (vessel_id)
+INDEX: (status, mode)
+</pre>
+
+<h3>Tracking Domain</h3>
+<pre>
+position_reports
+────────────────
+id (PK)
+asset_type          VESSEL | AIRCRAFT | TRUCK
+asset_id            MMSI | flight_number | leg_id
+leg_id (FK→legs, nullable)
+lat / lon
+speed_knots / heading_deg / nav_status
+reported_at / received_at (TIMESTAMP)
+provenance          REAL | REPLAYED | SIMULATED
+source              AISSTREAM | OPENSKY_REPLAY | ROAD_INTERPOLATION
+
+NOTE: Keep only last 24h in SQLite. Archive to Parquet weekly.
+INDEX: (asset_type, asset_id, reported_at DESC)
+
+events
+──────
+id (PK)
+shipment_id (FK) / leg_id (FK, nullable)
+event_type          SHIPMENT_CREATED|PICKED_UP|ARRIVED_AT_PORT|
+                    LOADED_ON_VESSEL|CUSTOMS_CLEARED|POSITION_UPDATE|
+                    DISRUPTION_DETECTED|REROUTED|DELIVERED
+occurred_at / location_locode / description / source / metadata_json
+INDEX: (shipment_id, occurred_at DESC)
+</pre>
+
+<h3>Alert &amp; Decision Domain</h3>
+<pre>
+disruptions              alerts                    reroute_options
+────────────             ──────                    ───────────────
+id (PK)                  id (PK)                   id (PK)
+type                     shipment_id (FK)           alert_id (FK)
+  PORT_CONGESTION        disruption_id (FK)         option_key
+  VESSEL_DELAY           severity                     ACCEPT_DELAY|DIVERT
+  WEATHER|STRIKE           LOW|MED|HIGH|CRIT          MODAL_SHIFT|SPLIT
+  CANAL_CLOSURE          status                     name (TEXT)
+  CUSTOMS_HOLD             OPEN|ACKNOWLEDGED|        revised_eta
+affected_locode            OPTIONS_GENERATED|         additional_cost_usd
+estimated_delay_h          DECISION_PENDING|          sla_breaches_count
+delay_confidence           APPROVED|EXECUTED          sla_penalty_usd
+started_at / resolved_at sla_breaches_json           demurrage_usd
+source                   financial_exposure_usd       reroute_cost_usd
+  AIS_DEVIATION          created_at                   total_financial_impact
+  PORT_DATA              acknowledged_by (FK→users)   co2_delta_kg
+  MANUAL                 acknowledged_at              new_legs_json
+                                                      is_ai_recommended (BOOL)
+                                                      ai_explanation (TEXT)
+
+decisions                audit_log (IMMUTABLE — NEVER UPDATE/DELETE)
+─────────                ──────────────────────────────────────────
+id (PK)                  id (PK)
+alert_id (FK)            action_type / entity_type / entity_id
+reroute_option_id (FK)   performed_by (FK→users)
+approved_by (FK→users)   performed_at (TIMESTAMP)
+approved_at              details_json (TEXT)
+execution_status
+executed_at / notes
+</pre>
+
+<!-- ═══ SECTION 5 ═══ -->
+<h2 id="data">5. Data Sources</h2>
+
+<h3>What You Have — Use These</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Dataset</th><th>What It Is</th><th>How Used</th></tr></thead>
+  <tbody>
+    <tr><td>DataCo Smart Supply Chain</td><td>180k orders, 30k customers, global lanes</td><td>Order backbone, SLA data, revenue/margin, delay labels</td></tr>
+    <tr><td>Daily Port Activity (IMF)</td><td>Daily vessel counts per port</td><td>Port congestion detection, disruption trigger</td></tr>
+    <tr><td>Maritime Port Performance (Kaggle)</td><td>Dwell time, berth productivity, turnaround</td><td>Calibrate demurrage terms, port delay probability</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>What You Need To Download — All Free</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Dataset</th><th>Source</th><th>How Used</th></tr></thead>
+  <tbody>
+    <tr><td>UN/LOCODE</td><td>UNECE website</td><td>Every location in the system. Origin/dest mapping</td></tr>
+    <tr><td>World Port Index</td><td>NGA / Kaggle mexwell/world-port-index</td><td>Port depth, facilities, geographic coverage</td></tr>
+    <tr><td>NOAA Marine Cadastre AIS</td><td>marinecadastre.gov</td><td>Historical AIS for ReplayFeedAdapter (US waters)</td></tr>
+    <tr><td>Danish Maritime Authority AIS</td><td>dma.dk (research license)</td><td>Alternative historical AIS — global coverage</td></tr>
+    <tr><td>OpenFlights</td><td>openflights.org</td><td>Airport pairs + realistic flight durations</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>DataCo Column Mapping</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>DataCo Column</th><th>System Concept</th></tr></thead>
+  <tbody>
+    <tr><td>Shipping Mode "Standard Class"</td><td><code>primary_mode = SEA</code></td></tr>
+    <tr><td>Shipping Mode "Second Class"</td><td><code>primary_mode = RAIL</code></td></tr>
+    <tr><td>Shipping Mode "First Class"</td><td><code>primary_mode = AIR</code></td></tr>
+    <tr><td>Shipping Mode "Same Day"</td><td><code>primary_mode = AIR</code> (express flag)</td></tr>
+    <tr><td>Days for shipping (real) vs scheduled</td><td>Basis for <code>late_delivery_risk</code> ML label</td></tr>
+    <tr><td>Order Item Total (Sales)</td><td><code>contracted_revenue</code></td></tr>
+    <tr><td>Order Profit Per Order</td><td><code>margin</code></td></tr>
+    <tr><td>Customer Country / Order Country</td><td>Destination / Origin node (map to UN/LOCODE)</td></tr>
+    <tr><td>Late_delivery_risk</td><td>ML classifier target variable</td></tr>
+    <tr><td>Product Category Name</td><td><code>cargo_class</code> (GENERAL / PERISHABLE / HAZMAT)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 6 ═══ -->
+<h2 id="concepts">6. Core Concepts</h2>
+
+<h3>The Data Hierarchy</h3>
+<pre>
+CUSTOMER
+  └── ORDER (one DataCo row = one order)
+        └── ORDER_ITEMS (products within the order)
+              └── SHIPMENT (multiple orders consolidated together)
+                    └── LEGS (sequential route segments)
+                          └── EVENTS (things that happen on each leg)
+</pre>
+
+<h3>Provenance Labels</h3>
+<p>Every value in the system must carry one of these labels. No exceptions.</p>
+
+<p>
+  <span class="badge real">REAL</span> Live feed, confirmed by external source. Example: AIS position from AISStream.<br/>
+  <span class="badge rep">REPLAYED</span> Historical data served as if live. Example: AIS from NOAA Parquet file.<br/>
+  <span class="badge derived">DERIVED</span> Computed from real data. Example: ML prediction, consolidated shipment.<br/>
+  <span class="badge cal">CALIBRATED</span> From authoritative reference data. Example: UN/LOCODE coordinates.<br/>
+  <span class="badge sim">SIMULATED</span> Interpolated or generated. Example: truck position on road polyline.
+</p>
+
+<h3>Status Lifecycles</h3>
+<pre>
+Shipment:  PLANNED → IN_TRANSIT → AT_PORT → IN_TRANSIT → DELIVERED
+Alert:     OPEN → ACKNOWLEDGED → OPTIONS_GENERATED → DECISION_PENDING → APPROVED → EXECUTED
+Leg:       PLANNED → IN_PROGRESS → COMPLETED
+                                → REPLACED  (if rerouted — never deleted)
+</pre>
+
+<!-- ═══ SECTION 7 ═══ -->
+<h2 id="adapter">7. Adapter Pattern</h2>
+<p>Every external dependency implements a Protocol. Swap the adapter, not the business logic. Tests use MockAdapter. Development uses AISStream + ReplayFlight + TruckSim. Production adds no new code.</p>
+<pre>
+# adapters/protocols.py
+
+from typing import Protocol
+from dataclasses import dataclass
+from datetime import datetime
+from enum import StrEnum
+
+class AssetType(StrEnum):
+    VESSEL   = "VESSEL"
+    AIRCRAFT = "AIRCRAFT"
+    TRUCK    = "TRUCK"
+
+class Provenance(StrEnum):
+    REAL      = "REAL"
+    REPLAYED  = "REPLAYED"
+    SIMULATED = "SIMULATED"
+    MOCK      = "MOCK"
+
+@dataclass(frozen=True)
+class PositionReport:
+    asset_type:   AssetType
+    asset_id:     str
+    lat:          float
+    lon:          float
+    speed_knots:  float | None
+    heading_deg:  float | None
+    reported_at:  datetime
+    provenance:   Provenance
+    source:       str
+
+@dataclass(frozen=True)
+class FeedHealth:
+    adapter_name:      str
+    is_healthy:        bool
+    last_success:      datetime | None
+    messages_received: int
+    provenance:        Provenance
+
+class FeedAdapter(Protocol):
+    async def start(self) -> None: ...
+    async def stop(self) -> None: ...
+    async def get_latest_position(self, asset_id: str) -> PositionReport | None: ...
+    async def health(self) -> FeedHealth: ...
+</pre>
+
+<!-- ═══ SECTION 8 ═══ -->
+<h2 id="ais">8. Ship Tracking — AISStream.io</h2>
+
+<div class="callout success">
+  <strong>Why AISStream</strong>
+  Free WebSocket API. No rate limits in the REST sense. Persistent stream — subscribe once, it pushes continuously. Filter by specific MMSIs. No paid tiers. API key is free on registration (GitHub OAuth).
+</div>
+
+<h3>Critical Caveats</h3>
+<ul>
+  <li>No direct browser connections. Always proxy through your server.</li>
+  <li>Connection drops every ~2 minutes sometimes. Build reconnect with exponential backoff.</li>
+  <li>Consume messages fast enough or the service drops them.</li>
+  <li>From September 2026: uncompressed connections subject to bandwidth limits. Enable <code>permessage-deflate</code> compression.</li>
+  <li>No SLA or uptime guarantee. Plan for interruptions. Fallback to REPLAYED.</li>
+</ul>
+
+<h3>Connection Architecture</h3>
+<pre>
+AISStream.io WSS endpoint
+        ↓
+AISStreamAdapter (background asyncio task)
+  - Connect on startup
+  - Subscribe: FiltersShipMMSI (your 20-50 active vessel MMSIs)
+               FilterMessageTypes: ["PositionReport"]
+  - On each message: parse → update in-memory cache → write to DB
+  - On disconnect: exponential backoff (1s, 2s, 4s… max 60s)
+  - Resubscribe within 3 seconds of reconnect
+  - Track health: last_success, messages_received, is_healthy
+        ↓
+In-memory cache (dict[MMSI → PositionReport])
+        ↓
+SSE endpoint pushes all positions to frontend every 5 seconds
+</pre>
+
+<h3>MMSI Assignment Strategy</h3>
+<p>Do NOT subscribe to all ships globally. For each unique (origin_port, dest_port) sea lane in your DataCo data: research 2-3 real vessels that operate that trade lane (Maersk/COSCO/Evergreen), look up their MMSI on MarineTraffic vessel finder (free search, no API needed), insert into vessels table. Subscribe to exactly these 20-50 MMSIs via <code>FiltersShipMMSI</code>.</p>
+
+<!-- ═══ SECTION 9 ═══ -->
+<h2 id="flights">9. Flight Tracking — Simulated</h2>
+
+<div class="callout warn">
+  <strong>Why Not OpenSky Live</strong>
+  Auth changed to OAuth2 in March 2026. Raw ADS-B gives lat/lon/callsign but no flight number, airline, or origin/destination. Non-commercial license only. Coverage gaps outside EU/NA.
+</div>
+
+<h3>What Simulated Means — Not Fake</h3>
+<p>The geometry IS real. Flights fly great-circle arcs. The duration IS real from actual flight schedule data. The speed IS realistic (~900 km/h cruise). You label it <span class="badge sim">SIMULATED</span>. The operator knows it is not live ADS-B. The route drawn on the map is geometrically correct.</p>
+
+<h3>How It Works</h3>
+<pre>
+1. For each DataCo AIR lane (e.g. PVG → LAX):
+   - Compute geodesic arc between airport coords (geopy)
+   - Store as GeoJSON LineString in legs.route_geometry
+   - Get realistic flight duration from OpenFlights data
+   - Assign a real cargo flight number (Cathay Cargo, FedEx, DHL)
+
+2. When leg status = IN_PROGRESS:
+   progress  = elapsed_time / planned_duration_hours   (0.0 → 1.0)
+   position  = interpolate_along_arc(origin, dest, progress)
+   speed     ≈ 485 knots cruise
+   heading   = bearing from current to next point
+
+3. position_interpolator worker runs every 30 seconds
+   → writes PositionReport(provenance=SIMULATED, source=GEODESIC_ARC)
+</pre>
+
+<!-- ═══ SECTION 10 ═══ -->
+<h2 id="trucks">10. Truck Tracking — Road Interpolation</h2>
+
+<h3>Problem 1: Route Geometry</h3>
+<p>Use <strong>OpenRouteService free tier</strong> (40 req/min, 2000 req/day). Profile: <code>driving-hgv</code>. You have ~200 unique city pairs in DataCo. Pre-compute ALL 200 at build time. Cache GeoJSON in the DB. Uses ~200 of 2000 daily free requests. Done in one afternoon. Never call again.</p>
+
+<h3>Problem 2: Current Position</h3>
+<p>Interpolate along the cached road polyline using Shapely. This is identical to how Google Maps shows your GPS dot between actual pings.</p>
+<pre>
+from shapely.geometry import LineString
+import json
+
+def get_truck_position(leg, current_time):
+    elapsed  = (current_time - leg.actual_departure).total_seconds()
+    progress = min(elapsed / leg.planned_duration_seconds, 1.0)
+
+    line  = LineString(json.loads(leg.route_geometry)["coordinates"])
+    point = line.interpolate(progress, normalized=True)
+
+    return PositionReport(
+        asset_type  = AssetType.TRUCK,
+        asset_id    = str(leg.id),
+        lat         = point.y,
+        lon         = point.x,
+        speed_knots = 60.0 / 1.852,     # ~60 km/h average truck
+        heading_deg = compute_heading(line, progress),
+        reported_at = current_time,
+        provenance  = Provenance.SIMULATED,
+        source      = "ROAD_INTERPOLATION"
+    )
+</pre>
+
+<!-- ═══ SECTION 11 ═══ -->
+<h2 id="searoute">11. Sea Routes — searoute-py</h2>
+
+<div class="callout danger">
+  <strong>Critical Rule</strong>
+  Pin version hard: <code>searoute==1.4.3</code>. Pre-compute at build time only. Store GeoJSON in DB. Never call at request time. The library is unmaintained — it must never be a runtime dependency.
+</div>
+
+<h3>What It Does</h3>
+<p>Contains a pre-built maritime network graph (Marnet). Includes passages through Suez Canal, Panama Canal, Malacca Strait, Gibraltar, Dover Strait. Runs Dijkstra on the graph and returns a GeoJSON LineString that follows actual ocean routes, avoiding land.</p>
+
+<h3>Build-Time Pattern</h3>
+<pre>
+import searoute as sr, json
+
+try:
+    route = sr.searoute(
+        [origin_port.lon, origin_port.lat],   # [lon, lat] — NOTE the order
+        [dest_port.lon,   dest_port.lat],
+        units="naut"
+    )
+    geometry      = json.dumps(route["geometry"])
+    distance_nm   = route["properties"]["length"]
+    route_quality = "COMPUTED"
+
+except Exception:
+    # Fallback: great-circle line
+    geometry      = make_great_circle_geojson(origin_port, dest_port)
+    distance_nm   = haversine_nm(origin_port, dest_port)
+    route_quality = "APPROXIMATE"
+
+# Store in DB. Done. Never call searoute again at runtime.
+</pre>
+
+<div class="callout warn">
+  <strong>Coordinate Convention</strong>
+  searoute-py uses [longitude, latitude] (GeoJSON order). geopy uses (latitude, longitude). Never confuse these — they produce wrong routes silently.
+</div>
+
+<!-- ═══ SECTION 12 ═══ -->
+<h2 id="consolidation">12. Shipment Consolidation</h2>
+
+<h3>Why Consolidation Is Necessary</h3>
+<p>DataCo has 180,000 individual order rows. In reality you do not send one container per order. Multiple orders going the same direction by the same mode are consolidated into one physical shipment.</p>
+
+<h3>Consolidation Rules</h3>
+<p>Group orders into the same shipment when ALL of these match:</p>
+<ol>
+  <li>Same origin region (country code prefix of UN/LOCODE)</li>
+  <li>Same destination region</li>
+  <li>Compatible shipping mode (all SEA, or all AIR, etc.)</li>
+  <li>Compatible cargo class (no HAZMAT with GENERAL)</li>
+  <li>Departure windows overlap (orders placed within same 3-day window)</li>
+  <li>Combined weight/volume fits in one container</li>
+</ol>
+
+<h3>Expected Output</h3>
+<p>From 180,000 DataCo orders: approximately <strong>5,000–10,000 shipments</strong>. Each contains 10–40 orders. Of those, roughly <strong>47 are ACTIVE</strong> (IN_TRANSIT) at any given moment. This is realistic for a mid-size freight forwarder operations desk.</p>
+
+<div class="callout info">
+  <strong>The Critical Implication</strong>
+  The STRICTEST SLA deadline among all orders in the shipment drives the shipment's urgency. If one order has a 20-day SLA and 19 others have 30-day SLA, the shipment must move as if it has a 20-day SLA.
+</div>
+
+<!-- ═══ SECTION 13 ═══ -->
+<h2 id="disruption">13. Disruption Detection</h2>
+
+<h3>Source 1: AIS Deviation (Automatic)</h3>
+<pre>
+Every AIS position update triggers:
+  planned_progress = elapsed_time / planned_duration
+  actual_progress  = distance_sailed / total_route_distance
+
+  if (planned_progress - actual_progress) > 0.10:
+      create_disruption(type=VESSEL_DELAY, source=AIS_DEVIATION)
+</pre>
+
+<h3>Source 2: Port Congestion (Automatic, Daily at 6am)</h3>
+<pre>
+  for each port:
+    congestion_index = today_vessel_count / rolling_90_day_average
+
+    if congestion_index > 1.4:  # 40% above average
+        affected = shipments heading to this port (ON_WATER or PLANNED)
+        for shipment in affected:
+            create_disruption(type=PORT_CONGESTION, source=PORT_DATA)
+</pre>
+
+<h3>Source 3: Manual Entry (Operator)</h3>
+<pre>
+POST /api/disruptions
+{
+  "type": "PORT_STRIKE",
+  "affected_locode": "NLRTM",
+  "started_at": "2025-03-15T00:00:00Z",
+  "estimated_delay_hours": 120,
+  "description": "Dock workers strike, port closed 5 days",
+  "source": "MANUAL"
+}
+</pre>
+
+<h3>Disruption Types</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type</th><th>Common Source</th><th>Typical Delay</th></tr></thead>
+  <tbody>
+    <tr><td>PORT_CONGESTION</td><td>Port activity data</td><td>+2 to +7 days</td></tr>
+    <tr><td>VESSEL_DELAY</td><td>AIS deviation</td><td>+1 to +5 days</td></tr>
+    <tr><td>WEATHER</td><td>Manual</td><td>+1 to +10 days</td></tr>
+    <tr><td>STRIKE</td><td>Manual</td><td>Variable</td></tr>
+    <tr><td>CANAL_CLOSURE</td><td>Manual</td><td>+10 to +20 days</td></tr>
+    <tr><td>CUSTOMS_HOLD</td><td>Manual</td><td>+2 to +14 days</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 14 ═══ -->
+<h2 id="alert">14. Alert Engine</h2>
+
+<h3>What The Alert Engine Computes</h3>
+<p>For each disruption → affected shipment pair:</p>
+<ol>
+  <li>Revised ETA = current ETA + disruption.estimated_delay_hours</li>
+  <li>For each order: is <code>revised_eta &gt; order.sla_deadline</code>?</li>
+  <li>Days late per order = <code>max(0, (revised_eta - sla_deadline).days)</code></li>
+  <li>SLA penalty per order = <code>revenue × sla_penalty_pct × days_late</code></li>
+  <li>Total SLA penalties = sum across all orders</li>
+  <li>Demurrage = <code>max(0, port_dwell_days - free_days) × daily_rate</code></li>
+  <li>Financial exposure = SLA penalties + demurrage</li>
+</ol>
+
+<h3>Severity Thresholds</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Severity</th><th>Condition</th></tr></thead>
+  <tbody>
+    <tr><td>CRITICAL</td><td>Exposure &gt; $20,000 OR any order &gt; 5 days late</td></tr>
+    <tr><td>HIGH</td><td>Exposure &gt; $5,000 OR any SLA breach</td></tr>
+    <tr><td>MEDIUM</td><td>Exposure &gt; $1,000 OR ETA within 2 days of any SLA</td></tr>
+    <tr><td>LOW</td><td>No SLA breach, informational only</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 15 ═══ -->
+<h2 id="reroute">15. Rerouting Engine</h2>
+
+<div class="callout info">
+  <strong>What Rerouting Actually Means</strong>
+  Rerouting does NOT redirect a ship mid-ocean. It changes the REMAINING legs of the journey after the current leg completes. The vessel finishes what it is doing. You change what happens next.
+</div>
+
+<h3>The Three Option Types</h3>
+<h4>Option A: Accept Delay</h4>
+<p>Always included as baseline. Keep original route. Accept the delay and penalties. Use when all SLAs still met, or rerouting costs more than demurrage + penalties.</p>
+
+<h4>Option B: Divert to Alternative Node</h4>
+<p>Change the destination port/airport to avoid the disrupted one. Same primary mode. Different transshipment point. Use when nearby port is clear and last-mile cost is acceptable.</p>
+
+<h4>Option C: Modal Shift or Split</h4>
+<p>Switch from sea to air for remaining journey. OR split the shipment: priority orders go air, rest stay on sea. Use when SLA breach is imminent and the penalty exceeds the air premium.</p>
+
+<h3>Corridor Alternatives (Stored in DB, Not Computed Live)</h3>
+<pre>
+Example for Shanghai → Long Beach:
+
+ALT1: Via Oakland
+  when_to_use: [PORT_CONGESTION, PORT_STRIKE]
+  time_delta_hours: -48   (2 days faster via less congested port)
+  cost_delta_factor: 1.08 (8% more expensive)
+
+ALT2: Via Seattle + Rail
+  when_to_use: [PORT_CONGESTION, WEATHER, CANAL_CLOSURE]
+  time_delta_hours: -72
+  cost_delta_factor: 1.05
+
+ALT3: Air Freight (priority cargo only)
+  when_to_use: [SLA_CRITICAL, HIGH_VALUE_CARGO]
+  time_delta_hours: -300  (much faster)
+  cost_delta_factor: 5.5  (air is 5-6x sea cost per kg)
+</pre>
+
+<h3>Scoring Function</h3>
+<pre>
+For each option:
+  revised_eta            = compute from new legs
+  sla_breaches           = check all orders vs revised_eta
+  sla_penalties          = sum per-order penalties (see Financial Engine)
+  demurrage              = (dwell_days - free_days) × daily_rate
+  freight_delta          = new_freight_cost - original_planned_cost
+  reroute_cost           = rebooking + transshipment fees
+  co2_delta              = new_co2 - original_planned_co2
+  carbon_cost            = co2_delta × carbon_price_per_kg
+  total_financial_impact = sum of all above
+
+Rank: lowest total_financial_impact = best option
+Mark: AI recommendation = best-ranked option that also meets SLA
+Show: top 3 options only (always include Accept Delay)
+</pre>
+
+<h3>The Split Decision</h3>
+<pre>
+Evaluate split when: some orders breach SLA and others do not.
+
+priority_orders  = [o for o if revised_eta > o.sla_deadline]
+standard_orders  = [o for o if revised_eta &lt;= o.sla_deadline]
+
+total_sla_penalties = sum(calculate_penalty(o) for o in priority_orders)
+air_cost            = sum(estimate_air_freight(o) for o in priority_orders)
+
+if total_sla_penalties > air_cost:
+    RECOMMEND SPLIT:
+      priority_orders → air freight → meets all SLAs
+      standard_orders → stay on sea → all SLAs met anyway
+      net_savings = total_sla_penalties - air_cost
+</pre>
+
+<!-- ═══ SECTION 16 ═══ -->
+<h2 id="finance">16. Financial Engine</h2>
+
+<h3>Complete Cost Breakdown Per Option</h3>
+<pre>
+Revenue              = agreed freight rate (from DataCo Sales column)
+Freight cost         = carrier rate × distance × weight
+Port handling        = origin terminal + destination terminal fees
+Demurrage            = max(0, dwell_days - free_days) × daily_rate
+SLA penalties        = per-order: revenue × penalty_pct × days_late
+Rerouting surcharge  = rebooking fee + transshipment cost
+Carbon cost          = co2_kg × carbon_price_per_kg  (default $0.08/kg)
+
+Gross margin         = Revenue - sum(all costs)
+Decision             = option with lowest total_financial_impact
+                       that satisfies SLA constraints
+</pre>
+
+<div class="callout info">
+  <strong>Carbon Price Default</strong>
+  $0.08 per kg CO2 = ~$80 per tonne. This approximates the EU ETS shadow price. Configurable via environment variable.
+</div>
+
+<!-- ═══ SECTION 17 ═══ -->
+<h2 id="ml">17. ML Models</h2>
+
+<h3>Model 1: Delay Classifier (LightGBM)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Property</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Algorithm</td><td>LightGBM Classifier</td></tr>
+    <tr><td>Target</td><td><code>late_delivery_risk</code> (0/1) from DataCo</td></tr>
+    <tr><td>Train split</td><td>Before 2017-06-01 (TIME-BASED, not random)</td></tr>
+    <tr><td>Val split</td><td>2017-06-01 to 2017-12-31</td></tr>
+    <tr><td>Test split</td><td>2018-01-01 onwards</td></tr>
+    <tr><td>Tuning</td><td>Optuna, 50 trials, maximize val ROC-AUC</td></tr>
+    <tr><td>Requirement</td><td>MUST beat naive baseline (historical late rate per lane)</td></tr>
+    <tr><td>Explainability</td><td>SHAP TreeExplainer — top 5 factors per prediction</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>Key features:</strong> shipping_mode_encoded, origin/dest_country_code, planned_transit_days, cargo_value_usd, cargo_class, origin/dest_port_congestion_index, departure_month, departure_weekday, distance_km, sla_buffer_days.</p>
+
+<pre>
+# Output per prediction:
+{
+  "delay_probability": 0.73,
+  "is_high_risk": true,
+  "top_factors": [
+    {"feature": "dest_port_congestion_index", "impact": 0.31, "direction": "increases_delay"},
+    {"feature": "departure_month",            "impact": 0.18, "direction": "increases_delay"},
+    {"feature": "sla_buffer_days",            "impact":-0.14, "direction": "reduces_delay"}
+  ],
+  "model_version": "abc123de",
+  "provenance": "DERIVED"
+}
+</pre>
+
+<h3>Model 2: ETA Quantile Regressor (LightGBM)</h3>
+<p>Three separate models: <strong>P10</strong> (optimistic), <strong>P50</strong> (median), <strong>P85</strong> (conservative). Target = <code>actual_transit_days - planned_transit_days</code> (the residual, not absolute). Evaluated on pinball loss. P10-P85 interval must contain actual result ~75% of the time. <strong>Use P85 for SLA risk checks</strong> — protects operator from surprises.</p>
+
+<h3>Model 3: Demand Forecast (StatsForecast AutoETS)</h3>
+<p>Weekly order volume per (product_category × origin_region × dest_region). 30/60/90-day horizon. Point forecast + confidence intervals. Used for capacity pre-negotiation, not individual shipment decisions. StatsForecast is 100x faster than Prophet with no PyStan dependency.</p>
+
+<h3>Model Artifacts (Saved Per Model)</h3>
+<pre>
+models/delay_classifier/
+  model.joblib          ← The trained model
+  feature_schema.json   ← Feature names + types (inference uses this)
+  metadata.json         ← {
+                              "git_sha": "abc123def456",
+                              "training_data_hash": "sha256:...",
+                              "trained_at": "2024-11-01T10:00:00Z",
+                              "val_roc_auc": 0.847,
+                              "test_roc_auc": 0.831,
+                              "baseline_roc_auc": 0.621,
+                              "n_train_samples": 145000
+                            }
+</pre>
+
+<!-- ═══ SECTION 18 ═══ -->
+<h2 id="llm">18. LLM Copilot</h2>
+
+<div class="callout warn">
+  <strong>Priority Warning</strong>
+  Build this LAST (Phase 6). The map, ML, alerts, and rerouting are more impressive and more important for any portfolio review or pitch. Do not let the copilot eat your time budget.
+</div>
+
+<h3>What It Is</h3>
+<p>A structured AI analyst scoped to one shipment at a time. It <strong>explains and recommends</strong>. It CANNOT trigger actions. It CANNOT approve decisions. It CANNOT see other users' shipments.</p>
+
+<h3>Stack</h3>
+<ul>
+  <li><strong>Primary:</strong> Google Gemini Flash — free, 15 req/min, 1M tokens/day</li>
+  <li><strong>Fallback:</strong> Ollama local (llama3.1:8b, ~8GB RAM, works fully offline)</li>
+  <li><strong>Switch:</strong> <code>USE_GEMINI=false</code> in .env → automatic fallback</li>
+</ul>
+
+<h3>Context Injection Pattern</h3>
+<pre>
+def build_copilot_context(shipment_id: int) -> str:
+    # Pull structured data from DB
+    shipment   = db.get_shipment(shipment_id)
+    alerts     = db.get_active_alerts(shipment_id)
+    prediction = ml.predict_delay(shipment_id)
+    financials = finance.get_pnl(shipment_id)
+    sop_rules  = rules.get_applicable(shipment)
+
+    return f"""
+    You are a logistics analyst for NexaFreight Control Tower.
+    Answer using ONLY the data below.
+    If you don't know, say "I don't have that information."
+    Never invent shipment IDs, vessel names, or financial figures.
+    You cannot approve actions — only explain and recommend.
+
+    SHIPMENT STATE:     {json.dumps(shipment.to_dict())}
+    ACTIVE ALERTS:      {json.dumps([a.to_dict() for a in alerts])}
+    ML PREDICTION:      delay_prob={prediction.delay_probability:.1%}
+                        ETA range: {prediction.p10_eta} to {prediction.p85_eta}
+    FINANCIAL SNAPSHOT: revenue=${financials.revenue:,.0f}
+                        margin={financials.margin_pct:.1%}
+                        demurrage_risk=${financials.demurrage_risk:,.0f}
+    APPLICABLE RULES:   {json.dumps(sop_rules)}
+    """
+</pre>
+
+<!-- ═══ SECTION 19 ═══ -->
+<h2 id="workers">19. Background Workers</h2>
+<p>All workers run inside the FastAPI process via APScheduler. No Redis. No Celery. No broker. No extra containers.</p>
+<pre>
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+scheduler = AsyncIOScheduler()
+scheduler.add_job(run_port_monitor,          'cron',     hour=6, minute=0)
+scheduler.add_job(run_sla_monitor,           'interval', minutes=15)
+scheduler.add_job(run_position_interpolator, 'interval', seconds=30)
+scheduler.start()
+</pre>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Worker</th><th>Schedule</th><th>What It Does</th></tr></thead>
+  <tbody>
+    <tr><td><code>ais_listener.py</code></td><td>Always running (asyncio task)</td><td>Persistent AISStream WebSocket. Reconnects with backoff. Writes to position_reports + cache</td></tr>
+    <tr><td><code>port_monitor.py</code></td><td>Daily at 6am</td><td>Reads port_daily_stats. Computes congestion_index. Creates DISRUPTION records for affected shipments</td></tr>
+    <tr><td><code>sla_monitor.py</code></td><td>Every 15 minutes</td><td>Checks all IN_TRANSIT shipments. Creates ALERT if new SLA breach detected</td></tr>
+    <tr><td><code>position_interpolator.py</code></td><td>Every 30 seconds</td><td>Interpolates truck + flight positions. Writes SIMULATED PositionReports</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 20 ═══ -->
+<h2 id="api">20. API Contract</h2>
+<pre>
+AUTH
+  POST   /api/auth/login                → {access_token, token_type, role}
+  POST   /api/auth/refresh              → {access_token}
+  GET    /api/auth/me                   → {id, email, role}
+
+SHIPMENTS
+  GET    /api/shipments                 → {items: Shipment[], total, page}
+           ?status=IN_TRANSIT &mode=SEA &alert=true &page=1&size=20
+  GET    /api/shipments/{id}            → ShipmentDetail (legs, orders, events)
+  GET    /api/shipments/{id}/route      → {legs: [{mode, geometry, quality}]}
+  GET    /api/shipments/{id}/predict    → DelayPrediction + ETAPrediction
+  GET    /api/shipments/{id}/financials → FinancialSnapshot
+  GET    /api/shipments/{id}/events     → Event[]
+
+MAP
+  GET    /api/map/positions/stream      → SSE stream (text/event-stream)
+                                          Pushes POSITION_UPDATE every 5 seconds
+  GET    /api/map/positions/snapshot    → PositionReport[] (initial load)
+  GET    /api/map/routes                → GeoJSON FeatureCollection (all active routes)
+  GET    /api/map/ports                 → Port[] with current congestion_index
+  GET    /api/map/feed-health           → FeedHealth[] per adapter
+
+ALERTS
+  GET    /api/alerts                    → Alert[]
+           ?status=OPEN &severity=HIGH,CRITICAL
+  GET    /api/alerts/{id}               → AlertDetail (with reroute_options)
+  PATCH  /api/alerts/{id}/acknowledge   → {status: "ACKNOWLEDGED"}
+
+DISRUPTIONS
+  GET    /api/disruptions               → Disruption[]
+  POST   /api/disruptions               → Create manual (OPERATOR role required)
+  GET    /api/disruptions/{id}          → DisruptionDetail
+
+DECISIONS
+  GET    /api/alerts/{id}/options       → RerouteOption[] (3 options, full financials)
+  POST   /api/alerts/{id}/approve       → Approve one option
+           body: {option_id, notes}     → requires OPERATOR role
+           returns: {status, new_eta}
+  GET    /api/decisions                 → Decision[] (audit history)
+  GET    /api/decisions/{id}            → DecisionDetail
+
+ANALYTICS  (DuckDB-powered)
+  GET    /api/analytics/scorecard       → {total_shipments, on_time_pct, margin, demurrage...}
+  GET    /api/analytics/demand          → DemandForecast[] per category × lane
+  GET    /api/analytics/esg             → {total_co2_kg, by_mode, trend}
+  GET    /api/analytics/sla             → SLA performance by mode, carrier, lane
+  GET    /api/analytics/financial       → P&L: revenue, freight, demurrage, penalties
+
+COPILOT
+  POST   /api/copilot/ask               → {answer, model_used, context_used}
+           body: {shipment_id, question}
+           auth: required
+</pre>
+
+<!-- ═══ SECTION 21 ═══ -->
+<h2 id="frontend">21. Frontend Architecture</h2>
+
+<h3>State Management</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>State Type</th><th>Tool</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td>Server state</td><td>TanStack Query</td><td>Shipment lists, alert data, analytics responses</td></tr>
+    <tr><td>Live positions</td><td>Custom SSE hook</td><td>Asset positions, updated every 5s via EventSource</td></tr>
+    <tr><td>UI state</td><td>Zustand</td><td>Selected shipment, panel open/closed, modal state</td></tr>
+    <tr><td>Auth state</td><td>Zustand</td><td>Current user, JWT token (stored in memory, not localStorage)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Pages</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Page</th><th>Route</th><th>Primary Components</th></tr></thead>
+  <tbody>
+    <tr><td>Dashboard</td><td>/</td><td>FreightMap + ShipmentList + AlertPanel</td></tr>
+    <tr><td>Shipment Detail</td><td>/shipments/:id</td><td>ShipmentDetail + OrderTable + CopilotPanel</td></tr>
+    <tr><td>Alert Center</td><td>/alerts</td><td>AlertCard list + RerouteOptions modal</td></tr>
+    <tr><td>Analytics</td><td>/analytics</td><td>FinancialScorecard + DemandForecast + ESGReport</td></tr>
+    <tr><td>Audit Log</td><td>/audit</td><td>Decision history table</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Map Implementation Notes</h3>
+<ul>
+  <li>MapLibre GL JS v6 ships as ES modules. Configure worker URL before rendering (Vite-specific).</li>
+  <li>Use <code>@vis.gl/react-maplibre</code> v8.1.1 for React component API.</li>
+  <li>Map tiles: MapTiler free tier (dark dataviz style).</li>
+  <li>Route lines by mode: blue dashed (sea), orange solid (air), green solid (road).</li>
+  <li>Asset markers rotate SVG icon to heading angle.</li>
+  <li>Provenance badge: <span class="badge sim">S</span> for SIMULATED, <span class="badge rep">R</span> for REPLAYED. No badge = REAL.</li>
+</ul>
+
+<h3>SSE Hook</h3>
+<pre>
+// frontend/src/api/sse.ts
+export function useSSEPositions(): Position[] {
+  const [positions, setPositions] = useState&lt;Position[]&gt;([]);
+
+  useEffect(() =&gt; {
+    const es = new EventSource('/api/map/positions/stream');
+
+    es.onmessage = (e) =&gt; {
+      const data = JSON.parse(e.data);
+      if (data.type === 'POSITION_UPDATE') setPositions(data.positions);
+    };
+
+    // EventSource auto-reconnects. No manual logic needed.
+    return () =&gt; es.close();
+  }, []);
+
+  return positions;
+}
+</pre>
+
+<!-- ═══ SECTION 22 ═══ -->
+<h2 id="pipeline">22. Data Pipeline Scripts</h2>
+<p>Run in order. Once. Never again unless source data changes.</p>
+
+<pre>
+Script 01: ingest_dataco.py
+  Input:  DataCoSupplyChainDataset.csv
+  Output: orders + order_items tables
+  - Map shipping_mode → SEA|AIR|RAIL
+  - Compute sla_deadline = order_date + sla_days
+  - Map product_category → cargo_class
+  - Derive sla_penalty_pct by customer_segment
+  - provenance = DERIVED, source = DATACO_CSV
+
+Script 02: ingest_unlocode.py
+  Input:  unlocode.csv
+  Output: locations table
+  - Parse UN/LOCODE 5-char codes
+  - Convert lat/lon from DDMM format to decimal degrees
+  - provenance = CALIBRATED, source = UNECE_UNLOCODE
+
+Script 03: ingest_port_data.py
+  Input:  port_activity.csv + maritime_port_performance.csv
+  Output: ports + port_daily_stats tables
+  - Fuzzy match port names to UN/LOCODE
+  - Compute baseline avg_turnaround_hours (90-day average)
+  - Compute daily congestion_index per port
+
+Script 04: consolidate_shipments.py
+  Input:  orders table
+  Output: shipments table, orders.shipment_id updated
+  - Group by (origin_country, dest_country, mode, cargo_class, week)
+  - Fill containers (max 20 orders or weight limit)
+  - strictest_sla_deadline = min(order.sla_deadline) per group
+
+Script 05: plan_routes.py
+  Input:  shipments + locations + ports tables
+  Output: legs table with route_geometry (GeoJSON cached)
+  - SEA legs: searoute-py → GeoJSON + distance_nm
+             Failure → great-circle fallback, route_quality=APPROXIMATE
+  - ROAD legs: OpenRouteService (driving-hgv profile), batch 40/min
+  - AIR legs: geodesic arc (geopy), duration from OpenFlights
+  - CO2 per leg (GLEC factors): SEA=6.5, AIR=500, ROAD=62, RAIL=22 g/tonne-km
+  - Chain planned_departure/arrival through all legs
+
+Script 06: assign_vessels.py
+  Input:  legs (SEA, MAIN_HAUL only)
+  Output: vessels table + legs.vessel_id updated
+  - Research real vessels per trade lane (Maersk/COSCO/Evergreen)
+  - Get MMSI from MarineTraffic free search
+  - Assign MMSIs round-robin to sea legs
+
+Script 07: assign_flights.py
+  Input:  legs (AIR, MAIN_HAUL only)
+  Output: legs.flight_number + planned_duration_hours updated
+  - Pick real cargo flights per airport pair
+  - Duration from OpenFlights database
+
+Script 08: download_ais_history.py
+  Input:  MMSIs from vessels table
+  Output: data/raw/ais_historical/*.parquet
+  - Download from NOAA Marine Cadastre (US waters, free)
+    OR Danish Maritime Authority (global, research license, free)
+  - Filter to your MMSIs only
+  - Convert CSV → Parquet (10x smaller)
+  - Used by ReplayFeedAdapter when USE_LIVE_AIS=false
+
+Scripts 09–11: Train ML models
+  - Run after Phase 1 data is complete
+  - Time-based splits (no data leakage)
+  - Optuna hyperparameter search
+  - Must beat naive baseline
+  - Save model.joblib + feature_schema.json + metadata.json
+</pre>
+
+<!-- ═══ SECTION 23 ═══ -->
+<h2 id="phases">23. Phase-by-Phase Build Plan</h2>
+
+<div class="phase">
+  <div class="phase-num">PHASE 0</div>
+  <h3>Foundation</h3>
+  <div class="meta"><span>Week 1</span><span>Zero data, zero features</span><span>Goal: The skeleton everything plugs into</span></div>
+  <ul>
+    <li>pyproject.toml with all pinned dependencies</li>
+    <li>.env.example with all vars documented</li>
+    <li>Full package structure (<code>src/nexafreight/</code>, all <code>__init__.py</code>)</li>
+    <li>config.py — pydantic-settings, all env vars typed</li>
+    <li>database.py — async SQLAlchemy 2.0 + aiosqlite</li>
+    <li>All ORM model files (schema defined, empty)</li>
+    <li>Alembic init + migration 001_initial_schema.py</li>
+    <li>main.py — FastAPI app factory, lifespan, CORS</li>
+    <li>All routers as stubs returning 200 {"status": "ok"}</li>
+    <li>adapters/protocols.py + adapters/feed/mock.py</li>
+    <li>tests/conftest.py + 5 unit tests on financial_engine, all pass</li>
+    <li>Makefile: dev, test, migrate, lint, seed, train</li>
+    <li>pre-commit hooks: ruff, mypy, gitleaks</li>
+    <li>GitHub Actions: on push → lint + test</li>
+    <li>Frontend: Vite + React + TypeScript + Tailwind init</li>
+    <li>Login page (POST /auth/login, JWT stored in memory)</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: <code>make dev</code> starts on :8000 · <code>npm run dev</code> starts on :5173 · Login works · <code>make test</code> passes · Zero secrets in git · <code>alembic upgrade head</code> runs clean
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 1</div>
+  <h3>Data Foundation</h3>
+  <div class="meta"><span>Week 2–3</span><span>Scripts 01–07</span><span>Goal: All data ingested, all routes pre-computed</span></div>
+  <ul>
+    <li>Run scripts 01 through 07 in order</li>
+    <li>Validate: 180k orders → 5k-10k shipments → legs with GeoJSON geometry</li>
+    <li>All sea routes: searoute-py (or fallback to great-circle)</li>
+    <li>All road routes: OpenRouteService, cached in DB</li>
+    <li>All air routes: geodesic arcs computed</li>
+    <li>All sea legs: real vessel MMSIs assigned</li>
+    <li>Implement: GET /api/shipments, GET /api/shipments/{id}, GET /api/shipments/{id}/route</li>
+    <li>Unit tests: test_consolidation.py, test_route_planner.py</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: /api/shipments/42/route returns valid GeoJSON · Sea routes go through correct straits · Road routes follow actual roads · Every leg has provenance label
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 2</div>
+  <h3>Live Map</h3>
+  <div class="meta"><span>Week 4–5</span><span>The WOW moment</span><span>Goal: Assets move on a real map</span></div>
+  <ul>
+    <li>Script 08: download historical AIS data</li>
+    <li>All four feed adapters: AISStream, ReplayAIS, TruckSim, ReplayFlight</li>
+    <li>workers/ais_listener.py (persistent asyncio task)</li>
+    <li>workers/position_interpolator.py (30s interval)</li>
+    <li>SSE endpoint: GET /api/map/positions/stream</li>
+    <li>GET /api/map/positions/snapshot + /routes + /ports + /feed-health</li>
+    <li>Frontend: FreightMap.tsx (MapLibre GL JS v6 + MapTiler tiles)</li>
+    <li>Route lines by mode + asset markers with icons + heading rotation + provenance badges</li>
+    <li>Click marker → side panel with shipment summary</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: Ships move in real-time · Trucks inch along road polylines · Flights move along curved arcs · No asset crosses land on a sea route · Feed health shows per-adapter status
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 3</div>
+  <h3>ML Models</h3>
+  <div class="meta"><span>Week 6–8</span><span>Scripts 09–11</span><span>Goal: Predict delay + ETA with SHAP explanations</span></div>
+  <ul>
+    <li>Train all three models (delay classifier, ETA quantile, demand forecast)</li>
+    <li>ml/registry.py loads models at startup from /models/ dir</li>
+    <li>ml/delay_classifier.py, ml/eta_model.py, ml/demand_forecast.py wrappers</li>
+    <li>GET /api/shipments/{id}/predict → prediction with SHAP factors</li>
+    <li>Frontend: risk badges (LOW/MEDIUM/HIGH) + ETA ranges + top SHAP factor on cards</li>
+    <li>Analytics page: demand forecast chart by category</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: Each model beats naive baseline · SHAP explanations are intuitive · Every prediction has model_version and provenance=DERIVED · Risk badges visible on all active shipments
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 4</div>
+  <h3>Alert + Financial Engine</h3>
+  <div class="meta"><span>Week 9–10</span><span>Goal: Detect disruptions, compute per-order financial impact</span></div>
+  <ul>
+    <li>workers/port_monitor.py + workers/sla_monitor.py</li>
+    <li>services/disruption_detector.py + services/alert_engine.py</li>
+    <li>services/financial_engine.py + services/sla_checker.py</li>
+    <li>POST /api/disruptions (manual entry)</li>
+    <li>GET /api/alerts + GET /api/alerts/{id} + PATCH /api/alerts/{id}/acknowledge</li>
+    <li>Frontend: AlertPanel.tsx with severity sorting + per-order SLA breakdown table</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: Manual disruption → alert within 30 seconds · Alert shows correct financial exposure · Per-order table shows which orders breach · Financial calculations covered by unit tests
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 5</div>
+  <h3>Rerouting Engine</h3>
+  <div class="meta"><span>Week 11–12</span><span>Goal: 3 options per disruption, operator approves, system executes</span></div>
+  <ul>
+    <li>Seed corridor_alternatives table for major DataCo lanes (data not code)</li>
+    <li>services/reroute_engine.py (score alternatives, generate 3 options)</li>
+    <li>services/decision_executor.py (apply approved decision, update legs)</li>
+    <li>GET /api/alerts/{id}/options + POST /api/alerts/{id}/approve</li>
+    <li>GET /api/decisions (audit history)</li>
+    <li>Frontend: RerouteOptions.tsx (3 cards, ⭐ AI recommendation, Approve button with confirmation)</li>
+    <li>Frontend: AuditLog page</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: Inject disruption → 3 options with correct financials · Approve B → legs updated → map shows new route → audit log entry · SPLIT option appears when warranted · Decisions are immutable
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 6</div>
+  <h3>LLM Copilot</h3>
+  <div class="meta"><span>Week 13</span><span>Goal: Structured AI that explains, never decides</span></div>
+  <ul>
+    <li>adapters/llm/gemini.py (Gemini Flash free) + adapters/llm/ollama.py (local fallback)</li>
+    <li>services/copilot.py (context builder + LLM caller)</li>
+    <li>POST /api/copilot/ask → {answer, model_used, context_used}</li>
+    <li>Frontend: collapsible copilot panel in ShipmentDetail</li>
+  </ul>
+  <div class="done">
+    ✅ Done when: Answers shipment questions correctly · Declines questions outside its context · Works offline with Ollama (USE_GEMINI=false)
+  </div>
+</div>
+
+<div class="phase">
+  <div class="phase-num">PHASE 7</div>
+  <h3>Analytics + Polish</h3>
+  <div class="meta"><span>Week 14–15</span><span>Goal: Dashboards, ESG, demo script</span></div>
+  <ul>
+    <li>DuckDB integration for all analytics queries (reads SQLite directly)</li>
+    <li>GET /api/analytics/scorecard, /demand, /esg, /sla, /financial</li>
+    <li>Frontend: FinancialScorecard + DemandForecast + ESGReport charts</li>
+    <li>DB indexes on hot query paths</li>
+    <li>Feed health dashboard</li>
+    <li>10-minute demo script (pre-staged disruption at minute 3)</li>
+    <li>README with architecture diagram + setup instructions</li>
+    <li>Rotate all secrets used during development</li>
+  </ul>
+</div>
+
+<div class="callout success">
+  <strong>Minimum Demo-able Build</strong>
+  Phases 0 + 1 + 2 + partial 4 = approximately <strong>6 weeks</strong>. Delivers: live map with real ships + DataCo shipments + manual disruption trigger + financial alert. Already a demo-worthy product.
+</div>
+
+<!-- ═══ SECTION 24 ═══ -->
+<h2 id="env">24. Environment Variables</h2>
+<pre>
+# .env.example — copy to .env and fill in values
+
+# ─── REQUIRED ──────────────────────────────────────────────────────
+# python -c "import secrets; print(secrets.token_hex(32))"
+SECRET_KEY=your-32-byte-hex-secret-here
+
+# Register free at aisstream.io (GitHub OAuth)
+AISSTREAM_API_KEY=your-aisstream-api-key
+
+# Register free at openrouteservice.org
+ORS_API_KEY=your-ors-api-key
+
+# Register free at maptiler.com
+MAPTILER_API_KEY=your-maptiler-api-key
+
+# ─── DATABASE ──────────────────────────────────────────────────────
+DATABASE_URL=sqlite+aiosqlite:///./nexafreight.db
+DUCKDB_PATH=./nexafreight_analytics.duckdb
+
+# ─── LLM (at least one required for copilot) ───────────────────────
+# Option A: Gemini Flash — free at aistudio.google.com
+GEMINI_API_KEY=your-gemini-api-key
+USE_GEMINI=true
+
+# Option B: Ollama local (run: ollama pull llama3.1:8b)
+# USE_GEMINI=false
+# OLLAMA_BASE_URL=http://localhost:11434
+# OLLAMA_MODEL=llama3.1:8b
+
+# ─── FEATURE FLAGS ─────────────────────────────────────────────────
+DEBUG=true
+USE_LIVE_AIS=true           # false = use ReplayFeedAdapter from Parquet
+
+# ─── THRESHOLDS ────────────────────────────────────────────────────
+PORT_CONGESTION_THRESHOLD=1.4      # 40% above average triggers alert
+VESSEL_DELAY_THRESHOLD_PCT=0.10    # 10% behind schedule triggers alert
+
+# ─── FINANCIAL DEFAULTS ────────────────────────────────────────────
+CARBON_PRICE_PER_KG_USD=0.08       # ~$80/tonne CO2 (EU ETS shadow price)
+DEFAULT_SLA_PENALTY_PCT=0.05       # 5% of order revenue per day late
+</pre>
+
+<!-- ═══ SECTION 25 ═══ -->
+<h2 id="makefile">25. Makefile</h2>
+<pre>
+.PHONY: dev dev-frontend test test-cov lint format migrate \
+        migrate-new seed train clean install check
+
+dev:
+	uvicorn src.nexafreight.main:app --reload --port 8000
+
+dev-frontend:
+	cd frontend && npm run dev
+
+test:
+	pytest tests/ -v --tb=short
+
+test-cov:
+	pytest tests/ --cov=src/nexafreight --cov-report=html
+
+lint:
+	ruff check src/ tests/
+	mypy src/nexafreight/
+
+format:
+	ruff format src/ tests/
+
+migrate:
+	alembic upgrade head
+
+migrate-new:
+	alembic revision --autogenerate -m "$(name)"
+
+seed:
+	python scripts/01_ingest_dataco.py
+	python scripts/02_ingest_unlocode.py
+	python scripts/03_ingest_port_data.py
+	python scripts/04_consolidate_shipments.py
+	python scripts/05_plan_routes.py
+	python scripts/06_assign_vessels.py
+	python scripts/07_assign_flights.py
+
+train:
+	python scripts/09_train_delay_classifier.py
+	python scripts/10_train_eta_model.py
+	python scripts/11_train_demand_forecast.py
+
+clean:
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -name "*.pyc" -delete
+	rm -f nexafreight.db nexafreight_analytics.duckdb
+
+install:
+	pip install -e ".[dev]"
+	cd frontend && npm install
+
+check:
+	make lint
+	make test
+	@echo "✅ All checks passed"
+</pre>
+
+<!-- ═══ SECTION 26 ═══ -->
+<h2 id="failures">26. Failure Handling</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Failure</th><th>Detection</th><th>Recovery</th></tr></thead>
+  <tbody>
+    <tr><td>AISStream drops connection</td><td><code>last_success &gt; 5 min</code></td><td>Exponential backoff reconnect. Switch to REPLAYED. Badge turns grey</td></tr>
+    <tr><td>AISStream bandwidth limit (Sep 2026)</td><td>Messages dropped</td><td>Enable <code>permessage-deflate</code> compression on WebSocket</td></tr>
+    <tr><td>ORS rate limit during seed</td><td>HTTP 429</td><td>Exponential backoff + retry queue. Log failed lanes</td></tr>
+    <tr><td>searoute-py fails for a port</td><td>Exception in script 05</td><td>Fallback to great-circle. Set <code>route_quality=APPROXIMATE</code></td></tr>
+    <tr><td>ML model not found at startup</td><td>FileNotFoundError in registry</td><td>Log error. Disable prediction endpoints. Serve 503 with message</td></tr>
+    <tr><td>DuckDB analytics query slow</td><td>Response &gt; 3s</td><td>Add DuckDB index on hot columns</td></tr>
+    <tr><td>SQLite write contention</td><td>Concurrent writes</td><td>WAL mode enabled in <code>connect_args</code></td></tr>
+    <tr><td>Gemini API rate limit</td><td>HTTP 429</td><td>Automatic fallback to Ollama (adapter pattern)</td></tr>
+    <tr><td>Ollama not running</td><td>Connection refused</td><td>503 from copilot endpoint with clear message</td></tr>
+    <tr><td>AIS position for unknown MMSI</td><td>Not in vessels table</td><td>Discard silently. Log once with structlog</td></tr>
+    <tr><td>ORS returns no route</td><td>No route found error</td><td>Fallback: haversine distance × 1.35 road factor</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 27 ═══ -->
+<h2 id="provenance">27. Provenance Rule</h2>
+
+<div class="callout success">
+  <strong>The One Rule That Governs Everything</strong>
+  Every value in the system has one of five labels. If you cannot label it, you do not ship it.
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Label</th><th>Meaning</th><th>Frontend</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge real">REAL</span></td><td>Live feed, confirmed by external source. AIS position from AISStream</td><td>No badge (clean, trusted)</td></tr>
+    <tr><td><span class="badge rep">REPLAYED</span></td><td>Historical data served as if live. AIS from NOAA Parquet file</td><td>Grey "R" badge</td></tr>
+    <tr><td><span class="badge derived">DERIVED</span></td><td>Computed from real data. ML prediction, consolidated shipment</td><td>Labeled as "prediction" — no badge needed</td></tr>
+    <tr><td><span class="badge cal">CALIBRATED</span></td><td>From authoritative reference. UN/LOCODE coordinates, port dwell times</td><td>No badge (reference data is trusted)</td></tr>
+    <tr><td><span class="badge sim">SIMULATED</span></td><td>Interpolated or generated. Truck on road polyline, flight on arc</td><td>Yellow "S" badge</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Every API response that contains a position, prediction, cost, or ETA must include a <code>provenance</code> field. This is enforced by Pydantic schema. If provenance is missing from any response: it is a bug, not a feature.</p>
+
+<!-- ═══ SECTION 28 ═══ -->
+<h2 id="changes">28. Changes From Original Plan</h2>
+
+<h3>Removed (10 items)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Removed</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Six Sigma / DPMO / SPC charts</td><td>Wrong product category. Manufacturing ops, not freight</td></tr>
+    <tr><td>2</td><td>Docker / Docker Compose</td><td>Zero ops needed. SQLite runs without containers</td></tr>
+    <tr><td>3</td><td>Celery + Redis</td><td>APScheduler handles background jobs without a broker</td></tr>
+    <tr><td>4</td><td>PostgreSQL</td><td>SQLite + Alembic is identical ORM API. One line to upgrade later</td></tr>
+    <tr><td>5</td><td>Self-hosted MapLibre tiles</td><td>100GB storage + tile server. Not needed until real traffic</td></tr>
+    <tr><td>6</td><td>Self-hosted OSRM</td><td>64GB RAM for global graph extraction. Not viable at $0</td></tr>
+    <tr><td>7</td><td>VesselAPI REST polling</td><td>Free tier = 150 calls/month. Need 67,000+/day</td></tr>
+    <tr><td>8</td><td>OR-Tools Dijkstra on live global graph</td><td>Weeks of data engineering. No edge weight data source</td></tr>
+    <tr><td>9</td><td>Facebook Prophet</td><td>Heavy C++ deps (PyStan). Replaced by StatsForecast (100x faster)</td></tr>
+    <tr><td>10</td><td>Customer segmentation screen</td><td>Not core to control tower pitch</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Replaced (10 items)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Original</th><th>Replacement</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>11</td><td>VesselAPI REST</td><td>AISStream.io WebSocket</td><td>Free, real-time, no rate limits, MMSI filter</td></tr>
+    <tr><td>12</td><td>OpenSky live API</td><td>Simulated flights on geodesic arcs</td><td>Auth changed, non-commercial, no flight metadata</td></tr>
+    <tr><td>13</td><td>OSRM self-hosted</td><td>OpenRouteService free tier, pre-computed once</td><td>ORS free = 2000 req/day, 200 lanes done once</td></tr>
+    <tr><td>14</td><td>Prophet</td><td>StatsForecast AutoETS</td><td>100x faster, no PyStan dependency</td></tr>
+    <tr><td>15</td><td>OR-Tools global graph</td><td>Pre-built corridor alternatives + scoring</td><td>Realistic, 1 week to build, how real 3PLs work</td></tr>
+    <tr><td>16</td><td>GPT-4o / Groq</td><td>Gemini Flash + Ollama</td><td>1M tokens/day free, works fully offline</td></tr>
+    <tr><td>17</td><td>PostgreSQL + Alembic</td><td>SQLite + Alembic + DuckDB</td><td>Same migrations, zero ops, DuckDB for analytics</td></tr>
+    <tr><td>18</td><td>searoute-py at runtime</td><td>searoute-py at build time, cached GeoJSON</td><td>Unmaintained — never a runtime dependency</td></tr>
+    <tr><td>19</td><td>Self-hosted tiles Phase 7</td><td>MapTiler free tier from Phase 2</td><td>100k loads/month, no infra needed</td></tr>
+    <tr><td>20</td><td>OSRM truck simulation</td><td>ORS cached polyline + Shapely interpolation</td><td>Same result, ORS does the routing, Shapely does the math</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Added (20 items)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Added</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>21</td><td>AISStream.io WebSocket adapter</td><td>Free real-time ship tracking with MMSI filter</td></tr>
+    <tr><td>22</td><td>FeedAdapter Protocol pattern</td><td>Swappable adapters. Tests use Mock. Prod uses AISStream</td></tr>
+    <tr><td>23</td><td>Provenance labeling system</td><td>Every value knows what it is. No dashboard lies</td></tr>
+    <tr><td>24</td><td>ReplayFeedAdapter</td><td>Demo without live API, offline use, scripted scenarios</td></tr>
+    <tr><td>25</td><td>DuckDB for analytics</td><td>Columnar OLAP. Reads SQLite + Parquet. Zero ops</td></tr>
+    <tr><td>26</td><td>Feed health endpoint</td><td>Operator sees adapter status, staleness, message count</td></tr>
+    <tr><td>27</td><td>Shipment consolidation logic</td><td>Orders don't ship individually in real logistics</td></tr>
+    <tr><td>28</td><td>Shipment SPLIT decision</td><td>Priority orders air, rest sea, when financially justified</td></tr>
+    <tr><td>29</td><td>Corridor alternatives table</td><td>Pre-built rerouting options as data, not code</td></tr>
+    <tr><td>30</td><td>Per-order financial impact</td><td>Each order has its own SLA deadline and penalty clause</td></tr>
+    <tr><td>31</td><td>SHAP explanations</td><td>ML predictions explain themselves in plain English</td></tr>
+    <tr><td>32</td><td>Quantile ETA model (P10/P50/P85)</td><td>Three models, evaluated on pinball loss</td></tr>
+    <tr><td>33</td><td>Immutable audit log</td><td>Every decision, actor, timestamp. Never UPDATE or DELETE</td></tr>
+    <tr><td>34</td><td>route_version on shipments + legs</td><td>Full rerouting history preserved, queryable</td></tr>
+    <tr><td>35</td><td>SSE for map updates</td><td>Frontend connects once, backend pushes every 5 seconds</td></tr>
+    <tr><td>36</td><td>APScheduler background workers</td><td>Port monitor, SLA monitor, position interpolator</td></tr>
+    <tr><td>37</td><td>Makefile</td><td>make dev, test, seed, train, check — developer experience</td></tr>
+    <tr><td>38</td><td>Model metadata.json</td><td>git SHA, data hash, metrics, trained_at per model artifact</td></tr>
+    <tr><td>39</td><td>Time-based train/val/test split</td><td>Future data cannot leak into training. Simulates production</td></tr>
+    <tr><td>40</td><td>Baseline model requirement</td><td>ML model must beat naive predictor before it ships</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ SECTION 29 ═══ -->
+<h2 id="summary">29. One-Page Summary</h2>
+
+<h3>What It Is</h3>
+<p>A Logistics Control Tower. Real product category. Scaled-down open-source version of what Flexport, project44, and FourKites sell for millions. Every feature solves a real operational problem.</p>
+
+<h3>Complete Stack</h3>
+<div class="stack-grid">
+  <div class="stack-card"><h4>Backend</h4><p>Python 3.11 · FastAPI 0.115 · SQLAlchemy 2.0 async · SQLite + DuckDB · Alembic</p></div>
+  <div class="stack-card"><h4>ML</h4><p>LightGBM (delay + ETA) · StatsForecast (demand) · SHAP (explanations) · Optuna (tuning)</p></div>
+  <div class="stack-card"><h4>Routing</h4><p>searoute-py (sea, build-time) · OpenRouteService (road, cached) · geopy (air geodesic arc)</p></div>
+  <div class="stack-card"><h4>Tracking</h4><p>AISStream WebSocket REAL · Road interpolation SIMULATED · Geodesic arc SIMULATED</p></div>
+  <div class="stack-card"><h4>LLM</h4><p>Gemini Flash free (1M tokens/day) · Ollama local fallback (offline demo)</p></div>
+  <div class="stack-card"><h4>Frontend</h4><p>React 18 · Vite · MapLibre GL JS v6 · @vis.gl/react-maplibre · TanStack Query · Zustand · Recharts · Tailwind</p></div>
+  <div class="stack-card"><h4>Infra</h4><p>Zero Docker. SQLite file. Start with: uvicorn + npm run dev. Total cost: $0</p></div>
+  <div class="stack-card"><h4>Map Tiles</h4><p>MapTiler free tier (100k loads/month) · Dark dataviz style</p></div>
+</div>
+
+<h3>Build Timeline</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Phase</th><th>Weeks</th><th>Delivers</th></tr></thead>
+  <tbody>
+    <tr><td>0: Foundation</td><td>1</td><td>Skeleton, auth, CI, zero data</td></tr>
+    <tr><td>1: Data</td><td>2–3</td><td>All DataCo ingested, all routes pre-computed in DB</td></tr>
+    <tr><td>2: Live Map</td><td>4–5</td><td>Real ships on map (AISStream), simulated trucks + flights</td></tr>
+    <tr><td>3: ML</td><td>6–8</td><td>Delay classifier, ETA quantiles, demand forecast</td></tr>
+    <tr><td>4: Alerts</td><td>9–10</td><td>Disruption detection, per-order financial impact</td></tr>
+    <tr><td>5: Rerouting</td><td>11–12</td><td>3 options, approve, execute, immutable audit log</td></tr>
+    <tr><td>6: Copilot</td><td>13</td><td>Scoped LLM, explains not decides</td></tr>
+    <tr><td>7: Analytics</td><td>14–15</td><td>DuckDB dashboards, ESG, demand, P&amp;L scorecard</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Total Cost: $0</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Service</th><th>Free Limit</th></tr></thead>
+  <tbody>
+    <tr><td>AISStream.io</td><td>Free WebSocket, no call limits, no paid tiers</td></tr>
+    <tr><td>OpenRouteService</td><td>2000 req/day — used only at build time (200 routes, done once)</td></tr>
+    <tr><td>MapTiler</td><td>100,000 tile loads/month</td></tr>
+    <tr><td>Google Gemini Flash</td><td>1,000,000 tokens/day</td></tr>
+    <tr><td>Ollama</td><td>Free, local, no API key required</td></tr>
+    <tr><td>SQLite + DuckDB</td><td>Free, no server, no ops</td></tr>
+    <tr><td>GitHub Actions</td><td>Free for public repos / 2000 min/month private</td></tr>
+    <tr><td>All Python packages</td><td>Open source, MIT or BSD licensed</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>The Five Most Important Decisions</h3>
+<ol>
+  <li><strong>AISStream.io WebSocket</strong> — the only way to get real-time ship tracking at $0</li>
+  <li><strong>SQLite + DuckDB</strong> — eliminates all ops overhead with zero capability loss</li>
+  <li><strong>searoute-py at build time only</strong> — unmaintained library never touches production</li>
+  <li><strong>Corridor alternatives as data</strong> — realistic, shippable, how real 3PLs actually work</li>
+  <li><strong>Provenance on everything</strong> — operators trust what they see, bugs are immediately obvious</li>
+</ol>
+
+<div class="callout success">
+  <strong>The One Rule</strong>
+  Every value in the system has one of five labels: REAL | DERIVED | CALIBRATED | SIMULATED | REPLAYED.<br/>
+  If you cannot label it, you do not ship it.
+</div>
+
+<footer>
+  NexaFreight Control Tower — Complete Final Plan &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; Budget: $0 &nbsp;·&nbsp; 60 decisions recorded &nbsp;·&nbsp; 29 sections
+</footer>
+
+</main>
+</div>
+
+</body>
+</html>
+```

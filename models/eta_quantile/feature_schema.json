@@ -1,7 +1,25 @@
 {
   "model_version": "1.0.0",
-  "trained_at": "2026-09-02T18:44:43.653166+00:00",
-  "git_sha": "f819430",
+  "schema_version": "1.0.0",
+  "extensibility": {
+    "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+    "reserved_v2_features": [
+      {
+        "name": "active_disruption_near_dest",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      },
+      {
+        "name": "news_risk_score",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      }
+    ]
+  },
+  "trained_at": "2026-09-04T17:10:41.340708+00:00",
+  "git_sha": "74cc4ae",
   "target_column": "transit_delay_residual",
   "actual_days_column": "days_for_shipping_real",
   "scheduled_days_column": "scheduled_shipping_days",

@@ -1,0 +1,122 @@
+<USER_REQUEST>
+Do not assume the reviewer’s claims are true. Treat every claim as a hypothesis
+that must be proved or disproved from the repository. Prefer exact file and
+line evidence over general explanation. If evidence is missing, say
+"UNVERIFIABLE FROM CURRENT ARTIFACTS" rather than guessing.
+
+You are performing a READ-ONLY technical audit of NexaFreight Task T-038
+(AutoETS demand forecasting model). 
+
+CRITICAL CONSTRAINT: Do NOT edit, fix, or refactor any file. Your only job is
+to VERIFY claims against actual code and report findings. If you start writing
+fixes, you have failed the task.
+
+## Context
+A reviewer raised 7 potential issues with T-038. Some may be correct, some may
+be wrong. Your job is to check each one against the actual source code and
+mark it CONFIRMED, REFUTED, or PARTIAL — with file:line evidence for every
+verdict. Do not agree with a claim unless the code supports it. If the
+reviewer is wrong, say so explicitly and show why.
+
+## Files to read
+- scripts/12_train_demand_forecast.py          (primary — read in full)
+- src/nexafreight/ml/constants.py              (T-038 section only)
+- src/nexafreight/ml/demand_forecast.py
+- tests/unit/test_demand_forecast.py
+- models/demand_forecast/metadata.json
+
+## Commands to run (report raw output)
+1) Count heuristic-PI fallbacks and inspect forecast schema:
+   python -c "import json; d=json.load(open('models/demand_forecast/forecasts.json')); s=json.dumps(d); lanes=list(d.values()) if isinstance(d,dict) else d; print('lanes:',len(lanes)); print('sample keys:', list(lanes[0].keys()) if isinstance(lanes[0],dict) else type(lanes[0])); print('has pi_method:', 'pi_method' in s); print('has heuristic:', 'heuristic' in s.lower())"
+
+2) Confirm committed code matches audit claims:
+   git show 74abb44 --stat
+
+3) Check whether tests need trained artifacts:
+   python -m pytest tests/unit/test_demand_forecast.py -v --collect-only
+
+## The 7 claims to verify
+
+CLAIM 1 — season_length mislabeled
+The audit says AutoETS(season_length=4) captures "quarterly seasonality" on
+weekly data. On weekly frequency, season_length=4 is ~monthly; quarterly would
+be 13. Find the actual AutoETS instantiation and the freq parameter. Report
+the real value and whether the "quarterly" label appears in code comments,
+docstrings, or metadata.json.
+
+CLAIM 2 — heuristic PIs not flagged (MOST IMPORTANT)
+A try/except fallback allegedly substitutes a ±15% heuristic band when ETS
+prediction-interval computation fails. Verify:
+  (a) Does this fallback exist? Quote the exact block.
+  (b) Is the fallback percentage really 15%?
+  (c) Does ANY output (forecasts.json, metadata.json) record which lanes used
+      the heuristic vs real ETS intervals?
+  (d) How many of the 79 lanes actually hit the fallback? If the code doesn't
+      track this, say so — that is itself the finding.
+  (e) Does demand_forecast.py expose any PI-provenance field to callers?
+
+CLAIM 3 — metric mislabeled as "weighted MAPE"
+The reported formula sum|actual-pred| / sum(actual) is WAPE, not weighted MAPE.
+Find the exact metric implementation. Report:
+  (a) What formula is actually computed?
+  (b) What is it named in code, in logs, and in metadata.json?
+  (c) How are weeks where actual == 0 handled in the PER-LANE MAPE? Dropped?
+      Epsilon-floored? Producing inf/nan? Quote the code.
+
+CLAIM 4 — "unit" tests are really integration tests
+Check whether test_demand_forecast.py loads real artifacts from
+models/demand_forecast/ or uses mocks/synthetic fixtures. Compare its approach
+to tests/unit/test_eta_model.py (which uses mock boosters and touches no
+artifacts). Report whether the suite would pass on a fresh clone before
+training has been run.
+
+CLAIM 5 — no baseline computed
+Search the training script for any naive/seasonal-naive/moving-average baseline
+comparison. Does the pipeline compute lift over a trivial baseline anywhere?
+If not, confirm the absence explicitly.
+
+CLAIM 6 — internal inconsistencies
+  (a) What is the actual n_jobs value passed to StatsForecast in committed code?
+      (Audit variously claims -1 and 1.)
+  (b) What is the real byte size of forecasts.json now vs the 657KB/672KB
+      figures in two different documents?
+  (c) Are artifact SHA hashes in metadata.json truncated? To how many chars?
+
+CLAIM 7 — evaluated model != shipped model
+Confirm the pipeline evaluates on a holdout split, then re-fits on full history
+before saving artifacts. Quote both fit calls. Confirm whether metadata.json
+states that reported metrics come from the holdout model rather than the
+shipped model.
+
+## Output format
+For each claim:
+
+### CLAIM N — <short name>
+**Verdict:** CONFIRMED | REFUTED | PARTIAL
+**Evidence:** <file>:<line-range>
+```<language>
+<exact code quote>
+
+
+
+dont yet change any line of code, 
+
+
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-04T18:35:38+05:30.
+
+The user's current state is as follows:
+Active Document: d:\OR\nexafreight\tests\integration\test_map_endpoints.py (LANGUAGE_PYTHON)
+Cursor is on line: 1
+Other open documents:
+- d:\OR\nexafreight\scripts\09_build_training_data.py (LANGUAGE_PYTHON)
+- d:\OR\nexafreight\src\nexafreight\ml\eta_model.py (LANGUAGE_PYTHON)
+- d:\OR\nexafreight\scripts\11_train_eta_model.py (LANGUAGE_PYTHON)
+- d:\OR\nexafreight\src\nexafreight\ml\data_source.py (LANGUAGE_PYTHON)
+- d:\OR\nexafreight\tests\unit\test_eta_model.py (LANGUAGE_PYTHON)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from Gemini 3.8 Flash (High) to Gemini 3.1 Pro (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

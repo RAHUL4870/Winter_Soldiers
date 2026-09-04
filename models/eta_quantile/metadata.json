@@ -1,11 +1,11 @@
 {
   "model_name": "eta_quantile_regressor",
   "model_version": "1.0.0",
-  "trained_at": "2026-09-02T18:44:43.653166+00:00",
-  "git_sha": "f819430",
+  "trained_at": "2026-09-04T17:10:41.340708+00:00",
+  "git_sha": "74cc4ae",
   "random_seed": 42,
-  "training_runtime_sec": 6.0,
-  "model_artifact_sha256": "d1d5ee46358cd511",
+  "training_runtime_sec": 9.1,
+  "model_artifact_sha256": "dbbeb74f4f9e3fda",
   "data": {
     "train": {
       "n_rows": 44179,

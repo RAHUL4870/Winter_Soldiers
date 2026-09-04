@@ -1,11 +1,29 @@
 {
   "model_name": "demand_forecast_autoets",
   "model_version": "1.0.0",
-  "trained_at": "2026-09-02T19:28:04.174330+00:00",
-  "git_sha": "31d4b49",
+  "schema_version": "1.0.0",
+  "extensibility": {
+    "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+    "reserved_v2_features": [
+      {
+        "name": "active_disruption_near_dest",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      },
+      {
+        "name": "news_risk_score",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      }
+    ]
+  },
+  "trained_at": "2026-09-04T17:10:55.362794+00:00",
+  "git_sha": "74cc4ae",
   "source_csv_sha256": "fa6d022ed437155e",
-  "model_artifact_sha256": "07c2867082b01d55",
-  "training_runtime_sec": 102.0,
+  "model_artifact_sha256": "83ae5adbc3f49f49",
+  "training_runtime_sec": 74.8,
   "data": {
     "total_lanes_in_dataset": 675,
     "qualified_lanes": 79,
@@ -24,9 +42,13 @@
     "freq": "W"
   },
   "metrics": {
-    "weighted_mape_pct": 32.16,
+    "wape_pct": 32.16,
+    "baseline_wape_pct": 44.02,
+    "lift_over_baseline_pct": 26.94,
+    "baseline_method": "seasonal_naive_4week",
     "median_lane_mape_pct": 52.47,
     "n_lanes_evaluated": 79,
+    "per_lane_mape_zero_actual_policy": "dropped",
     "best_5_lanes_mape": {
       "Indoor/Outdoor Games__Central America": 19.18,
       "Men's Footwear__South America": 20.1,
@@ -42,9 +64,20 @@
       "Indoor/Outdoor Games__Western Europe": 179.0
     }
   },
+  "prediction_intervals": {
+    "method": "ets_native",
+    "fallback_method": "heuristic_15pct",
+    "fallback_lanes_count": 0,
+    "fallback_lanes": []
+  },
   "forecast_horizons_days": [
     30,
     60,
     90
-  ]
+  ],
+  "notes": {
+    "metrics_source": "holdout_model",
+    "shipped_model": "refitted_on_full_history",
+    "explanation": "Metrics above were computed from a model fit on the training split only.  The shipped model.joblib was then re-fit on the full history (train + holdout) for maximum forecast quality."
+  }
 }

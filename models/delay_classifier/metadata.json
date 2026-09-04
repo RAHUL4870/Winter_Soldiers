@@ -1,10 +1,28 @@
 {
   "model_name": "delay_classifier",
   "model_version": "1.0.0",
-  "trained_at": "2026-09-02T15:44:37.733917+00:00",
-  "git_sha": "4900bc4",
+  "schema_version": "1.0.0",
+  "extensibility": {
+    "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+    "reserved_v2_features": [
+      {
+        "name": "active_disruption_near_dest",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      },
+      {
+        "name": "news_risk_score",
+        "dtype": "float",
+        "required": false,
+        "min_version": "2.0.0"
+      }
+    ]
+  },
+  "trained_at": "2026-09-04T17:10:34.726133+00:00",
+  "git_sha": "74cc4ae",
   "random_seed": 42,
-  "training_runtime_sec": 22.2,
+  "training_runtime_sec": 32.1,
   "data": {
     "train_hash": "20c381fbb902b30f",
     "n_train": 46711,
