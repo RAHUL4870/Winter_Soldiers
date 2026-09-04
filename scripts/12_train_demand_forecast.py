@@ -433,6 +433,7 @@ def generate_forecasts(
 
     forecasts: dict[str, Any] = {}
     pi_fallback_count = 0
+    pi_fallback_lanes: list[str] = []
 
     for uid in qualified_ids:
         history = panel_q[panel_q[DEMAND_UNIQUE_ID_COL] == uid].sort_values("ds")
@@ -452,23 +453,30 @@ def generate_forecasts(
             })
 
         # Forecast rows — per-lane PI fallback heuristic if batch PIs failed
+        lane_used_heuristic = False
         for _, row in fut.iterrows():
             yhat = round(float(row[point_col]), 2)
             if has_pi and lo_col in row.index and hi_col in row.index:
                 ylo = round(float(row[lo_col]), 2)
                 yhi = round(float(row[hi_col]), 2)
+                pi_method = "ets"
             else:
                 # Heuristic: ±15% bands when ETS model type doesn't support PIs
                 ylo = round(max(0.0, yhat * 0.85), 2)
                 yhi = round(yhat * 1.15, 2)
+                pi_method = "heuristic_15pct"
                 pi_fallback_count += 1
+                lane_used_heuristic = True
             lane_data.append({
                 "ds": pd.Timestamp(row["ds"]).strftime("%Y-%m-%d"),
                 "yhat": yhat,
                 "yhat_lower": ylo,
                 "yhat_upper": yhi,
                 "is_forecast": True,
+                "pi_method": pi_method,
             })
+        if lane_used_heuristic:
+            pi_fallback_lanes.append(str(uid))
 
         cat = meta.loc[uid, "category_name"] if uid in meta.index else ""
         reg = meta.loc[uid, "order_region"] if uid in meta.index else ""
@@ -476,16 +484,17 @@ def generate_forecasts(
             "category": cat,
             "region": reg,
             "series": lane_data,
+            "pi_method": "heuristic_15pct" if str(uid) in pi_fallback_lanes else "ets",
         }
 
     if pi_fallback_count:
         log.info(
-            "  PI heuristic fallback applied to %d forecast rows "
+            "  PI heuristic fallback applied to %d forecast rows across %d lanes "
             "(class-3 ETS model type; ±15%% bands used).",
-            pi_fallback_count,
+            pi_fallback_count, len(pi_fallback_lanes),
         )
     log.info("  Generated forecasts for %d lanes.", len(forecasts))
-    return forecasts, sf_final
+    return forecasts, sf_final, pi_fallback_lanes
 
 
 # ============================================================================
@@ -552,7 +561,7 @@ def train(
     # Step 5: Generate final forecasts on full data + save artifacts
     # ------------------------------------------------------------------
     log.info("Step 5/5 — Generating final forecasts and saving artifacts ...")
-    forecasts, sf_final = generate_forecasts(
+    forecasts, sf_final, pi_fallback_lanes = generate_forecasts(
         sf_eval, panel, qualified_ids,
         DEMAND_FORECAST_HORIZON_WEEKS, DEMAND_PREDICTION_LEVEL,
     )
@@ -621,6 +630,12 @@ def train(
             "n_lanes_evaluated": len(per_lane_mape),
             "best_5_lanes_mape": best5,
             "worst_5_lanes_mape": worst5,
+        },
+        "prediction_intervals": {
+            "method": "ets_native",
+            "fallback_method": "heuristic_15pct",
+            "fallback_lanes_count": len(pi_fallback_lanes),
+            "fallback_lanes": pi_fallback_lanes,
         },
         "forecast_horizons_days": list(DEMAND_FORECAST_HORIZONS),
     }

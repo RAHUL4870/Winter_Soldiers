@@ -60,6 +60,7 @@ class DemandForecast:
     horizon_60_days: dict[str, Any] | None
     horizon_90_days: dict[str, Any] | None
 
+    pi_method: str = "ets"  # "ets" or "heuristic_15pct"
     provenance: str = "DERIVED"
 
 
@@ -186,6 +187,7 @@ class DemandForecastModel:
             horizon_30_days=_closest_forecast_row(series, 30),
             horizon_60_days=_closest_forecast_row(series, 60),
             horizon_90_days=_closest_forecast_row(series, 90),
+            pi_method=lane_data.get("pi_method", "ets"),
         )
 
     def predict_batch(
@@ -223,6 +225,7 @@ class DemandForecastModel:
                 horizon_30_days=_closest_forecast_row(series, 30),
                 horizon_60_days=_closest_forecast_row(series, 60),
                 horizon_90_days=_closest_forecast_row(series, 90),
+                pi_method=lane_data.get("pi_method", "ets"),
             )
         return results
 
