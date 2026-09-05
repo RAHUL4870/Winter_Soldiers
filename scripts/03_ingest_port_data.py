@@ -444,6 +444,8 @@ def _resolve_tables():
             Column("port_id", Integer, ForeignKey("ports.id", ondelete="CASCADE"), nullable=False),
             Column("stat_date", Date, nullable=False, index=True),
             Column("congestion_index", Float, nullable=False),
+            Column("vessel_count", Integer, nullable=True),
+            Column("rolling_90_day_avg", Float, nullable=True),
             UniqueConstraint("port_id", "stat_date", name="uq_port_daily_stats_port_id_stat_date"),
         )
         return port_tbl, daily_tbl
@@ -461,7 +463,7 @@ def _set_sqlite_pragmas(dbapi_conn: Any, connection_record: Any) -> None:
 
 async def populate_database(
     matched_port_locations: set[int],
-    daily_stats_by_loc_id: list[tuple[int, date, float]],
+    daily_stats_by_loc_id: list[tuple[int, date, float, int | None, float | None]],
     stats: ParseStats,
     batch_size: int = 1000,
 ) -> None:
@@ -498,11 +500,11 @@ async def populate_database(
             log.info("Total ports available in database: %d", stats.ports_created)
 
             # 3. Deduplicate daily stats on (port_id, stat_date)
-            unique_daily: dict[tuple[int, date], float] = {}
-            for loc_id, stat_date, cong_idx in daily_stats_by_loc_id:
+            unique_daily: dict[tuple[int, date], tuple[float, int | None, float | None]] = {}
+            for loc_id, stat_date, cong_idx, vessel_cnt, roll_avg in daily_stats_by_loc_id:
                 pid = loc_to_port_id.get(loc_id)
                 if pid is not None:
-                    unique_daily[(pid, stat_date)] = cong_idx
+                    unique_daily[(pid, stat_date)] = (cong_idx, vessel_cnt, roll_avg)
 
             daily_items = list(unique_daily.items())
             log.info(
@@ -518,20 +520,26 @@ async def populate_database(
                         "port_id": pid,
                         "stat_date": s_date,
                         "congestion_index": cong_idx,
+                        "vessel_count": vessel_cnt,
+                        "rolling_90_day_avg": roll_avg,
                     }
-                    for (pid, s_date), cong_idx in chunk
+                    for (pid, s_date), (cong_idx, vessel_cnt, roll_avg) in chunk
                 ]
                 stmt = (
                     sqlite_insert(daily_tbl)
                     .values(values)
                     .on_conflict_do_update(
                         index_elements=["port_id", "stat_date"],
-                        set_={"congestion_index": exc["congestion_index"]},
+                        set_={
+                            "congestion_index": exc["congestion_index"],
+                            "vessel_count": exc["vessel_count"],
+                            "rolling_90_day_avg": exc["rolling_90_day_avg"],
+                        },
                     )
                 )
                 await conn.execute(stmt)
                 stats.daily_stats_inserted += len(chunk)
-                if (i // batch_size) % 10 == 0 or i + batch_size >= len(daily_items):
+                if (i // batch_size) % 10 == 0 or i + batch_size >= len(batch_records):
                     log.info(
                         "Upserted daily stats [%d..%d] of %d",
                         i + 1,
@@ -666,8 +674,14 @@ async def amain(args: argparse.Namespace) -> int:
     matched_location_ids: set[int] = {
         port_name_to_loc[r.port_identifier][0] for r in computed_activity
     }
-    daily_stats_to_insert: list[tuple[int, date, float]] = [
-        (port_name_to_loc[r.port_identifier][0], r.stat_date, r.congestion_index or 1.0)
+    daily_stats_to_insert: list[tuple[int, date, float, int | None, float | None]] = [
+        (
+            port_name_to_loc[r.port_identifier][0],
+            r.stat_date,
+            r.congestion_index or 1.0,
+            r.vessel_count,
+            getattr(r, "rolling_90d_avg", None),
+        )
         for r in computed_activity
     ]
 

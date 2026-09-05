@@ -105,6 +105,7 @@ class OrderSummary(BaseModel):
     sla_deadline: datetime = Field(..., description="SLA delivery deadline")
     revenue: float = Field(..., description="Order revenue (USD)")
     sla_status: OrderSlaStatus = Field(..., description="Current SLA compliance status")
+    provenance: Provenance = Field(..., description="Data provenance (DERIVED)")
 
 
 class ShipmentDetail(BaseModel):
@@ -171,14 +172,10 @@ class RouteFeatureCollection(BaseModel):
 
 
 class ShipmentEvent(BaseModel):
-    """One event in a shipment's history.
-
-    Sourced from AuditLog table (no dedicated events table exists in T-007 schema).
-    Will be sparse until later tasks (T-044+ disruptions, alerts, decisions) begin
-    writing real audit entries.
-    """
+    """One event in a shipment's lifecycle, sourced from the events table."""
 
     timestamp: datetime = Field(..., description="When the event occurred")
-    event_type: str = Field(..., description="Event/action type (from AuditLog.action)")
+    event_type: str = Field(..., description="Event type")
     description: str = Field(..., description="Human-readable event description")
-    actor: str | None = Field(None, description="Who/what triggered the event")
+    actor: str | None = Field(None, description="Source system or actor")
+    location_locode: str | None = Field(None, description="Location UN/LOCODE where event occurred")

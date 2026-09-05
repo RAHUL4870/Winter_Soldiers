@@ -32,7 +32,7 @@ async def test_db_creates_user_table(db_session, test_user):
 async def test_login_returns_valid_jwt(client: AsyncClient, test_user):
     resp = await client.post(
         "/api/auth/login",
-        json={"email": test_user.email, "password": "operator_test_password"},
+        data={"username": test_user.email, "password": "operator_test_password"},
     )
     assert resp.status_code == 200
     body = resp.json()
@@ -43,6 +43,6 @@ async def test_login_returns_valid_jwt(client: AsyncClient, test_user):
 async def test_login_wrong_password_fails(client: AsyncClient, test_user):
     resp = await client.post(
         "/api/auth/login",
-        json={"email": test_user.email, "password": "wrong_password"},
+        data={"username": test_user.email, "password": "wrong_password"},
     )
     assert resp.status_code == 401

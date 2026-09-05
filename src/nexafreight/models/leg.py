@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import TYPE_CHECKING
-
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.enums import LegStatus, TransportMode
@@ -101,5 +100,8 @@ class Leg(Base, TimestampMixin, ProvenanceMixin):
     disruptions: Mapped[list[Disruption]] = relationship("Disruption", back_populates="leg")
 
     __table_args__ = (
+        Index("ix_legs_shipment_version_seq", "shipment_id", "route_version", "sequence_number"),
+        Index("ix_legs_vessel_id", "vessel_id"),
+        Index("ix_legs_status_mode", "status", "transport_mode"),
         {"comment": "Route segments with zero-loss rerouting (REPLACED status, never deleted)"},
     )

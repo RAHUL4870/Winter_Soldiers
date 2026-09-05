@@ -14,6 +14,8 @@ from nexafreight.database import get_db_session
 from nexafreight.dependencies import get_current_user
 from nexafreight.enums import ShipmentStatus, TransportMode
 from nexafreight.models import Alert, AuditLog, Leg, Shipment, User
+from nexafreight.models.event import Event
+from nexafreight.enums import Provenance
 from nexafreight.schemas.common import PaginatedResponse
 from nexafreight.schemas.shipment import (
     LegDetail,
@@ -275,6 +277,7 @@ async def get_shipment_detail(
             sla_deadline=order.sla_deadline,
             revenue=order.revenue,
             sla_status=order.sla_status,
+            provenance=Provenance.DERIVED,
         )
         for order in shipment.orders
     ]
@@ -387,14 +390,9 @@ async def get_shipment_events(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
 ) -> PaginatedResponse[ShipmentEvent]:
-    """Get shipment event history from audit log.
+    """Get shipment event history from the events table.
 
-    Returns paginated events sourced from AuditLog table (no dedicated
-    ShipmentEvent table exists in T-007 schema).
-
-    NOTE: This endpoint will return sparse/empty results until later tasks
-    (T-044+ disruptions, alerts, decisions) begin writing real audit entries.
-    An empty event list is correct and expected at this stage of the project.
+    Returns paginated events from the events table, ordered by occurred_at DESC.
 
     Args:
         shipment_id: Shipment UUID
@@ -414,48 +412,32 @@ async def get_shipment_events(
     if not shipment_exists.scalar():
         raise HTTPException(status_code=404, detail=f"Shipment {shipment_id} not found")
 
-    # Query audit log for shipment events
-    query = (
-        select(AuditLog)
-        .where(
-            and_(
-                AuditLog.entity_type == "shipment",
-                AuditLog.entity_id == shipment_id,
-            )
-        )
-        .order_by(AuditLog.created_at.desc())
+    # Query events table
+    base_filter = Event.shipment_id == shipment_id
+    count_result = await db.execute(
+        select(func.count()).select_from(Event).where(base_filter)
     )
+    total = count_result.scalar() or 0
 
-    # Get total count
-    count_query = (
-        select(func.count())
-        .select_from(AuditLog)
-        .where(
-            and_(
-                AuditLog.entity_type == "shipment",
-                AuditLog.entity_id == shipment_id,
-            )
-        )
-    )
-    total_result = await db.execute(count_query)
-    total = total_result.scalar() or 0
-
-    # Apply pagination
     offset = (page - 1) * size
-    query = query.limit(size).offset(offset)
+    rows = await db.execute(
+        select(Event)
+        .where(base_filter)
+        .order_by(Event.occurred_at.desc())
+        .limit(size)
+        .offset(offset)
+    )
+    event_rows = rows.scalars().all()
 
-    result = await db.execute(query)
-    audit_entries = result.scalars().all()
-
-    # Convert to ShipmentEvent schema
     events = [
         ShipmentEvent(
-            timestamp=entry.created_at,
-            event_type=entry.action,
-            description=entry.action,
-            actor=entry.actor_name,
+            timestamp=ev.occurred_at,
+            event_type=ev.event_type,
+            description=ev.description or ev.event_type,
+            actor=ev.source,
+            location_locode=ev.location_locode,
         )
-        for entry in audit_entries
+        for ev in event_rows
     ]
 
     total_pages = (total + size - 1) // size if total > 0 else 0

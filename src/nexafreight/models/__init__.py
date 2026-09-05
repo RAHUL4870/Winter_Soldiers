@@ -19,6 +19,8 @@ from nexafreight.models.position import PositionReport
 from nexafreight.models.shipment import Shipment
 from nexafreight.models.user import User
 from nexafreight.models.vessel import Vessel
+from nexafreight.models.event import Event
+from nexafreight.models.reroute_option import RerouteOption
 
 __all__ = [
     "Base",
@@ -37,4 +39,6 @@ __all__ = [
     "CorridorAlternative",
     "Decision",
     "AuditLog",
+    "Event",
+    "RerouteOption",
 ]

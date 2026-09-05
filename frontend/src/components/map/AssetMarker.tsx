@@ -36,7 +36,7 @@ export default function AssetMarker({
       longitude={position.lon}
       latitude={position.lat}
       anchor="center"
-      onClick={(e) => {
+      onClick={(e: any) => {
         e.originalEvent.stopPropagation();
         onMarkerClick?.(position);
       }}

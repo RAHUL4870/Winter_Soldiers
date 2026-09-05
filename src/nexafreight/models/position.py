@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship, synonym
 
 from nexafreight.models.base import Base
@@ -55,5 +55,6 @@ class PositionReport(Base, ProvenanceMixin):
 
     __table_args__ = (
         UniqueConstraint("leg_id", "reported_at", name="uq_position_reports_leg_reported_at"),
+        Index("ix_position_reports_asset_time", "asset_type", "mmsi", "reported_at"),
         {"comment": "High-volume position tracking with mandatory provenance"},
     )

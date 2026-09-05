@@ -17,6 +17,7 @@ from nexafreight.enums import (
     TransportMode,
 )
 from nexafreight.models import AuditLog, Leg, Order, Shipment, User
+from nexafreight.models.event import Event
 
 # ============================================================================
 # GET /api/shipments/{id} Tests
@@ -397,29 +398,23 @@ async def test_get_shipment_events_with_audit_entries(
     # Create audit log entries (simulating future tasks)
     now = datetime.now(UTC)
 
-    entry1 = AuditLog(
-        created_at=now - timedelta(hours=2),
-        actor_type="user",
-        actor_name="operator@test.local",
-        action="shipment_created",
-        entity_type="shipment",
-        entity_id=shipment.id,
+    entry1 = Event(
+        occurred_at=now - timedelta(hours=2),
+        shipment_id=shipment.id,
+        event_type="shipment_created",
+        source="operator@test.local",
     )
-    entry2 = AuditLog(
-        created_at=now - timedelta(hours=1),
-        actor_type="system",
-        actor_name="disruption_detector",
-        action="disruption_detected",
-        entity_type="shipment",
-        entity_id=shipment.id,
+    entry2 = Event(
+        occurred_at=now - timedelta(hours=1),
+        shipment_id=shipment.id,
+        event_type="disruption_detected",
+        source="disruption_detector",
     )
-    entry3 = AuditLog(
-        created_at=now,
-        actor_type="user",
-        actor_name="admin@test.local",
-        action="reroute_approved",
-        entity_type="shipment",
-        entity_id=shipment.id,
+    entry3 = Event(
+        occurred_at=now,
+        shipment_id=shipment.id,
+        event_type="reroute_approved",
+        source="admin@test.local",
     )
 
     db_session.add_all([entry1, entry2, entry3])
@@ -494,13 +489,11 @@ async def test_get_shipment_events_pagination(
     # Create 25 audit entries
     now = datetime.now(UTC)
     for i in range(25):
-        entry = AuditLog(
-            created_at=now - timedelta(hours=i),
-            actor_type="system",
-            actor_name="test",
-            action=f"event_{i}",
-            entity_type="shipment",
-            entity_id=shipment.id,
+        entry = Event(
+            occurred_at=now - timedelta(hours=i),
+            shipment_id=shipment.id,
+            event_type=f"event_{i}",
+            source="test",
         )
         db_session.add(entry)
 

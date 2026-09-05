@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from nexafreight.models.disruption import Disruption
     from nexafreight.models.shipment import Shipment
     from nexafreight.models.user import User
+    from nexafreight.models.reroute_option import RerouteOption
 
 
 class Alert(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -72,4 +73,7 @@ class Alert(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     acknowledged_by_user: Mapped[User | None] = relationship("User")
     decision: Mapped[Decision | None] = relationship(
         "Decision", back_populates="alert", uselist=False
+    )
+    reroute_options: Mapped[list[RerouteOption]] = relationship(
+        "RerouteOption", back_populates="alert", cascade="all, delete-orphan"
     )

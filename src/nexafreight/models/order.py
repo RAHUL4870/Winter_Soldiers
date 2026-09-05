@@ -106,3 +106,7 @@ class OrderItem(Base):
 
     # Relationships
     order: Mapped[Order] = relationship("Order", back_populates="items")
+
+    @property
+    def provenance(self) -> str:
+        return "DERIVED"

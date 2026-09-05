@@ -105,8 +105,8 @@ async def test_login_success_with_correct_credentials(
     with TestClient(app) as client:
         response = client.post(
             "/api/auth/login",
-            json={
-                "email": seeded_user["email"],
+            data={
+                "username": seeded_user["email"],
                 "password": seeded_user["password"],
             },
         )
@@ -132,8 +132,8 @@ async def test_login_fails_with_incorrect_password(
     with TestClient(app) as client:
         response = client.post(
             "/api/auth/login",
-            json={
-                "email": seeded_user["email"],
+            data={
+                "username": seeded_user["email"],
                 "password": "wrong_password",
             },
         )
@@ -154,8 +154,8 @@ async def test_login_fails_with_nonexistent_email(
     with TestClient(app) as client:
         response = client.post(
             "/api/auth/login",
-            json={
-                "email": "nonexistent@example.com",
+            data={
+                "username": "nonexistent@example.com",
                 "password": "any_password",
             },
         )
@@ -190,8 +190,8 @@ async def test_login_fails_with_inactive_account(
     with TestClient(app) as client:
         response = client.post(
             "/api/auth/login",
-            json={
-                "email": "inactive@example.com",
+            data={
+                "username": "inactive@example.com",
                 "password": "password123",
             },
         )
@@ -220,8 +220,8 @@ async def test_protected_endpoint_allows_valid_token(
     with TestClient(app) as client:
         login_response = client.post(
             "/api/auth/login",
-            json={
-                "email": seeded_user["email"],
+            data={
+                "username": seeded_user["email"],
                 "password": seeded_user["password"],
             },
         )
@@ -352,8 +352,8 @@ async def test_role_based_access_control_allows_authorized_role(
     with TestClient(app) as client:
         login_response = client.post(
             "/api/auth/login",
-            json={
-                "email": seeded_user["email"],
+            data={
+                "username": seeded_user["email"],
                 "password": seeded_user["password"],
             },
         )
@@ -403,8 +403,8 @@ async def test_role_based_access_control_rejects_unauthorized_role(
     with TestClient(app) as client:
         login_response = client.post(
             "/api/auth/login",
-            json={
-                "email": "viewer@example.com",
+            data={
+                "username": "viewer@example.com",
                 "password": "viewer_pass",
             },
         )

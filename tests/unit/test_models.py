@@ -68,6 +68,8 @@ async def test_all_models_registered_in_metadata():
         "corridor_alternatives",
         "decisions",
         "audit_logs",
+        "events",
+        "reroute_options",
     }
     # Import models to populate metadata
     import nexafreight.models  # noqa: F401
