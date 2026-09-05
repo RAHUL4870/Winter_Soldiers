@@ -22,6 +22,7 @@ Usage
   python scripts/12_train_demand_forecast.py
   python scripts/12_train_demand_forecast.py --min-series 26 --holdout-weeks 13
 """
+
 from __future__ import annotations
 
 import argparse
@@ -171,9 +172,7 @@ def load_and_aggregate(csv_path: Path) -> tuple[pd.DataFrame, str]:
     log.info("  %d item rows → %d unique orders after dedup", len(raw), len(orders))
 
     # Parse order date
-    orders["_order_dt"] = pd.to_datetime(
-        orders[_CSV_ORDER_DATE], format="mixed", errors="coerce"
-    )
+    orders["_order_dt"] = pd.to_datetime(orders[_CSV_ORDER_DATE], format="mixed", errors="coerce")
     bad_dates = orders["_order_dt"].isna().sum()
     if bad_dates:
         log.warning("  Dropping %d orders with unparseable dates", bad_dates)
@@ -188,8 +187,7 @@ def load_and_aggregate(csv_path: Path) -> tuple[pd.DataFrame, str]:
 
     # Aggregate: weekly order count per lane
     agg = (
-        orders
-        .groupby(["category_name", "order_region", "_week"])
+        orders.groupby(["category_name", "order_region", "_week"])
         .size()
         .reset_index(name=DEMAND_TARGET_COLUMN)
     )
@@ -238,7 +236,9 @@ def filter_and_split(
     dropped = int(series_lens.shape[0]) - len(qualified)
     log.info(
         "  Qualified lanes (>= %d weeks): %d  (dropped %d sparse lanes)",
-        min_series_len, len(qualified), dropped,
+        min_series_len,
+        len(qualified),
+        dropped,
     )
 
     panel_q = panel[panel[DEMAND_UNIQUE_ID_COL].isin(qualified)].copy()
@@ -257,7 +257,8 @@ def filter_and_split(
 
     log.info(
         "  Train: %d lane-week rows | Holdout: %d lane-week rows",
-        len(train), len(holdout),
+        len(train),
+        len(holdout),
     )
     return train, holdout, qualified
 
@@ -382,19 +383,18 @@ def evaluate_holdout(
             if bl is not None:
                 bl_weighted_errors += float(np.sum(np.abs(actual - bl[:n])))
 
-    wape = (
-        (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
-    )
+    wape = (weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
     baseline_wape = (
         (bl_weighted_errors / weighted_actuals * 100) if weighted_actuals > 0 else float("nan")
     )
-    lift_pct = (
-        (1.0 - wape / baseline_wape) * 100 if baseline_wape > 0 else float("nan")
-    )
+    lift_pct = (1.0 - wape / baseline_wape) * 100 if baseline_wape > 0 else float("nan")
 
     log.info(
         "  Holdout — WAPE: %.1f%%  |  Baseline WAPE: %.1f%%  |  Lift: %+.1f%%  |  Lanes: %d",
-        wape, baseline_wape, lift_pct, len(per_lane_mape),
+        wape,
+        baseline_wape,
+        lift_pct,
+        len(per_lane_mape),
     )
     return per_lane_mape, wape, baseline_wape, lift_pct
 
@@ -454,7 +454,8 @@ def generate_forecasts(
     except (ValueError, Exception) as exc:
         log.warning(
             "  PI batch predict failed (%s) — falling back to point-only. "
-            "Confidence bands will be yhat ±15%% heuristic.", exc
+            "Confidence bands will be yhat ±15%% heuristic.",
+            exc,
         )
         preds = sf_final.predict(h=horizon_weeks).reset_index()
         has_pi = False
@@ -478,14 +479,16 @@ def generate_forecasts(
 
         # Historical actuals (lower == upper == actual for non-forecast rows)
         for _, row in history.iterrows():
-            y = float(row[DEMAND_TARGET_COLUMN])   # panel_q uses original col name
-            lane_data.append({
-                "ds": pd.Timestamp(row["ds"]).strftime("%Y-%m-%d"),
-                "yhat": round(y, 2),
-                "yhat_lower": round(y, 2),
-                "yhat_upper": round(y, 2),
-                "is_forecast": False,
-            })
+            y = float(row[DEMAND_TARGET_COLUMN])  # panel_q uses original col name
+            lane_data.append(
+                {
+                    "ds": pd.Timestamp(row["ds"]).strftime("%Y-%m-%d"),
+                    "yhat": round(y, 2),
+                    "yhat_lower": round(y, 2),
+                    "yhat_upper": round(y, 2),
+                    "is_forecast": False,
+                }
+            )
 
         # Forecast rows — per-lane PI fallback heuristic if batch PIs failed
         lane_used_heuristic = False
@@ -502,14 +505,16 @@ def generate_forecasts(
                 pi_method = "heuristic_15pct"
                 pi_fallback_count += 1
                 lane_used_heuristic = True
-            lane_data.append({
-                "ds": pd.Timestamp(row["ds"]).strftime("%Y-%m-%d"),
-                "yhat": yhat,
-                "yhat_lower": ylo,
-                "yhat_upper": yhi,
-                "is_forecast": True,
-                "pi_method": pi_method,
-            })
+            lane_data.append(
+                {
+                    "ds": pd.Timestamp(row["ds"]).strftime("%Y-%m-%d"),
+                    "yhat": yhat,
+                    "yhat_lower": ylo,
+                    "yhat_upper": yhi,
+                    "is_forecast": True,
+                    "pi_method": pi_method,
+                }
+            )
         if lane_used_heuristic:
             pi_fallback_lanes.append(str(uid))
 
@@ -526,7 +531,8 @@ def generate_forecasts(
         log.info(
             "  PI heuristic fallback applied to %d forecast rows across %d lanes "
             "(class-3 ETS model type; ±15%% bands used).",
-            pi_fallback_count, len(pi_fallback_lanes),
+            pi_fallback_count,
+            len(pi_fallback_lanes),
         )
     log.info("  Generated forecasts for %d lanes.", len(forecasts))
     return forecasts, sf_final, pi_fallback_lanes
@@ -557,15 +563,21 @@ def train(
     total_lanes = panel[DEMAND_UNIQUE_ID_COL].nunique()
     date_min = panel["ds"].min().strftime("%Y-%m-%d")
     date_max = panel["ds"].max().strftime("%Y-%m-%d")
-    log.info("  %d total lanes  |  %d weeks of history  (%s .. %s)",
-             total_lanes, panel["ds"].nunique(), date_min, date_max)
+    log.info(
+        "  %d total lanes  |  %d weeks of history  (%s .. %s)",
+        total_lanes,
+        panel["ds"].nunique(),
+        date_min,
+        date_max,
+    )
 
     # ------------------------------------------------------------------
     # Step 2: Filter & split
     # ------------------------------------------------------------------
     log.info(
         "Step 2/5 — Filtering lanes (min=%d weeks) and splitting holdout (%d weeks) ...",
-        min_series_len, holdout_weeks,
+        min_series_len,
+        holdout_weeks,
     )
     train_df, holdout_df, qualified_ids = filter_and_split(panel, min_series_len, holdout_weeks)
 
@@ -597,8 +609,11 @@ def train(
     # ------------------------------------------------------------------
     log.info("Step 5/5 — Generating final forecasts and saving artifacts ...")
     forecasts, sf_final, pi_fallback_lanes = generate_forecasts(
-        sf_eval, panel, qualified_ids,
-        DEMAND_FORECAST_HORIZON_WEEKS, DEMAND_PREDICTION_LEVEL,
+        sf_eval,
+        panel,
+        qualified_ids,
+        DEMAND_FORECAST_HORIZON_WEEKS,
+        DEMAND_PREDICTION_LEVEL,
     )
 
     # --- model.joblib ---
@@ -649,15 +664,15 @@ def train(
                     "name": "active_disruption_near_dest",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
+                    "min_version": "2.0.0",
                 },
                 {
                     "name": "news_risk_score",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
-                }
-            ]
+                    "min_version": "2.0.0",
+                },
+            ],
         },
         "trained_at": trained_at,
         "git_sha": _git_sha(),
@@ -683,9 +698,9 @@ def train(
             "baseline_wape_pct": round(baseline_wape, 2),
             "lift_over_baseline_pct": round(lift_pct, 2),
             "baseline_method": "seasonal_naive_4week",
-            "median_lane_mape_pct": round(
-                float(np.median(list(per_lane_mape.values()))), 2
-            ) if per_lane_mape else None,
+            "median_lane_mape_pct": round(float(np.median(list(per_lane_mape.values()))), 2)
+            if per_lane_mape
+            else None,
             "n_lanes_evaluated": len(per_lane_mape),
             "per_lane_mape_zero_actual_policy": "dropped",
             "best_5_lanes_mape": best5,
@@ -722,8 +737,11 @@ def train(
     print(sep)
     print(f"  Qualified lanes: {len(qualified_ids)} / {total_lanes}")
     print(f"  WAPE:            {wape:.1f}%")
-    print(f"  Median MAPE:     {float(np.median(list(per_lane_mape.values()))):.1f}%"
-          if per_lane_mape else "  Median MAPE:     N/A")
+    print(
+        f"  Median MAPE:     {float(np.median(list(per_lane_mape.values()))):.1f}%"
+        if per_lane_mape
+        else "  Median MAPE:     N/A"
+    )
     print(f"  Runtime:         {runtime}s")
     print(f"  Model SHA-256:   {mhash}")
     print()
@@ -745,11 +763,15 @@ if __name__ == "__main__":
         description="Train StatsForecast AutoETS Demand Model (T-038)."
     )
     parser.add_argument(
-        "--min-series", type=int, default=DEMAND_MIN_SERIES_LEN,
+        "--min-series",
+        type=int,
+        default=DEMAND_MIN_SERIES_LEN,
         help=f"Minimum weeks of history required per lane (default: {DEMAND_MIN_SERIES_LEN}).",
     )
     parser.add_argument(
-        "--holdout-weeks", type=int, default=DEMAND_HOLDOUT_WEEKS,
+        "--holdout-weeks",
+        type=int,
+        default=DEMAND_HOLDOUT_WEEKS,
         help=f"Weeks to hold out for MAPE evaluation (default: {DEMAND_HOLDOUT_WEEKS}).",
     )
     args = parser.parse_args()

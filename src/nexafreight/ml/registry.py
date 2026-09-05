@@ -15,6 +15,7 @@ ModelRegistry          Initialise with models root, validates & loads all 3.
   .eta_metadata        → dict
   .demand_metadata     → dict
 """
+
 from __future__ import annotations
 
 import json
@@ -103,34 +104,23 @@ class ModelRegistry:
         """Ensure schema_version matches EXPECTED_SCHEMA_VERSION."""
         version = source.get("schema_version")
         if version is None:
-            raise RuntimeError(
-                f"{label}: missing 'schema_version' in artifact"
-            )
+            raise RuntimeError(f"{label}: missing 'schema_version' in artifact")
         if version != EXPECTED_SCHEMA_VERSION:
             raise RuntimeError(
-                f"{label}: schema_version={version!r}, "
-                f"expected {EXPECTED_SCHEMA_VERSION!r}"
+                f"{label}: schema_version={version!r}, " f"expected {EXPECTED_SCHEMA_VERSION!r}"
             )
 
     def _load_delay(self) -> None:
         """Load delay classifier booster dict from joblib + metadata."""
         model_path = self._delay_dir / "model.joblib"
         if not model_path.exists():
-            raise RuntimeError(
-                f"Delay classifier artifact missing: {model_path}"
-            )
+            raise RuntimeError(f"Delay classifier artifact missing: {model_path}")
 
-        self._delay_metadata = self._read_json(
-            self._delay_dir / "metadata.json"
-        )
-        self._delay_feature_schema = self._read_json(
-            self._delay_dir / "feature_schema.json"
-        )
+        self._delay_metadata = self._read_json(self._delay_dir / "metadata.json")
+        self._delay_feature_schema = self._read_json(self._delay_dir / "feature_schema.json")
 
         # schema_version lives in metadata.json for the delay model
-        self._validate_schema_version(
-            self._delay_metadata, "delay_classifier"
-        )
+        self._validate_schema_version(self._delay_metadata, "delay_classifier")
 
         self._delay_booster = joblib.load(model_path)
         logger.info(
@@ -140,17 +130,11 @@ class ModelRegistry:
 
     def _load_eta(self) -> None:
         """Load ETA quantile model via EtaQuantileModel.load()."""
-        self._eta_metadata = self._read_json(
-            self._eta_dir / "metadata.json"
-        )
-        self._eta_feature_schema = self._read_json(
-            self._eta_dir / "feature_schema.json"
-        )
+        self._eta_metadata = self._read_json(self._eta_dir / "metadata.json")
+        self._eta_feature_schema = self._read_json(self._eta_dir / "feature_schema.json")
 
         # schema_version lives in feature_schema.json for ETA
-        self._validate_schema_version(
-            self._eta_feature_schema, "eta_quantile"
-        )
+        self._validate_schema_version(self._eta_feature_schema, "eta_quantile")
 
         self._eta_model = EtaQuantileModel()
         self._eta_model.load(self._eta_dir)
@@ -161,14 +145,10 @@ class ModelRegistry:
 
     def _load_demand(self) -> None:
         """Load demand forecast model via DemandForecastModel.load()."""
-        self._demand_metadata = self._read_json(
-            self._demand_dir / "metadata.json"
-        )
+        self._demand_metadata = self._read_json(self._demand_dir / "metadata.json")
 
         # schema_version lives in metadata.json for demand
-        self._validate_schema_version(
-            self._demand_metadata, "demand_forecast"
-        )
+        self._validate_schema_version(self._demand_metadata, "demand_forecast")
 
         self._demand_model = DemandForecastModel()
         self._demand_model.load(self._demand_dir)

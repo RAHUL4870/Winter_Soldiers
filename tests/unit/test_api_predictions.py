@@ -11,6 +11,7 @@ Tests validate:
 - Malformed input → 422 validation error
 - context field present (None) in all responses
 """
+
 from __future__ import annotations
 
 import pytest
@@ -94,10 +95,20 @@ class TestDelayEndpoint:
         data = client.post("/predict/delay", json=valid_features).json()
         # None of the input feature names should appear as response keys
         feature_keys = {
-            "shipping_mode", "cargo_class", "revenue", "shipping_cost",
-            "scheduled_shipping_days", "order_country", "customer_country",
-            "product_price", "order_profit", "sla_month", "sla_weekday",
-            "sla_quarter", "total_distance_km", "leg_count",
+            "shipping_mode",
+            "cargo_class",
+            "revenue",
+            "shipping_cost",
+            "scheduled_shipping_days",
+            "order_country",
+            "customer_country",
+            "product_price",
+            "order_profit",
+            "sla_month",
+            "sla_weekday",
+            "sla_quarter",
+            "total_distance_km",
+            "leg_count",
         }
         response_keys = set(data.keys())
         leaked = feature_keys & response_keys

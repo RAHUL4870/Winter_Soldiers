@@ -6,6 +6,7 @@ Endpoints:
     POST /predict/eta     — P10/P50/P85 ETA quantiles
     GET  /demand/forecast  — Precomputed demand forecast by lane
 """
+
 from __future__ import annotations
 
 import logging
@@ -200,10 +201,7 @@ async def demand_forecast(
         )
 
     # Filter series to requested horizon
-    series_points = [
-        DemandForecastSeriesPoint(**point)
-        for point in forecast.series
-    ]
+    series_points = [DemandForecastSeriesPoint(**point) for point in forecast.series]
 
     return DemandForecastResponse(
         category=forecast.category,

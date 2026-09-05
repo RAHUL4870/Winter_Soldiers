@@ -1,6 +1,7 @@
 """Unit tests for authentication and password hashing."""
 
 from __future__ import annotations
+from pydantic import SecretStr
 
 from datetime import UTC, datetime, timedelta
 
@@ -22,7 +23,7 @@ from nexafreight.enums import UserRole
 def test_settings() -> Settings:
     """Provide test settings with known values."""
     return Settings(
-        jwt_secret="test-secret-key-that-is-sufficiently-long",
+        jwt_secret=SecretStr("test-secret-key-that-is-sufficiently-long"),
         jwt_algorithm="HS256",
         jwt_expiry_minutes=30,
         bcrypt_rounds=4,  # Low rounds for fast tests

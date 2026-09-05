@@ -6,6 +6,7 @@ Contract non-negotiables:
 - Raw feature vectors NEVER appear in responses.
 - ``context`` field reserved for T-049D OSINT forward-compat (always None now).
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -63,12 +64,8 @@ class DelayPredictionRequest(BaseModel):
 class DelayPredictionResponse(_MLResponseBase):
     """Delay classifier prediction result."""
 
-    probability: float = Field(
-        ..., ge=0.0, le=1.0, description="Delay probability [0, 1]"
-    )
-    risk_band: str = Field(
-        ..., description="LOW (<0.3) | MEDIUM (<0.6) | HIGH (≥0.6)"
-    )
+    probability: float = Field(..., ge=0.0, le=1.0, description="Delay probability [0, 1]")
+    risk_band: str = Field(..., description="LOW (<0.3) | MEDIUM (<0.6) | HIGH (≥0.6)")
 
 
 # ---------------------------------------------------------------------------
@@ -99,9 +96,7 @@ class EtaPredictionResponse(_MLResponseBase):
     p10_eta_days: float = Field(..., description="Optimistic ETA (days)")
     p50_eta_days: float = Field(..., description="Median ETA (days)")
     p85_eta_days: float = Field(..., description="Conservative ETA (days)")
-    confidence_interval_width: float = Field(
-        ..., ge=0.0, description="P85 − P10 spread (days)"
-    )
+    confidence_interval_width: float = Field(..., ge=0.0, description="P85 − P10 spread (days)")
 
 
 # ---------------------------------------------------------------------------
@@ -123,9 +118,7 @@ class DemandForecastResponse(_MLResponseBase):
     category: str
     region: str
     series: list[DemandForecastSeriesPoint]
-    horizon_snapshot: str = Field(
-        ..., description="Horizon description, e.g. '30 days'"
-    )
+    horizon_snapshot: str = Field(..., description="Horizon description, e.g. '30 days'")
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,3 @@
-
 """
 13_model_diagnostics.py — Feature importance diagnostics (E3).
 
@@ -6,6 +5,7 @@ Loads saved model artifacts (NO retraining) and prints per-model feature
 importance by gain, top 8, as % of total. Purpose: determine whether
 shipping_mode dominance explains ETA baseline parity.
 """
+
 from __future__ import annotations
 
 import sys

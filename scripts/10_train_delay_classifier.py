@@ -58,9 +58,13 @@ MODEL_DIR = REPO_ROOT / "models" / "delay_classifier"
 
 def git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
-        ).decode().strip()
+        return (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
+            )
+            .decode()
+            .strip()
+        )
     except Exception:
         return "unknown"
 
@@ -125,11 +129,7 @@ def grouped_baseline(
     def make_group_key(frame: pd.DataFrame, columns: list[str]) -> pd.Series:
         """Create a stable string key for one or more grouping columns."""
         return (
-            frame[columns]
-            .astype("string")
-            .fillna("__MISSING__")
-            .astype(str)
-            .agg("||".join, axis=1)
+            frame[columns].astype("string").fillna("__MISSING__").astype(str).agg("||".join, axis=1)
         )
 
     # Start with the most specific group, then fall back to broader groups.
@@ -160,7 +160,6 @@ def grouped_baseline(
         assigned |= fill_mask
 
     return predictions
-
 
 
 # ---------------------------------------------------------------- metrics
@@ -233,21 +232,33 @@ def main(n_trials: int) -> None:
     print("=" * 66)
 
     dtrain = lgb.Dataset(
-    X["train"], y["train"], categorical_feature=cat_cols, free_raw_data=False,
-    params={"feature_pre_filter": False},
+        X["train"],
+        y["train"],
+        categorical_feature=cat_cols,
+        free_raw_data=False,
+        params={"feature_pre_filter": False},
     )
     dval = lgb.Dataset(
-        X["val"], y["val"], categorical_feature=cat_cols, reference=dtrain, free_raw_data=False,
+        X["val"],
+        y["val"],
+        categorical_feature=cat_cols,
+        reference=dtrain,
+        free_raw_data=False,
         params={"feature_pre_filter": False},
     )
 
-
     default_params = {
-        "objective": "binary", "metric": "auc", "verbosity": -1,
-        "seed": RANDOM_SEED, "num_threads": -1,
+        "objective": "binary",
+        "metric": "auc",
+        "verbosity": -1,
+        "seed": RANDOM_SEED,
+        "num_threads": -1,
     }
     m_default = lgb.train(
-        default_params, dtrain, num_boost_round=1000, valid_sets=[dval],
+        default_params,
+        dtrain,
+        num_boost_round=1000,
+        valid_sets=[dval],
         callbacks=[lgb.early_stopping(50, verbose=False)],
     )
     m_lgb_val = evaluate(y["val"], m_default.predict(X["val"]), "lgbm default (val)")
@@ -259,8 +270,11 @@ def main(n_trials: int) -> None:
 
     def objective(trial: optuna.Trial) -> float:
         params = {
-            "objective": "binary", "metric": "auc", "verbosity": -1,
-            "seed": RANDOM_SEED, "num_threads": -1,
+            "objective": "binary",
+            "metric": "auc",
+            "verbosity": -1,
+            "seed": RANDOM_SEED,
+            "num_threads": -1,
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 16, 256, log=True),
             "max_depth": trial.suggest_int("max_depth", 3, 12),
@@ -273,7 +287,10 @@ def main(n_trials: int) -> None:
             "min_gain_to_split": trial.suggest_float("min_gain_to_split", 0.0, 1.0),
         }
         booster = lgb.train(
-            params, dtrain, num_boost_round=2000, valid_sets=[dval],
+            params,
+            dtrain,
+            num_boost_round=2000,
+            valid_sets=[dval],
             callbacks=[lgb.early_stopping(50, verbose=False)],
         )
         pred = booster.predict(X["val"], num_iteration=booster.best_iteration)
@@ -296,12 +313,18 @@ def main(n_trials: int) -> None:
 
     # ---------------- 4. final model
     best_params = {
-        "objective": "binary", "metric": "auc", "verbosity": -1,
-        "seed": RANDOM_SEED, "num_threads": -1,
+        "objective": "binary",
+        "metric": "auc",
+        "verbosity": -1,
+        "seed": RANDOM_SEED,
+        "num_threads": -1,
         **study.best_params,
     }
     final = lgb.train(
-        best_params, dtrain, num_boost_round=2000, valid_sets=[dval],
+        best_params,
+        dtrain,
+        num_boost_round=2000,
+        valid_sets=[dval],
         callbacks=[lgb.early_stopping(50, verbose=False)],
     )
     best_iter = final.best_iteration
@@ -367,15 +390,15 @@ def main(n_trials: int) -> None:
                     "name": "active_disruption_near_dest",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
+                    "min_version": "2.0.0",
                 },
                 {
                     "name": "news_risk_score",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
-                }
-            ]
+                    "min_version": "2.0.0",
+                },
+            ],
         },
         "trained_at": datetime.now(UTC).isoformat(),
         "git_sha": git_sha(),

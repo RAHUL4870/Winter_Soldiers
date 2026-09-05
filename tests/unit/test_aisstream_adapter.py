@@ -1178,7 +1178,7 @@ class TestResubscribeAfterReconnect:
             call_count += 1
             ws = FakeWebSocket([])  # empty — closes immediately
             yield ws
-            sent_batches.append(list(ws.sent))
+            sent_batches.append([str(k) for k in ws.sent])
 
         adapter = AISStreamAdapter(
             mmsis=[MMSI_A],

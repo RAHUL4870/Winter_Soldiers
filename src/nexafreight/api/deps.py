@@ -11,6 +11,7 @@ Usage in endpoints:
     ):
         ...
 """
+
 from __future__ import annotations
 
 from fastapi import Request
@@ -25,9 +26,7 @@ async def get_registry(request: Request) -> ModelRegistry:
     Returns 503 if the registry was not initialised during startup
     (e.g. model artifacts are missing).
     """
-    registry: ModelRegistry | None = getattr(
-        request.app.state, "ml_registry", None
-    )
+    registry: ModelRegistry | None = getattr(request.app.state, "ml_registry", None)
     if registry is None:
         from fastapi import HTTPException
 

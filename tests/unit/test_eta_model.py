@@ -133,9 +133,7 @@ class TestIntervalCoverage:
         assert interval_coverage([1.0, 2.0], [0.0, 1.0], [2.0, 3.0]) == 1.0
 
     def test_partial_coverage(self) -> None:
-        cov = interval_coverage([1.0, 10.0, 3.0, -5.0],
-                                [0.0, 0.0, 0.0, 0.0],
-                                [5.0, 5.0, 5.0, 5.0])
+        cov = interval_coverage([1.0, 10.0, 3.0, -5.0], [0.0, 0.0, 0.0, 0.0], [5.0, 5.0, 5.0, 5.0])
         assert cov == 0.50
 
     def test_zero_coverage(self) -> None:
@@ -243,7 +241,8 @@ class TestEtaQuantileModelInference:
     def test_monotonicity_even_on_crossing_predictions(self, synthetic_row) -> None:
         bad_model = _make_mock_model(p10_offset=3.0, p50_offset=1.0, p85_offset=-1.0)
 
-        pred: EtaPrediction = bad_model.predict(synthetic_row)
+        pred = bad_model.predict(synthetic_row)
+        assert not isinstance(pred, list)
         assert pred.p10_residual <= pred.p50_residual <= pred.p85_residual
         assert pred.p10_eta_days <= pred.p50_eta_days <= pred.p85_eta_days
 
@@ -302,12 +301,14 @@ class TestFeatureIntegrityAndLeakage:
 
     def test_quantile_keys_match_constants(self, mock_eta_model) -> None:
         from nexafreight.ml.constants import QUANTILE_KEYS
+
         for key in QUANTILE_KEYS:
             assert key in mock_eta_model.models
         assert list(mock_eta_model.models.keys()) == list(QUANTILE_KEYS)
 
     def test_script_11_has_extensibility_schema(self) -> None:
         from pathlib import Path
+
         script_path = Path(__file__).parent.parent.parent / "scripts" / "11_train_eta_model.py"
         content = script_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0.0"' in content

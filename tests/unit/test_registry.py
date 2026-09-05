@@ -7,6 +7,7 @@ Tests validate:
 - Missing metadata.json → RuntimeError
 - Accessors return correct types
 """
+
 from __future__ import annotations
 
 import json
@@ -184,7 +185,7 @@ class TestRegistryFailsOnMissingArtifacts:
         empty_delay.mkdir()
         # Create metadata but no model.joblib
         (empty_delay / "metadata.json").write_text('{"schema_version":"1.0.0"}')
-        (empty_delay / "feature_schema.json").write_text('{}')
+        (empty_delay / "feature_schema.json").write_text("{}")
 
         with pytest.raises(RuntimeError, match="Delay classifier artifact missing"):
             ModelRegistry(

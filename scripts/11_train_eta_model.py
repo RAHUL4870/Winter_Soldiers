@@ -31,6 +31,7 @@ Usage
   python scripts/11_train_eta_model.py
   python scripts/11_train_eta_model.py --max-rounds 500 --early-stopping 30
 """
+
 from __future__ import annotations
 
 import argparse
@@ -323,14 +324,14 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     # ------------------------------------------------------------------
     # Step 2: Derive target residual
     # ------------------------------------------------------------------
-    log.info("Step 2/8 — Deriving target: %s − %s ...",
-             ETA_ACTUAL_DAYS_COLUMN, ETA_SCHEDULED_DAYS_COLUMN)
+    log.info(
+        "Step 2/8 — Deriving target: %s − %s ...", ETA_ACTUAL_DAYS_COLUMN, ETA_SCHEDULED_DAYS_COLUMN
+    )
 
     actual = pd.to_numeric(raw[ETA_ACTUAL_DAYS_COLUMN], errors="coerce")
     sched = pd.to_numeric(raw[ETA_SCHEDULED_DAYS_COLUMN], errors="coerce")
 
-    valid = (actual.notna() & sched.notna()
-             & (actual >= 0) & (sched > 0))
+    valid = actual.notna() & sched.notna() & (actual >= 0) & (sched > 0)
     dropped = int((~valid).sum())
     if dropped:
         log.warning("  Dropped %d rows with invalid durations", dropped)
@@ -342,8 +343,9 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
 
     if raw.empty:
         raise ValueError("No rows remain after duration validation")
-    log.info("  %d valid rows,  target mean=%+.3f,  std=%.3f",
-             len(y_all), y_all.mean(), y_all.std())
+    log.info(
+        "  %d valid rows,  target mean=%+.3f,  std=%.3f", len(y_all), y_all.mean(), y_all.std()
+    )
 
     # ------------------------------------------------------------------
     # Step 3: Feature engineering
@@ -352,9 +354,7 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
     X_all = _prepare_features(raw)
 
     if len(X_all) != len(y_all):
-        raise ValueError(
-            f"Feature/target length mismatch: {len(X_all)} vs {len(y_all)}"
-        )
+        raise ValueError(f"Feature/target length mismatch: {len(X_all)} vs {len(y_all)}")
 
     # ------------------------------------------------------------------
     # Step 4: Chronological split
@@ -375,8 +375,8 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
 
     masks = {
         "train": time_s < train_end,
-        "val":   (time_s >= train_end) & (time_s < val_end),
-        "test":  time_s >= val_end,
+        "val": (time_s >= train_end) & (time_s < val_end),
+        "test": time_s >= val_end,
     }
 
     X_splits: dict[str, pd.DataFrame] = {}
@@ -385,8 +385,13 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
         X_splits[name] = X_all[m].reset_index(drop=True)
         y_splits[name] = y_all[m].reset_index(drop=True)
         ts = time_s[m]
-        log.info("  %-6s %6d rows   range=%s   mean_res=%+.3f",
-                 name, len(y_splits[name]), _date_range(ts), y_splits[name].mean())
+        log.info(
+            "  %-6s %6d rows   range=%s   mean_res=%+.3f",
+            name,
+            len(y_splits[name]),
+            _date_range(ts),
+            y_splits[name].mean(),
+        )
 
     for name in ("train", "val", "test"):
         if len(X_splits[name]) == 0:
@@ -440,19 +445,24 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
         }
 
         dtrain = lgb.Dataset(
-            X_splits["train"], label=y_splits["train"],
-            categorical_feature=cat_cols, free_raw_data=False,
+            X_splits["train"],
+            label=y_splits["train"],
+            categorical_feature=cat_cols,
+            free_raw_data=False,
             params={"feature_pre_filter": False},
         )
         dval = lgb.Dataset(
-            X_splits["val"], label=y_splits["val"],
-            categorical_feature=cat_cols, reference=dtrain,
+            X_splits["val"],
+            label=y_splits["val"],
+            categorical_feature=cat_cols,
+            reference=dtrain,
             free_raw_data=False,
             params={"feature_pre_filter": False},
         )
 
         booster = lgb.train(
-            params, dtrain,
+            params,
+            dtrain,
             num_boost_round=max_rounds,
             valid_sets=[dval],
             valid_names=["val"],
@@ -553,15 +563,15 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
                     "name": "active_disruption_near_dest",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
+                    "min_version": "2.0.0",
                 },
                 {
                     "name": "news_risk_score",
                     "dtype": "float",
                     "required": False,
-                    "min_version": "2.0.0"
-                }
-            ]
+                    "min_version": "2.0.0",
+                },
+            ],
         },
         "trained_at": trained_at,
         "git_sha": _git_sha(),
@@ -614,9 +624,7 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
             "categorical": cat_cols,
             "numeric": num_cols,
         },
-        "metrics": {
-            name: eval_results[name] for name in ("train", "val", "test")
-        },
+        "metrics": {name: eval_results[name] for name in ("train", "val", "test")},
         "interval_coverage_p10_p85": {
             name: round(coverage[name], 4) for name in ("train", "val", "test")
         },
@@ -629,9 +637,7 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
         "corrected_monotonicity_rate": {
             name: round(cor_mono[name], 4) for name in ("train", "val", "test")
         },
-        "p50_mae_days": {
-            name: round(p50_mae[name], 3) for name in ("train", "val", "test")
-        },
+        "p50_mae_days": {name: round(p50_mae[name], 3) for name in ("train", "val", "test")},
         "best_iterations": best_iters,
         "training_parameters": {
             "max_rounds": max_rounds,
@@ -678,15 +684,17 @@ def train(max_rounds: int = 1000, early_stop: int = 50) -> None:
 # CLI entry point
 # ============================================================================
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Train LightGBM Quantile ETA Regressor (T-037)."
-    )
+    parser = argparse.ArgumentParser(description="Train LightGBM Quantile ETA Regressor (T-037).")
     parser.add_argument(
-        "--max-rounds", type=int, default=1000,
+        "--max-rounds",
+        type=int,
+        default=1000,
         help="Maximum boosting iterations (default: 1000).",
     )
     parser.add_argument(
-        "--early-stopping", type=int, default=50,
+        "--early-stopping",
+        type=int,
+        default=50,
         help="Early-stopping patience rounds (default: 50).",
     )
     args = parser.parse_args()

@@ -1,6 +1,7 @@
 """Integration tests for FastAPI application factory and lifespan."""
 
 from __future__ import annotations
+from pydantic import SecretStr
 
 import os
 import subprocess
@@ -33,7 +34,7 @@ def run_alembic_upgrade(db_path: Path) -> subprocess.CompletedProcess[str]:
 def test_settings(tmp_path: Path) -> Settings:
     """Provide test settings with isolated database."""
     return Settings(
-        jwt_secret="test-secret-key-for-integration-tests",
+        jwt_secret=SecretStr("test-secret-key-for-integration-tests"),
         environment="test",
         database_path=tmp_path / "test_app.db",
         allowed_origins=["http://localhost:3000", "http://localhost:5173"],
@@ -79,7 +80,7 @@ def test_health_check_returns_success(test_settings: Settings) -> None:
 def test_health_check_fails_with_unreachable_database() -> None:
     """Health check reports failure when database is unreachable."""
     bad_settings = Settings(
-        jwt_secret="test-secret",
+        jwt_secret=SecretStr("test-secret"),
         environment="test",
         database_path=Path("./data/unreachable_test.db"),
     )

@@ -82,7 +82,7 @@ async def test_all_expected_tables_exist_after_upgrade(tmp_path: Path) -> None:
 
             def get_table_names(sync_conn: object) -> set[str]:
                 inspector = inspect(sync_conn)
-                return set(inspector.get_table_names())
+                return set([] if inspector is None else inspector.get_table_names())
 
             tables = await conn.run_sync(get_table_names)
 
@@ -310,7 +310,7 @@ async def test_downgrade_to_base_succeeds(tmp_path: Path) -> None:
 
             def get_table_names(sync_conn: object) -> set[str]:
                 inspector = inspect(sync_conn)
-                return set(inspector.get_table_names())
+                return set([] if inspector is None else inspector.get_table_names())
 
             tables = await conn.run_sync(get_table_names)
 

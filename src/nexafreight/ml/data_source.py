@@ -41,21 +41,21 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 _CSV_COLUMN_MAP: dict[str, str] = {
     # ETA target column — actual days in transit (needed by T-037 to derive residual)
-    "days_for_shipping_real":  "Days for shipping (real)",
+    "days_for_shipping_real": "Days for shipping (real)",
     "scheduled_shipping_days": "Days for shipment (scheduled)",
-    "order_country":           "Order Country",
-    "customer_country":        "Customer Country",
-    "product_price":           "Order Item Product Price",
-    "order_profit":            "Order Profit Per Order",
+    "order_country": "Order Country",
+    "customer_country": "Customer Country",
+    "product_price": "Order Item Product Price",
+    "order_profit": "Order Profit Per Order",
 }
 
 _CSV_DTYPE_MAP: dict[str, type] = {
-    "days_for_shipping_real":  float,
+    "days_for_shipping_real": float,
     "scheduled_shipping_days": float,
-    "order_country":           str,
-    "customer_country":        str,
-    "product_price":           float,
-    "order_profit":            float,
+    "order_country": str,
+    "customer_country": str,
+    "product_price": float,
+    "order_profit": float,
 }
 
 
@@ -132,8 +132,11 @@ def load_orders_db(db_path: Path | str = DB_PATH) -> pd.DataFrame:
     ship_agg = _load_shipment_aggregates(engine)
 
     df = orders.merge(ship_agg, on="shipment_id", how="left")
-    logger.info("load_orders_db: %d orders, %d with shipment data",
-                len(df), df["container_count"].notna().sum())
+    logger.info(
+        "load_orders_db: %d orders, %d with shipment data",
+        len(df),
+        df["container_count"].notna().sum(),
+    )
     return df
 
 
@@ -164,9 +167,7 @@ def load_dataco_csv(csv_path: Path | str = DATACO_CSV_PATH) -> pd.DataFrame:
     print()
 
     if missing:
-        logger.warning(
-            "CSV columns not found (will be omitted): %s", missing
-        )
+        logger.warning("CSV columns not found (will be omitted): %s", missing)
 
     # Build join key
     raw["order_number"] = "ORD-" + raw["Order Id"].astype(str)
@@ -181,19 +182,17 @@ def load_dataco_csv(csv_path: Path | str = DATACO_CSV_PATH) -> pd.DataFrame:
         if csv_col in dedup.columns:
             keep[csv_col] = internal
 
-    dedup = dedup[list(keep.keys())].rename(columns={v: k for k, v in keep.items()
-                                                       if v != k and k != "order_number"})
-    # Rename internal->internal for order_number is a no-op; fix the rename map
-    rename_map = {csv_col: internal
-                  for internal, csv_col in _CSV_COLUMN_MAP.items()
-                  if csv_col in raw.columns}
-    dedup = (
-        raw.drop_duplicates(subset=["order_number"], keep="first")
-           .rename(columns=rename_map)
+    dedup = dedup[list(keep.keys())].rename(
+        columns={v: k for k, v in keep.items() if v != k and k != "order_number"}
     )
+    # Rename internal->internal for order_number is a no-op; fix the rename map
+    rename_map = {
+        csv_col: internal for internal, csv_col in _CSV_COLUMN_MAP.items() if csv_col in raw.columns
+    }
+    dedup = raw.drop_duplicates(subset=["order_number"], keep="first").rename(columns=rename_map)
     dedup["order_number"] = "ORD-" + dedup["Order Id"].astype(str)
 
-    csv_cols = list(rename_map.values())          # internal names that were found
+    csv_cols = list(rename_map.values())  # internal names that were found
     keep_cols = ["order_number"] + [c for c in csv_cols if c in dedup.columns]
     dedup = dedup[keep_cols].copy()
 
@@ -244,6 +243,7 @@ def load_raw(
         f"Join produced {len(merged)} rows vs {before} input orders — "
         "check for duplicate order_numbers in the CSV"
     )
-    logger.info("load_raw: final joined DataFrame has %d rows, %d columns",
-                len(merged), merged.shape[1])
+    logger.info(
+        "load_raw: final joined DataFrame has %d rows, %d columns", len(merged), merged.shape[1]
+    )
     return merged

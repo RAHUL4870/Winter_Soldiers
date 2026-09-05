@@ -17,6 +17,7 @@ Design rules
 * Unseen categorical levels degrade to MISSING_SENTINEL, never crash.
 * BANNED_COLUMNS are checked at both load() and predict() time.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -100,9 +101,7 @@ def pinball_loss(
     yp = np.asarray(y_pred, dtype=float)
 
     if yt.shape != yp.shape:
-        raise ValueError(
-            f"Shape mismatch: y_true {yt.shape} vs y_pred {yp.shape}"
-        )
+        raise ValueError(f"Shape mismatch: y_true {yt.shape} vs y_pred {yp.shape}")
 
     diff = yt - yp
     loss = np.where(diff >= 0.0, alpha * diff, (1.0 - alpha) * (-diff))
@@ -239,9 +238,7 @@ class EtaQuantileModel:
             if col in self.cat_levels:
                 known = self.cat_levels[col]
                 vals = vals.where(vals.isin(known), MISSING_SENTINEL)
-                df[col] = pd.Categorical(
-                    vals, categories=known + [MISSING_SENTINEL]
-                )
+                df[col] = pd.Categorical(vals, categories=known + [MISSING_SENTINEL])
             else:
                 df[col] = pd.Categorical(vals)
 
@@ -265,9 +262,7 @@ class EtaQuantileModel:
         """Per-row sort to enforce P10 <= P50 <= P85 on residuals."""
         matrix = np.column_stack([raw[tag] for tag in QUANTILE_KEYS])
         sorted_matrix = np.sort(matrix, axis=1)
-        return {
-            tag: sorted_matrix[:, i] for i, tag in enumerate(QUANTILE_KEYS)
-        }
+        return {tag: sorted_matrix[:, i] for i, tag in enumerate(QUANTILE_KEYS)}
 
     # ------------------------------------------------------------------
     # Public predict
@@ -300,14 +295,10 @@ class EtaQuantileModel:
         """
         # --- Guards ---
         if not self._is_loaded:
-            raise RuntimeError(
-                "Model is not loaded — call load() or use get_eta_model()"
-            )
+            raise RuntimeError("Model is not loaded — call load() or use get_eta_model()")
 
         if days_elapsed < 0.0:
-            raise ValueError(
-                f"days_elapsed must be >= 0, got {days_elapsed}"
-            )
+            raise ValueError(f"days_elapsed must be >= 0, got {days_elapsed}")
 
         banned = set(self.features).intersection(BANNED_COLUMNS)
         if banned:
@@ -321,9 +312,7 @@ class EtaQuantileModel:
         elif isinstance(input_data, pd.DataFrame):
             X = self._encode_frame(input_data)
         else:
-            raise TypeError(
-                f"Expected dict or DataFrame, got {type(input_data).__name__}"
-            )
+            raise TypeError(f"Expected dict or DataFrame, got {type(input_data).__name__}")
 
         # --- Scheduled days per row ---
         if scheduled_days is not None:
@@ -378,9 +367,7 @@ class EtaQuantileModel:
                 p85_date = departure_time + timedelta(days=p85_eta)
 
                 if sla_deadline is not None:
-                    sla_risk = self.assess_sla_risk(
-                        p10_date, p50_date, p85_date, sla_deadline
-                    )
+                    sla_risk = self.assess_sla_risk(p10_date, p50_date, p85_date, sla_deadline)
 
             results.append(
                 EtaPrediction(

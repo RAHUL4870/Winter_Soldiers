@@ -96,8 +96,8 @@ def build_features(
         raise KeyError(f"Time-axis column '{TIME_AXIS_COLUMN}' not found in raw_df.")
 
     sla = pd.to_datetime(df[TIME_AXIS_COLUMN])
-    df["sla_month"]   = sla.dt.month.astype(int)
-    df["sla_weekday"] = sla.dt.dayofweek.astype(int)   # 0=Monday … 6=Sunday
+    df["sla_month"] = sla.dt.month.astype(int)
+    df["sla_weekday"] = sla.dt.dayofweek.astype(int)  # 0=Monday … 6=Sunday
     df["sla_quarter"] = sla.dt.quarter.astype(int)
 
     # ------------------------------------------------------------------
@@ -105,9 +105,9 @@ def build_features(
     #    is respected (tests patch _constants.FEATURE_COLUMNS, not the
     #    local name-binding, so always dereference via the module).
     # ------------------------------------------------------------------
-    active_features  = _constants.FEATURE_COLUMNS
-    active_numeric   = _constants.NUMERIC_COLUMNS
-    active_cats      = _constants.CATEGORICAL_COLUMNS
+    active_features = _constants.FEATURE_COLUMNS
+    active_numeric = _constants.NUMERIC_COLUMNS
+    active_cats = _constants.CATEGORICAL_COLUMNS
 
     # ------------------------------------------------------------------
     # 4. Banned-column leakage guard
@@ -124,12 +124,7 @@ def build_features(
     # ------------------------------------------------------------------
     for col in active_cats:
         if col in df.columns:
-            df[col] = (
-                df[col]
-                .astype(object)
-                .fillna("__MISSING__")
-                .astype(object)
-            )
+            df[col] = df[col].astype(object).fillna("__MISSING__").astype(object)
         else:
             # Column absent from raw_df — create it with the sentinel value
             df[col] = "__MISSING__"

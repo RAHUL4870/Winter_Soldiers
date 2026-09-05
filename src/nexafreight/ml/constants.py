@@ -32,13 +32,7 @@ MODELS_DIR = _PROJECT_ROOT / "models"
 
 DB_PATH = _PROJECT_ROOT / "data" / "nexafreight.db"
 
-DATACO_CSV_PATH = (
-    _PROJECT_ROOT
-    / "data"
-    / "raw"
-    / "dataco"
-    / "DataCoSupplyChainDataset.csv"
-)
+DATACO_CSV_PATH = _PROJECT_ROOT / "data" / "raw" / "dataco" / "DataCoSupplyChainDataset.csv"
 
 # Model artifact directories
 DELAY_MODEL_DIR = str(MODELS_DIR / "delay_classifier")
@@ -72,23 +66,20 @@ SPLIT_DATES = {
 # ---------------------------------------------------------------------------
 FEATURE_COLUMNS = [
     # --- Operational DB: orders -------------------------------------------
-    "shipping_mode",            # AIR / SEA / RAIL
+    "shipping_mode",  # AIR / SEA / RAIL
     "cargo_class",
     "revenue",
     "shipping_cost",
-
     # --- Raw historical DataCo CSV ----------------------------------------
     "scheduled_shipping_days",  # Days for shipment (scheduled)
     "order_country",
     "customer_country",
     "product_price",
     "order_profit",
-
     # --- Derived calendar features from sla_deadline -----------------------
     "sla_month",
     "sla_weekday",
     "sla_quarter",
-
     # --- Leg aggregates ----------------------------------------------------
     "total_distance_km",
     "leg_count",
@@ -103,9 +94,7 @@ CATEGORICAL_COLUMNS = [
 ]
 
 # Numeric features (everything not categorical)
-NUMERIC_COLUMNS = [
-    col for col in FEATURE_COLUMNS if col not in CATEGORICAL_COLUMNS
-]
+NUMERIC_COLUMNS = [col for col in FEATURE_COLUMNS if col not in CATEGORICAL_COLUMNS]
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +105,6 @@ BANNED_COLUMNS = {
     "days_for_shipping_real": "ACTUAL transit days — leakage: outcome known only post-hoc.",
     "late_delivery_risk": "TARGET — the exact binary label used in v0 baseline.",
     "historical_late_delivery": "LABEL — prediction target; must never be included in X.",
-
     # --- Time-travel (future information) ---------------------------------
     "created_at": "TIMESTAMP — ordering/censoring artifact, not a feature.",
     "planned_departure": "TIMESTAMP — less granular than sla_deadline; redundant.",
@@ -124,23 +112,16 @@ BANNED_COLUMNS = {
     "actual_departure": "TIMESTAMP — post-hoc; unknown at prediction time.",
     "actual_arrival": "TIMESTAMP — post-hoc; unknown at prediction time.",
     "sla_deadline": (
-        "TIME AXIS — used for chronological splitting and derived"
-        " calendar features only."
+        "TIME AXIS — used for chronological splitting and derived" " calendar features only."
     ),
-
     # --- Identifiers -------------------------------------------------------
     "order_id": "IDENTIFIER — row-level key; adds zero predictive value.",
     "shipment_id": "IDENTIFIER — foreign key.",
     "origin_id": "IDENTIFIER — use engineered country/location features instead.",
     "destination_id": "IDENTIFIER — use engineered country/location features instead.",
-
     # --- Operational routing metadata -------------------------------------
-    "route_version": (
-        "OPERATIONAL META — may encode rerouting/history not known at booking time."
-    ),
-    "status": (
-        "OPERATIONAL META — currently planned state; not a historical predictive input."
-    ),
+    "route_version": ("OPERATIONAL META — may encode rerouting/history not known at booking time."),
+    "status": ("OPERATIONAL META — currently planned state; not a historical predictive input."),
 }
 
 
@@ -189,7 +170,7 @@ DEMAND_UNIQUE_ID_COL: str = "unique_id"
 DEMAND_FORECAST_HORIZONS: tuple[int, int, int] = (30, 60, 90)
 
 # Maximum forecast horizon in weeks (must match longest horizon above)
-DEMAND_FORECAST_HORIZON_WEEKS: int = 13   # 90 days ≈ 13 weeks
+DEMAND_FORECAST_HORIZON_WEEKS: int = 13  # 90 days ≈ 13 weeks
 
 # Holdout weeks for MAPE evaluation
 DEMAND_HOLDOUT_WEEKS: int = 13
@@ -202,9 +183,9 @@ DEMAND_PREDICTION_LEVEL: int = 80  # 80% CI → lower/upper bands
 
 # Frontend chart-ready keys produced by the inference wrapper
 DEMAND_CHART_KEYS: tuple[str, ...] = (
-    "ds",          # ISO date string (week start)
-    "yhat",        # point forecast
+    "ds",  # ISO date string (week start)
+    "yhat",  # point forecast
     "yhat_lower",  # CI lower bound
     "yhat_upper",  # CI upper bound
-    "is_forecast", # True for horizon rows, False for history
+    "is_forecast",  # True for horizon rows, False for history
 )

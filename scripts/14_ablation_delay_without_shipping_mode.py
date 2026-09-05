@@ -1,4 +1,3 @@
-
 """
 Script 14 — Ablation: Train delay classifier without shipping_mode (C1 / T-036).
 
@@ -57,11 +56,15 @@ from nexafreight.ml.constants import CATEGORICAL_COLUMNS  # noqa: E402
 
 def git_sha() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=REPO_ROOT,
-            stderr=subprocess.DEVNULL,
-        ).decode().strip()
+        return (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=REPO_ROOT,
+                stderr=subprocess.DEVNULL,
+            )
+            .decode()
+            .strip()
+        )
     except Exception:
         return "unknown"
 
@@ -79,9 +82,7 @@ def load_splits() -> tuple[dict[str, pd.DataFrame], dict]:
     for name in ("train", "val", "test"):
         path = PROCESSED_DIR / f"{name}.parquet"
         if not path.exists():
-            raise FileNotFoundError(
-                f"{path} missing — run scripts/09_build_training_data.py first"
-            )
+            raise FileNotFoundError(f"{path} missing — run scripts/09_build_training_data.py first")
         splits[name] = pd.read_parquet(path)
     return splits, schema
 
@@ -109,7 +110,10 @@ def evaluate(y_true, y_score, tag: str) -> dict:
     }
     log.info(
         "%-32s ROC-AUC=%.4f  PR-AUC=%.4f  Brier=%.4f",
-        tag, m["roc_auc"], m["pr_auc"], m["brier"],
+        tag,
+        m["roc_auc"],
+        m["pr_auc"],
+        m["brier"],
     )
     return m
 
@@ -121,9 +125,7 @@ def _extract_prod_metrics(prod_meta: dict) -> tuple[float, float | None, str]:
         block = metrics.get(key)
         if isinstance(block, dict) and "roc_auc" in block:
             return float(block["roc_auc"]), block.get("pr_auc"), key
-    raise KeyError(
-        f"No production test metrics found. Available keys: {list(metrics.keys())}"
-    )
+    raise KeyError(f"No production test metrics found. Available keys: {list(metrics.keys())}")
 
 
 # ---------------------------------------------------------------- main
@@ -156,7 +158,11 @@ def main(n_trials: int) -> None:
 
     log.info(
         "Features: %d total (%d categorical, %d numeric) — '%s' ABLATED (was %d features)",
-        len(features), len(cat_cols), len(num_cols), ABLATED_FEATURE, len(all_features),
+        len(features),
+        len(cat_cols),
+        len(num_cols),
+        ABLATED_FEATURE,
+        len(all_features),
     )
 
     splits, cat_levels = align_categoricals(splits, cat_cols)
@@ -168,12 +174,19 @@ def main(n_trials: int) -> None:
 
     # ---------------- 1. datasets
     dtrain = lgb.Dataset(
-        X["train"], y["train"], categorical_feature=cat_cols, free_raw_data=False,
+        X["train"],
+        y["train"],
+        categorical_feature=cat_cols,
+        free_raw_data=False,
         params={"feature_pre_filter": False},
     )
     dval = lgb.Dataset(
-        X["val"], y["val"], categorical_feature=cat_cols, reference=dtrain,
-        free_raw_data=False, params={"feature_pre_filter": False},
+        X["val"],
+        y["val"],
+        categorical_feature=cat_cols,
+        reference=dtrain,
+        free_raw_data=False,
+        params={"feature_pre_filter": False},
     )
 
     # ---------------- 2. Optuna
@@ -183,8 +196,12 @@ def main(n_trials: int) -> None:
 
     def objective(trial: optuna.Trial) -> float:
         params = {
-            "objective": "binary", "metric": "auc", "verbosity": -1,
-            "seed": RANDOM_SEED, "num_threads": -1, "feature_pre_filter": False,
+            "objective": "binary",
+            "metric": "auc",
+            "verbosity": -1,
+            "seed": RANDOM_SEED,
+            "num_threads": -1,
+            "feature_pre_filter": False,
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 16, 256, log=True),
             "max_depth": trial.suggest_int("max_depth", 3, 12),
@@ -197,7 +214,10 @@ def main(n_trials: int) -> None:
             "min_gain_to_split": trial.suggest_float("min_gain_to_split", 0.0, 1.0),
         }
         booster = lgb.train(
-            params, dtrain, num_boost_round=2000, valid_sets=[dval],
+            params,
+            dtrain,
+            num_boost_round=2000,
+            valid_sets=[dval],
             callbacks=[lgb.early_stopping(50, verbose=False)],
         )
         pred = booster.predict(X["val"], num_iteration=booster.best_iteration)
@@ -207,7 +227,9 @@ def main(n_trials: int) -> None:
         if (trial.number + 1) % 10 == 0 or trial.number == 0:
             log.info(
                 "  trial %3d/%d  best_val_auc=%.4f",
-                trial.number + 1, n_trials, study.best_value,
+                trial.number + 1,
+                n_trials,
+                study.best_value,
             )
 
     study = optuna.create_study(
@@ -218,12 +240,19 @@ def main(n_trials: int) -> None:
 
     # ---------------- 3. final model
     best_params = {
-        "objective": "binary", "metric": "auc", "verbosity": -1,
-        "seed": RANDOM_SEED, "num_threads": -1, "feature_pre_filter": False,
+        "objective": "binary",
+        "metric": "auc",
+        "verbosity": -1,
+        "seed": RANDOM_SEED,
+        "num_threads": -1,
+        "feature_pre_filter": False,
         **study.best_params,
     }
     final = lgb.train(
-        best_params, dtrain, num_boost_round=2000, valid_sets=[dval],
+        best_params,
+        dtrain,
+        num_boost_round=2000,
+        valid_sets=[dval],
         callbacks=[lgb.early_stopping(50, verbose=False)],
     )
     best_iter = int(final.best_iteration or final.current_iteration())
@@ -287,9 +316,7 @@ def main(n_trials: int) -> None:
             "delay classifier. No model.joblib is written."
         ),
     }
-    (EXPERIMENT_DIR / "metadata.json").write_text(
-        json.dumps(metadata, indent=2), encoding="utf-8"
-    )
+    (EXPERIMENT_DIR / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     log.info("Experiment metadata → %s", EXPERIMENT_DIR / "metadata.json")
 
     # ---------------- 6. summary
@@ -334,9 +361,7 @@ def main(n_trials: int) -> None:
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(
-        description="C1 ablation: delay classifier without shipping_mode."
-    )
+    ap = argparse.ArgumentParser(description="C1 ablation: delay classifier without shipping_mode.")
     ap.add_argument("--trials", type=int, default=50, help="Optuna trials (default: 50)")
     args = ap.parse_args()
     main(args.trials)

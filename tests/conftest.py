@@ -23,8 +23,9 @@ in-memory SQLite or explicitly tmp_path-isolated file databases.
 """
 
 from __future__ import annotations
+from pydantic import SecretStr
 
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -101,7 +102,7 @@ def test_settings(tmp_path: Path) -> Settings:
     use in-memory via test_engine).
     """
     return Settings(
-        jwt_secret="test-jwt-secret-at-least-32-characters-long-for-security",
+        jwt_secret=SecretStr("test-jwt-secret-at-least-32-characters-long-for-security"),
         jwt_algorithm="HS256",
         jwt_expiry_minutes=60,
         bcrypt_rounds=4,  # Low rounds for fast test execution
@@ -256,7 +257,7 @@ async def auth_headers(
 
 
 @pytest_asyncio.fixture
-async def make_location(db_session: AsyncSession) -> Callable[..., AsyncGenerator[Location, None]]:
+async def make_location(db_session: AsyncSession) -> Callable[..., Awaitable[Location]]:
     """Factory for creating test Location entities.
 
     Returns a callable that creates and persists a Location with sensible defaults.
@@ -296,8 +297,8 @@ async def make_location(db_session: AsyncSession) -> Callable[..., AsyncGenerato
 @pytest_asyncio.fixture
 async def make_shipment(
     db_session: AsyncSession,
-    make_location: Callable[..., Location],
-) -> Callable[..., Shipment]:
+    make_location: Callable[..., Awaitable[Location]],
+) -> Callable[..., Awaitable[Shipment]]:
     """Factory for creating test Shipment entities.
 
     Automatically creates origin/destination locations if not provided.
@@ -343,8 +344,8 @@ async def make_shipment(
 @pytest_asyncio.fixture
 async def make_order(
     db_session: AsyncSession,
-    make_shipment: Callable[..., Shipment],
-) -> Callable[..., Order]:
+    make_shipment: Callable[..., Awaitable[Shipment]],
+) -> Callable[..., Awaitable[Order]]:
     """Factory for creating test Order entities.
 
     Automatically creates a shipment if not provided.
@@ -391,8 +392,8 @@ async def make_order(
 @pytest_asyncio.fixture
 async def make_leg(
     db_session: AsyncSession,
-    make_location: Callable[..., Location],
-) -> Callable[..., Leg]:
+    make_location: Callable[..., Awaitable[Location]],
+) -> Callable[..., Awaitable[Leg]]:
     """Factory for creating test Leg entities."""
     from nexafreight.enums import LegStatus, Provenance, TransportMode
     from nexafreight.models import Leg

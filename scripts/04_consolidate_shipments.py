@@ -164,23 +164,23 @@ def _set_sqlite_pragmas(dbapi_conn: Any, connection_record: Any) -> None:
 async def load_country_location_map(conn, loc_tbl: Table) -> tuple[dict[str, int], int, int]:
     """Build country_code -> representative location_id mapping with verified global hubs."""
     country_map: dict[str, int] = {
-        "US": 78517,          # New York (USNYC)
-        "US_WEST": 77063,     # Los Angeles (USLAX)
+        "US": 78517,  # New York (USNYC)
+        "US_WEST": 77063,  # Los Angeles (USLAX)
         "US_MIDWEST": 72285,  # Chicago (USCGH)
-        "NL": 60762,          # Rotterdam (NLRTM)
-        "DE": 22020,          # Hamburg (DEHAM)
-        "FR": 37411,          # Le Havre (FRLEH)
-        "CN": 16513,          # Shanghai (CNSGH)
-        "SG": 68109,          # Singapore (SGSIN)
-        "JP": 57188,          # Yokohama/Tokyo (JPYOK)
-        "AE": 28,             # Dubai (AEDXB)
-        "IN": 52070,          # Mumbai (INBOM)
-        "AU": 3237,           # Sydney (AUSYD)
-        "ID": 50681,          # Jakarta (IDJKT)
+        "NL": 60762,  # Rotterdam (NLRTM)
+        "DE": 22020,  # Hamburg (DEHAM)
+        "FR": 37411,  # Le Havre (FRLEH)
+        "CN": 16513,  # Shanghai (CNSGH)
+        "SG": 68109,  # Singapore (SGSIN)
+        "JP": 57188,  # Yokohama/Tokyo (JPYOK)
+        "AE": 28,  # Dubai (AEDXB)
+        "IN": 52070,  # Mumbai (INBOM)
+        "AU": 3237,  # Sydney (AUSYD)
+        "ID": 50681,  # Jakarta (IDJKT)
     }
 
     default_origin = 78517  # New York
-    default_dest = 60762    # Rotterdam
+    default_dest = 60762  # Rotterdam
 
     return country_map, default_origin, default_dest
 

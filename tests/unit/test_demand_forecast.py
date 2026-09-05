@@ -16,6 +16,7 @@ Tests cover:
 
 Runs in < 2 seconds (no real model training).
 """
+
 from __future__ import annotations
 
 import json
@@ -49,6 +50,7 @@ from nexafreight.ml.demand_forecast import (
 # ---------------------------------------------------------------------------
 class _StubSF:
     """Minimal stand-in for a StatsForecast object that survives joblib pickling."""
+
     pass
 
 
@@ -71,29 +73,34 @@ def _make_series(
     """Build a synthetic chart-ready series."""
     series = []
     from datetime import date, timedelta
+
     start = date(2015, 1, 5)  # first Monday
     for i in range(n_history):
         ds = (start + timedelta(weeks=i)).strftime("%Y-%m-%d")
         y = round(base_count + np.random.normal(0, 2), 2)
-        series.append({
-            "ds": ds,
-            "yhat": y,
-            "yhat_lower": y,
-            "yhat_upper": y,
-            "is_forecast": False,
-        })
+        series.append(
+            {
+                "ds": ds,
+                "yhat": y,
+                "yhat_lower": y,
+                "yhat_upper": y,
+                "is_forecast": False,
+            }
+        )
     # Forecast rows follow immediately
     forecast_start = start + timedelta(weeks=n_history)
     for j in range(n_forecast):
         ds = (forecast_start + timedelta(weeks=j)).strftime("%Y-%m-%d")
         yhat = round(base_count + 1.5, 2)
-        series.append({
-            "ds": ds,
-            "yhat": yhat,
-            "yhat_lower": round(yhat - 4.0, 2),
-            "yhat_upper": round(yhat + 4.0, 2),
-            "is_forecast": True,
-        })
+        series.append(
+            {
+                "ds": ds,
+                "yhat": yhat,
+                "yhat_lower": round(yhat - 4.0, 2),
+                "yhat_upper": round(yhat + 4.0, 2),
+                "is_forecast": True,
+            }
+        )
     return series
 
 
@@ -132,9 +139,7 @@ def tmp_model_dir(tmp_path: Path) -> Path:
     """Write a synthetic model bundle to a temp directory and return its path."""
     artifact = _make_model_artifact()
     joblib.dump(artifact, tmp_path / "model.joblib")
-    (tmp_path / "forecasts.json").write_text(
-        json.dumps(_make_forecasts_cache()), encoding="utf-8"
-    )
+    (tmp_path / "forecasts.json").write_text(json.dumps(_make_forecasts_cache()), encoding="utf-8")
     return tmp_path
 
 
@@ -219,19 +224,23 @@ class TestModelLoad:
 class TestPredict:
     def test_returns_demand_forecast(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert isinstance(result, DemandForecast)
 
     def test_correct_category_and_region(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.category == _CATEGORY
         assert result.region == _REGION
 
     def test_correct_unique_id(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.unique_id == _UID
 
     def test_provenance_is_derived(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.provenance == "DERIVED"
 
     def test_unseen_lane_returns_none(self, loaded_model: DemandForecastModel) -> None:
@@ -250,44 +259,51 @@ class TestPredict:
 class TestForecastSeries:
     def test_series_non_empty(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert isinstance(result.series, list)
         assert len(result.series) > 0
 
     def test_series_has_required_keys(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         for row in result.series:
             for key in DEMAND_CHART_KEYS:
                 assert key in row, f"Missing key '{key}' in series row"
 
     def test_series_has_historical_rows(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         hist = [r for r in result.series if not r["is_forecast"]]
         assert len(hist) > 0, "Expected at least one historical row"
 
     def test_series_has_forecast_rows(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         fcast = [r for r in result.series if r["is_forecast"]]
         assert len(fcast) > 0, "Expected at least one forecast row"
 
     def test_prediction_interval_bounds(self, loaded_model: DemandForecastModel) -> None:
         """yhat_lower <= yhat <= yhat_upper for all forecast rows."""
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         for row in result.series:
             if row["is_forecast"]:
-                assert row["yhat_lower"] <= row["yhat"], (
-                    f"yhat_lower {row['yhat_lower']} > yhat {row['yhat']}"
-                )
-                assert row["yhat"] <= row["yhat_upper"], (
-                    f"yhat {row['yhat']} > yhat_upper {row['yhat_upper']}"
-                )
+                assert (
+                    row["yhat_lower"] <= row["yhat"]
+                ), f"yhat_lower {row['yhat_lower']} > yhat {row['yhat']}"
+                assert (
+                    row["yhat"] <= row["yhat_upper"]
+                ), f"yhat {row['yhat']} > yhat_upper {row['yhat_upper']}"
 
     def test_ds_is_string(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         for row in result.series:
             assert isinstance(row["ds"], str), f"ds should be a string, got {type(row['ds'])}"
 
     def test_yhat_is_numeric(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         for row in result.series:
             assert isinstance(row["yhat"], int | float), f"yhat not numeric: {row['yhat']}"
 
@@ -298,18 +314,22 @@ class TestForecastSeries:
 class TestHorizonSnapshots:
     def test_horizon_30_not_none(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.horizon_30_days is not None
 
     def test_horizon_60_not_none(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.horizon_60_days is not None
 
     def test_horizon_90_not_none(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         assert result.horizon_90_days is not None
 
     def test_horizon_snapshots_are_forecast_rows(self, loaded_model: DemandForecastModel) -> None:
         result = loaded_model.predict(_CATEGORY, _REGION)
+        assert result is not None
         for h in (result.horizon_30_days, result.horizon_60_days, result.horizon_90_days):
             if h is not None:
                 assert h.get("is_forecast") is True
@@ -414,10 +434,9 @@ class TestConstantsIntegrity:
 
     def test_script_12_has_extensibility_schema(self) -> None:
         from pathlib import Path
+
         script_path = (
-            Path(__file__).parent.parent.parent
-            / "scripts"
-            / "12_train_demand_forecast.py"
+            Path(__file__).parent.parent.parent / "scripts" / "12_train_demand_forecast.py"
         )
         content = script_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0.0"' in content

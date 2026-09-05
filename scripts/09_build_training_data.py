@@ -102,21 +102,21 @@ def _time_split(
         }
     """
     train_end = pd.Timestamp(SPLIT_DATES["train_end"])
-    val_end   = pd.Timestamp(SPLIT_DATES["val_end"])
+    val_end = pd.Timestamp(SPLIT_DATES["val_end"])
 
     sla = pd.to_datetime(df[TIME_AXIS_COLUMN])
 
     masks = {
         "train": sla < train_end,
-        "val":   (sla >= train_end) & (sla < val_end),
-        "test":  sla >= val_end,
+        "val": (sla >= train_end) & (sla < val_end),
+        "test": sla >= val_end,
     }
 
     splits = {}
     for name, mask in masks.items():
         splits[name] = {
-            "X":     X[mask].reset_index(drop=True),
-            "y":     y[mask].reset_index(drop=True),
+            "X": X[mask].reset_index(drop=True),
+            "y": y[mask].reset_index(drop=True),
             "dates": sla[mask].reset_index(drop=True),
         }
     return splits
@@ -125,16 +125,12 @@ def _time_split(
 def _validate_splits(splits: dict) -> None:
     """Validate chronological disjointness and label integrity."""
     train_max = splits["train"]["dates"].max()
-    val_min   = splits["val"]["dates"].min()
-    val_max   = splits["val"]["dates"].max()
-    test_min  = splits["test"]["dates"].min()
+    val_min = splits["val"]["dates"].min()
+    val_max = splits["val"]["dates"].max()
+    test_min = splits["test"]["dates"].min()
 
-    assert train_max < val_min, (
-        f"OVERLAP: train max ({train_max}) >= val min ({val_min})"
-    )
-    assert val_max < test_min, (
-        f"OVERLAP: val max ({val_max}) >= test min ({test_min})"
-    )
+    assert train_max < val_min, f"OVERLAP: train max ({train_max}) >= val min ({val_min})"
+    assert val_max < test_min, f"OVERLAP: val max ({val_max}) >= test min ({test_min})"
     logger.info("Split chronological disjointness: OK")
 
     for name, split in splits.items():
@@ -143,8 +139,10 @@ def _validate_splits(splits: dict) -> None:
         assert set(y.unique()).issubset({0, 1}), f"[{name}] label not binary"
         logger.info(
             "[%s] rows=%d, date_range=[%s, %s], positive_rate=%.4f",
-            name, len(y),
-            split["dates"].min().date(), split["dates"].max().date(),
+            name,
+            len(y),
+            split["dates"].min().date(),
+            split["dates"].max().date(),
             y.mean(),
         )
 
@@ -207,7 +205,7 @@ def _build_feature_schema(splits: dict) -> dict:
 def _print_summary_table(splits: dict) -> None:
     """Print the summary table to stdout."""
     header = f"{'Split':<8} {'Rows':>8} {'Date start':<12} {'Date end':<12} {'Positive rate':>14}"
-    sep    = "-" * len(header)
+    sep = "-" * len(header)
     print()
     print("=" * len(header))
     print("  NexaFreight — Training Data Build Summary")
@@ -224,7 +222,7 @@ def _print_summary_table(splits: dict) -> None:
             f"{y.mean():>14.4f}"
         )
     total_rows = sum(len(s["y"]) for s in splits.values())
-    total_pos  = sum(s["y"].sum() for s in splits.values())
+    total_pos = sum(s["y"].sum() for s in splits.values())
     print(sep)
     print(f"{'TOTAL':<8} {total_rows:>8,d} {'':12} {'':12} {total_pos/total_rows:>14.4f}")
     print("=" * len(header))

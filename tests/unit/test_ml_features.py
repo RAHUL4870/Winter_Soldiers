@@ -64,31 +64,31 @@ def _make_raw_df(n: int = 120, seed: int = 42) -> pd.DataFrame:
     dates = pd.date_range("2015-01-01", "2018-06-01", periods=n)
 
     data: dict = {
-        TIME_AXIS_COLUMN:  dates,
-        LABEL_COLUMN:      rng.integers(0, 2, size=n),
+        TIME_AXIS_COLUMN: dates,
+        LABEL_COLUMN: rng.integers(0, 2, size=n),
         # DB: orders
-        "shipping_mode":   rng.choice(["Standard Class", "First Class", "SEA", "AIR"], size=n),
-        "cargo_class":     rng.choice(["STANDARD", "REFRIGERATED", "HAZMAT"], size=n),
-        "revenue":         rng.uniform(50, 2000, size=n),
-        "shipping_cost":   rng.uniform(5, 200, size=n),
+        "shipping_mode": rng.choice(["Standard Class", "First Class", "SEA", "AIR"], size=n),
+        "cargo_class": rng.choice(["STANDARD", "REFRIGERATED", "HAZMAT"], size=n),
+        "revenue": rng.uniform(50, 2000, size=n),
+        "shipping_cost": rng.uniform(5, 200, size=n),
         # DB: shipments — excluded from v1 but present in raw fixture
-        "container_count":        rng.integers(1, 10, size=n).astype(float),
+        "container_count": rng.integers(1, 10, size=n).astype(float),
         "primary_transport_mode": rng.choice(["SEA", "AIR", "RAIL", "ROAD"], size=n),
         # CSV
         "scheduled_shipping_days": rng.integers(1, 14, size=n).astype(float),
-        "order_country":   rng.choice(["USA", "China", "Germany", "Brazil"], size=n),
+        "order_country": rng.choice(["USA", "China", "Germany", "Brazil"], size=n),
         "customer_country": rng.choice(["USA", "UK", "India", "France"], size=n),
-        "product_price":   rng.uniform(10, 500, size=n),
-        "order_profit":    rng.uniform(-200, 500, size=n),
+        "product_price": rng.uniform(10, 500, size=n),
+        "order_profit": rng.uniform(-200, 500, size=n),
         # Leg aggregates
         "total_distance_km": rng.uniform(0, 25000, size=n),
-        "leg_count":          rng.integers(1, 6, size=n).astype(float),
+        "leg_count": rng.integers(1, 6, size=n).astype(float),
         # Excluded v1 features — present to verify they are silently ignored
-        "has_air_leg":        rng.integers(0, 2, size=n).astype(float),
-        "has_sea_leg":        rng.integers(0, 2, size=n).astype(float),
-        "has_rail_leg":       rng.integers(0, 2, size=n).astype(float),
+        "has_air_leg": rng.integers(0, 2, size=n).astype(float),
+        "has_sea_leg": rng.integers(0, 2, size=n).astype(float),
+        "has_rail_leg": rng.integers(0, 2, size=n).astype(float),
         "origin_congestion": np.ones(n, dtype=float),
-        "dest_congestion":   np.ones(n, dtype=float),
+        "dest_congestion": np.ones(n, dtype=float),
     }
 
     return pd.DataFrame(data)
@@ -136,9 +136,7 @@ class TestFeatureOrder:
     def test_feature_count_is_14(self, built):
         """V1 contract specifies exactly 14 active features."""
         X, _ = built
-        assert len(X.columns) == 14, (
-            f"Expected 14 features (v1 contract), got {len(X.columns)}"
-        )
+        assert len(X.columns) == 14, f"Expected 14 features (v1 contract), got {len(X.columns)}"
 
     def test_row_count_preserved(self, raw_df, built):
         X, y = built
@@ -187,9 +185,7 @@ class TestNoBannedColumnLeaks:
         found = [c for c in excluded if c in X.columns]
         assert found == [], f"Excluded v1 feature(s) found in X: {found}"
 
-    def test_build_features_raises_on_banned_column_injection(
-        self, raw_df, monkeypatch
-    ):
+    def test_build_features_raises_on_banned_column_injection(self, raw_df, monkeypatch):
         """
         If a banned column somehow ends up in FEATURE_COLUMNS, the internal
         leakage guard must raise RuntimeError containing 'BANNED'.
@@ -203,10 +199,10 @@ class TestNoBannedColumnLeaks:
         import nexafreight.ml.features as feat_module
 
         bad_features = FEATURE_COLUMNS + [LABEL_COLUMN]
-        bad_numeric  = NUMERIC_COLUMNS + [LABEL_COLUMN]
+        bad_numeric = NUMERIC_COLUMNS + [LABEL_COLUMN]
 
         monkeypatch.setattr(feat_module._constants, "FEATURE_COLUMNS", bad_features)
-        monkeypatch.setattr(feat_module._constants, "NUMERIC_COLUMNS",  bad_numeric)
+        monkeypatch.setattr(feat_module._constants, "NUMERIC_COLUMNS", bad_numeric)
 
         with pytest.raises(RuntimeError, match="BANNED"):
             build_features(raw_df)
@@ -224,12 +220,12 @@ class TestChronologicalSplits:
     @staticmethod
     def _do_split(raw_df):
         train_end = pd.Timestamp(SPLIT_DATES["train_end"])
-        val_end   = pd.Timestamp(SPLIT_DATES["val_end"])
+        val_end = pd.Timestamp(SPLIT_DATES["val_end"])
         dates = pd.to_datetime(raw_df[TIME_AXIS_COLUMN])
         return {
             "train": dates[dates < train_end],
-            "val":   dates[(dates >= train_end) & (dates < val_end)],
-            "test":  dates[dates >= val_end],
+            "val": dates[(dates >= train_end) & (dates < val_end)],
+            "test": dates[dates >= val_end],
         }
 
     def test_splits_are_non_empty(self, raw_df):
@@ -239,31 +235,31 @@ class TestChronologicalSplits:
 
     def test_train_ends_before_val_starts(self, raw_df):
         splits = self._do_split(raw_df)
-        assert splits["train"].max() < splits["val"].min(), (
-            "train max date must be strictly before val min date"
-        )
+        assert (
+            splits["train"].max() < splits["val"].min()
+        ), "train max date must be strictly before val min date"
 
     def test_val_ends_before_test_starts(self, raw_df):
         splits = self._do_split(raw_df)
-        assert splits["val"].max() < splits["test"].min(), (
-            "val max date must be strictly before test min date"
-        )
+        assert (
+            splits["val"].max() < splits["test"].min()
+        ), "val max date must be strictly before test min date"
 
     def test_no_date_overlap(self, raw_df):
         splits = self._do_split(raw_df)
         train_set = set(splits["train"].dt.date)
-        val_set   = set(splits["val"].dt.date)
-        test_set  = set(splits["test"].dt.date)
+        val_set = set(splits["val"].dt.date)
+        test_set = set(splits["test"].dt.date)
         assert not train_set.intersection(val_set), "Overlap between train and val"
-        assert not val_set.intersection(test_set),  "Overlap between val and test"
+        assert not val_set.intersection(test_set), "Overlap between val and test"
         assert not train_set.intersection(test_set), "Overlap between train and test"
 
     def test_no_future_leakage_in_train(self, raw_df):
         splits = self._do_split(raw_df)
         train_end = pd.Timestamp(SPLIT_DATES["train_end"])
-        assert (splits["train"] < train_end).all(), (
-            "Train split contains dates on or after train_end"
-        )
+        assert (
+            splits["train"] < train_end
+        ).all(), "Train split contains dates on or after train_end"
 
 
 # ---------------------------------------------------------------------------
@@ -273,9 +269,7 @@ class TestLabelIntegrity:
     def test_label_is_binary(self, built):
         _, y = built
         unique_vals = set(y.unique())
-        assert unique_vals.issubset({0, 1}), (
-            f"y contains non-binary values: {unique_vals}"
-        )
+        assert unique_vals.issubset({0, 1}), f"y contains non-binary values: {unique_vals}"
 
     def test_label_has_no_nulls(self, built):
         _, y = built
@@ -283,15 +277,11 @@ class TestLabelIntegrity:
 
     def test_label_name(self, built):
         _, y = built
-        assert y.name == LABEL_COLUMN, (
-            f"y.name should be '{LABEL_COLUMN}', got '{y.name}'"
-        )
+        assert y.name == LABEL_COLUMN, f"y.name should be '{LABEL_COLUMN}', got '{y.name}'"
 
     def test_label_dtype_is_integer(self, built):
         _, y = built
-        assert pd.api.types.is_integer_dtype(y), (
-            f"y dtype should be integer, got {y.dtype}"
-        )
+        assert pd.api.types.is_integer_dtype(y), f"y dtype should be integer, got {y.dtype}"
 
     def test_label_not_all_one_class(self, built):
         """With 120 synthetic rows and 50/50 split, both classes should appear."""
@@ -307,17 +297,17 @@ class TestCategoricalColumns:
         X, _ = built
         for col in CATEGORICAL_COLUMNS:
             assert col in X.columns
-            assert X[col].dtype == object or pd.api.types.is_string_dtype(X[col]), (
-                f"Expected object/string dtype for '{col}', got {X[col].dtype}"
-            )
+            assert X[col].dtype == object or pd.api.types.is_string_dtype(
+                X[col]
+            ), f"Expected object/string dtype for '{col}', got {X[col].dtype}"
 
     def test_numeric_columns_are_numeric(self, built):
         X, _ = built
         for col in NUMERIC_COLUMNS:
             assert col in X.columns
-            assert pd.api.types.is_numeric_dtype(X[col]), (
-                f"Expected numeric dtype for '{col}', got {X[col].dtype}"
-            )
+            assert pd.api.types.is_numeric_dtype(
+                X[col]
+            ), f"Expected numeric dtype for '{col}', got {X[col].dtype}"
 
     def test_categorical_and_numeric_partition_features(self):
         all_features = set(FEATURE_COLUMNS)
@@ -328,18 +318,16 @@ class TestCategoricalColumns:
             f"  In FEATURE_COLUMNS but not in either list: "
             f"{all_features - cats - nums}"
         )
-        assert cats & nums == set(), (
-            f"Overlap between categorical and numeric: {cats & nums}"
-        )
+        assert cats & nums == set(), f"Overlap between categorical and numeric: {cats & nums}"
 
     def test_missing_categorical_filled_with_sentinel(self, raw_df):
         """Rows with NaN in a categorical column must become '__MISSING__'."""
         raw_df = raw_df.copy()
         raw_df.loc[0, "shipping_mode"] = None
         X, _ = build_features(raw_df)
-        assert X.loc[0, "shipping_mode"] == "__MISSING__", (
-            "NaN in categorical column was not replaced with '__MISSING__'"
-        )
+        assert (
+            X.loc[0, "shipping_mode"] == "__MISSING__"
+        ), "NaN in categorical column was not replaced with '__MISSING__'"
 
 
 # ---------------------------------------------------------------------------
@@ -354,21 +342,15 @@ class TestSplitSafety:
 
     def test_sla_month_range(self, built):
         X, _ = built
-        assert X["sla_month"].between(1, 12).all(), (
-            "sla_month values outside 1-12"
-        )
+        assert X["sla_month"].between(1, 12).all(), "sla_month values outside 1-12"
 
     def test_sla_weekday_range(self, built):
         X, _ = built
-        assert X["sla_weekday"].between(0, 6).all(), (
-            "sla_weekday values outside 0-6"
-        )
+        assert X["sla_weekday"].between(0, 6).all(), "sla_weekday values outside 0-6"
 
     def test_sla_quarter_range(self, built):
         X, _ = built
-        assert X["sla_quarter"].between(1, 4).all(), (
-            "sla_quarter values outside 1-4"
-        )
+        assert X["sla_quarter"].between(1, 4).all(), "sla_quarter values outside 1-4"
 
 
 # ---------------------------------------------------------------------------
@@ -377,15 +359,15 @@ class TestSplitSafety:
 class TestExtensibility:
     def test_v2_features_not_in_v1(self):
         from nexafreight.ml.constants import FEATURE_COLUMNS
+
         assert "active_disruption_near_dest" not in FEATURE_COLUMNS
         assert "news_risk_score" not in FEATURE_COLUMNS
 
     def test_script_10_has_extensibility_schema(self):
         from pathlib import Path
+
         script_path = (
-            Path(__file__).parent.parent.parent
-            / "scripts"
-            / "10_train_delay_classifier.py"
+            Path(__file__).parent.parent.parent / "scripts" / "10_train_delay_classifier.py"
         )
         content = script_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0.0"' in content
