@@ -139,6 +139,10 @@ async def predict_eta(
 
     prediction = eta_model.predict(features)
 
+    # Type guard: ensure prediction is a single EtaPrediction, not a list
+    if isinstance(prediction, list):
+        raise ValueError("ETA model returned a list; expected a single prediction")
+
     return EtaPredictionResponse(
         p10_eta_days=round(prediction.p10_eta_days, 3),
         p50_eta_days=round(prediction.p50_eta_days, 3),

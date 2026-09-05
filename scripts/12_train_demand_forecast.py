@@ -408,7 +408,7 @@ def generate_forecasts(
     qualified_ids: list[str],
     horizon_weeks: int,
     prediction_level: int,
-) -> tuple[dict[str, Any], Any]:
+) -> tuple[dict[str, Any], Any, list[str]]:
     """
     Re-fit on the full series (train + holdout) and produce chart-ready
     30/60/90-day forecasts with 80% prediction intervals.
