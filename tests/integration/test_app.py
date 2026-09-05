@@ -1,7 +1,6 @@
 """Integration tests for FastAPI application factory and lifespan."""
 
 from __future__ import annotations
-from pydantic import SecretStr
 
 import os
 import subprocess
@@ -12,6 +11,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from nexafreight.config import Settings
 from nexafreight.exceptions import NexaFreightException

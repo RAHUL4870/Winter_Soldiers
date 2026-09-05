@@ -1,7 +1,6 @@
 """Integration tests for authentication API endpoints."""
 
 from __future__ import annotations
-from pydantic import SecretStr
 
 import os
 import subprocess

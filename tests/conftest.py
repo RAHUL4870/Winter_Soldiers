@@ -23,7 +23,6 @@ in-memory SQLite or explicitly tmp_path-isolated file databases.
 """
 
 from __future__ import annotations
-from pydantic import SecretStr
 
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from datetime import UTC, datetime, timedelta
@@ -33,6 +32,7 @@ import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from pydantic import SecretStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 

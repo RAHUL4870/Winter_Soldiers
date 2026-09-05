@@ -1,12 +1,12 @@
 """Unit tests for authentication and password hashing."""
 
 from __future__ import annotations
-from pydantic import SecretStr
 
 from datetime import UTC, datetime, timedelta
 
 import pytest
 from jose import JWTError, jwt
+from pydantic import SecretStr
 
 from nexafreight.auth import (
     TokenPayload,
