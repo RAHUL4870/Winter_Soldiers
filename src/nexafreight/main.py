@@ -19,6 +19,7 @@ from nexafreight.config import Settings, ensure_directories, get_settings
 from nexafreight.database import create_engine, dispose_engine, get_engine
 from nexafreight.exceptions import NexaFreightException
 from nexafreight.logging import configure_logging
+from nexafreight.ml.registry import ModelRegistry
 from nexafreight.workers.ais_listener import get_position_tracker, get_worker
 from nexafreight.workers.position_interpolator import get_interpolator_worker
 
@@ -101,6 +102,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.error(
             f"Failed to start position interpolator worker: {exc}",
             exc_info=True,
+        )
+
+    # Initialize ML registry (T-039)
+    try:
+        app.state.ml_registry = ModelRegistry()
+        logger.info("ML model registry initialized successfully")
+    except Exception:
+        app.state.ml_registry = None
+        logger.exception(
+            "ML model registry initialization failed; "
+            "prediction endpoints will remain unavailable"
         )
 
     logger.info("Application startup complete")

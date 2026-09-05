@@ -12,6 +12,7 @@ from nexafreight.api.routes import (
     decisions,
     disruptions,
     health,
+    predictions,
     shipments,
 )
 from nexafreight.api.routes import (
@@ -71,6 +72,12 @@ api_router.include_router(
     analytics.router,
     prefix="/analytics",
     tags=["analytics"],
+)
+
+# ML predictions (T-039)
+api_router.include_router(
+    predictions.router,
+    tags=["predictions"],
 )
 
 # AI copilot
