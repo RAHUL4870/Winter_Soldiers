@@ -539,7 +539,7 @@ async def populate_database(
                 )
                 await conn.execute(stmt)
                 stats.daily_stats_inserted += len(chunk)
-                if (i // batch_size) % 10 == 0 or i + batch_size >= len(batch_records):
+                if (i // batch_size) % 10 == 0 or i + batch_size >= len(daily_items):
                     log.info(
                         "Upserted daily stats [%d..%d] of %d",
                         i + 1,
@@ -678,9 +678,9 @@ async def amain(args: argparse.Namespace) -> int:
         (
             port_name_to_loc[r.port_identifier][0],
             r.stat_date,
-            r.congestion_index or 1.0,
-            r.vessel_count,
-            getattr(r, "rolling_90d_avg", None),
+            float(r.congestion_index or 1.0),
+            int(r.vessel_count) if r.vessel_count is not None else None,
+            r.rolling_90d_avg,
         )
         for r in computed_activity
     ]

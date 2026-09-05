@@ -12,10 +12,9 @@ from sqlalchemy.orm import joinedload
 
 from nexafreight.database import get_db_session
 from nexafreight.dependencies import get_current_user
-from nexafreight.enums import ShipmentStatus, TransportMode
-from nexafreight.models import Alert, AuditLog, Leg, Shipment, User
+from nexafreight.enums import Provenance, ShipmentStatus, TransportMode
+from nexafreight.models import Alert, Leg, Shipment, User
 from nexafreight.models.event import Event
-from nexafreight.enums import Provenance
 from nexafreight.schemas.common import PaginatedResponse
 from nexafreight.schemas.shipment import (
     LegDetail,
@@ -414,9 +413,7 @@ async def get_shipment_events(
 
     # Query events table
     base_filter = Event.shipment_id == shipment_id
-    count_result = await db.execute(
-        select(func.count()).select_from(Event).where(base_filter)
-    )
+    count_result = await db.execute(select(func.count()).select_from(Event).where(base_filter))
     total = count_result.scalar() or 0
 
     offset = (page - 1) * size

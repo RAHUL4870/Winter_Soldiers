@@ -25,7 +25,7 @@ class RerouteOption(Base, TimestampMixin):
         nullable=False,
         index=True,
     )
-    
+
     cost: Mapped[float] = mapped_column(Float, nullable=False)
     eta: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)

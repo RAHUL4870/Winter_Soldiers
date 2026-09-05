@@ -16,7 +16,7 @@ from nexafreight.enums import (
     ShipmentStatus,
     TransportMode,
 )
-from nexafreight.models import AuditLog, Leg, Order, Shipment, User
+from nexafreight.models import Leg, Order, Shipment, User
 from nexafreight.models.event import Event
 
 # ============================================================================

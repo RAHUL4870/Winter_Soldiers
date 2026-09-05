@@ -11,16 +11,16 @@ from nexafreight.models.base import Base
 from nexafreight.models.corridor import CorridorAlternative
 from nexafreight.models.decision import Decision
 from nexafreight.models.disruption import Disruption
+from nexafreight.models.event import Event
 from nexafreight.models.leg import Leg
 from nexafreight.models.location import Location
 from nexafreight.models.order import Order, OrderItem
 from nexafreight.models.port import Port, PortDailyStat
 from nexafreight.models.position import PositionReport
+from nexafreight.models.reroute_option import RerouteOption
 from nexafreight.models.shipment import Shipment
 from nexafreight.models.user import User
 from nexafreight.models.vessel import Vessel
-from nexafreight.models.event import Event
-from nexafreight.models.reroute_option import RerouteOption
 
 __all__ = [
     "Base",

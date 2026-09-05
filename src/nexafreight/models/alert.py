@@ -15,9 +15,9 @@ from nexafreight.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 if TYPE_CHECKING:
     from nexafreight.models.decision import Decision
     from nexafreight.models.disruption import Disruption
+    from nexafreight.models.reroute_option import RerouteOption
     from nexafreight.models.shipment import Shipment
     from nexafreight.models.user import User
-    from nexafreight.models.reroute_option import RerouteOption
 
 
 class Alert(Base, UUIDPrimaryKeyMixin, TimestampMixin):

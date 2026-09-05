@@ -112,8 +112,8 @@ async def refresh_token(
     """
     try:
         payload = decode_access_token(body.refresh_token, settings)
-    except JWTError:
-        raise AuthenticationError("Invalid or expired refresh token")
+    except JWTError as err:
+        raise AuthenticationError("Invalid or expired refresh token") from err
 
     new_token = create_access_token(
         user_email=payload.sub,

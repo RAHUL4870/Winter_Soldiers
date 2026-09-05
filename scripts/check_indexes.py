@@ -1,7 +1,10 @@
 import asyncio
-from nexafreight.config import get_settings
-from sqlalchemy.ext.asyncio import create_async_engine
+
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from nexafreight.config import get_settings
+
 
 async def check():
     settings = get_settings()
@@ -13,5 +16,6 @@ async def check():
         for r in result.fetchall():
             print(r[0])
     await engine.dispose()
+
 
 asyncio.run(check())

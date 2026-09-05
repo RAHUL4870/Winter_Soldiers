@@ -64,7 +64,7 @@ class PortDailyStat(Base):
     stat_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     date = synonym("stat_date")
     congestion_index: Mapped[float] = mapped_column(Float, nullable=False)
-    
+
     vessel_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     rolling_90_day_avg: Mapped[float | None] = mapped_column(Float, nullable=True)
 

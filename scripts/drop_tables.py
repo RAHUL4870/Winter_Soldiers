@@ -1,7 +1,10 @@
 import asyncio
-from nexafreight.config import get_settings
-from sqlalchemy.ext.asyncio import create_async_engine
+
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from nexafreight.config import get_settings
+
 
 async def drop_tables():
     settings = get_settings()
@@ -11,6 +14,7 @@ async def drop_tables():
         await conn.execute(text("DROP TABLE IF EXISTS reroute_options;"))
         print("Dropped tables.")
     await engine.dispose()
+
 
 if __name__ == "__main__":
     asyncio.run(drop_tables())

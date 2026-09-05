@@ -16,10 +16,10 @@ if TYPE_CHECKING:
     from nexafreight.models.alert import Alert
     from nexafreight.models.decision import Decision
     from nexafreight.models.disruption import Disruption
+    from nexafreight.models.event import Event
     from nexafreight.models.leg import Leg
     from nexafreight.models.location import Location
     from nexafreight.models.order import Order
-    from nexafreight.models.event import Event
 
 
 class Shipment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -91,4 +91,6 @@ class Shipment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     disruptions: Mapped[list[Disruption]] = relationship("Disruption", back_populates="shipment")
     alerts: Mapped[list[Alert]] = relationship("Alert", back_populates="shipment")
     decisions: Mapped[list[Decision]] = relationship("Decision", back_populates="shipment")
-    events: Mapped[list[Event]] = relationship("Event", back_populates="shipment", cascade="all, delete-orphan")
+    events: Mapped[list[Event]] = relationship(
+        "Event", back_populates="shipment", cascade="all, delete-orphan"
+    )
