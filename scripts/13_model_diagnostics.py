@@ -22,7 +22,7 @@ def print_importance(name: str, booster) -> None:
     gains = booster.feature_importance(importance_type="gain")
     names = booster.feature_name()
     total = gains.sum() or 1.0
-    pairs = sorted(zip(names, gains), key=lambda x: -x[1])[:8]
+    pairs = sorted(zip(names, gains, strict=False), key=lambda x: -x[1])[:8]
     print(f"\n=== {name} — top 8 by gain ===")
     for feat, g in pairs:
         bar = "#" * int(g / total * 40)

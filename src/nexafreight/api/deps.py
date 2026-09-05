@@ -13,7 +13,7 @@ Usage in endpoints:
 """
 from __future__ import annotations
 
-from fastapi import Depends, Request
+from fastapi import Request
 from starlette.status import HTTP_503_SERVICE_UNAVAILABLE
 
 from nexafreight.ml.registry import ModelRegistry

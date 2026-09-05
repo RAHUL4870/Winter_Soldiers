@@ -414,7 +414,11 @@ class TestConstantsIntegrity:
 
     def test_script_12_has_extensibility_schema(self) -> None:
         from pathlib import Path
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "12_train_demand_forecast.py"
+        script_path = (
+            Path(__file__).parent.parent.parent
+            / "scripts"
+            / "12_train_demand_forecast.py"
+        )
         content = script_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0.0"' in content
         assert '"active_disruption_near_dest"' in content

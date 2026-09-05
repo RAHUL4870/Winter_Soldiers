@@ -358,7 +358,10 @@ def main(n_trials: int) -> None:
         "model_version": "1.0.0",
         "schema_version": "1.0.0",
         "extensibility": {
-            "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+            "policy": (
+                "v1 inference ignores features marked required=false "
+                "with min_version greater than schema_version"
+            ),
             "reserved_v2_features": [
                 {
                     "name": "active_disruption_near_dest",

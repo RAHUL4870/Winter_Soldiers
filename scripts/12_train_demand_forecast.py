@@ -323,7 +323,8 @@ def _seasonal_naive_forecast(
         n_holdout = len(h_group)
         if len(history) < season_length:
             # Fall back to global mean if too little history
-            baseline_preds[str(uid)] = np.full(n_holdout, history.mean() if len(history) > 0 else 0.0)
+            fallback_val = history.mean() if len(history) > 0 else 0.0
+            baseline_preds[str(uid)] = np.full(n_holdout, fallback_val)
         else:
             cycle = history[-season_length:]
             # Tile cyclically to fill holdout horizon
@@ -639,7 +640,10 @@ def train(
         "model_version": MODEL_VERSION,
         "schema_version": "1.0.0",
         "extensibility": {
-            "policy": "v1 inference ignores features marked required=false with min_version greater than schema_version",
+            "policy": (
+                "v1 inference ignores features marked required=false "
+                "with min_version greater than schema_version"
+            ),
             "reserved_v2_features": [
                 {
                     "name": "active_disruption_near_dest",

@@ -382,7 +382,11 @@ class TestExtensibility:
 
     def test_script_10_has_extensibility_schema(self):
         from pathlib import Path
-        script_path = Path(__file__).parent.parent.parent / "scripts" / "10_train_delay_classifier.py"
+        script_path = (
+            Path(__file__).parent.parent.parent
+            / "scripts"
+            / "10_train_delay_classifier.py"
+        )
         content = script_path.read_text(encoding="utf-8")
         assert '"schema_version": "1.0.0"' in content
         assert '"active_disruption_near_dest"' in content
